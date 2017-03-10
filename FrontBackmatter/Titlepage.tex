@@ -1,0 +1,50 @@
+%*******************************************************
+% Titlepage
+%*******************************************************
+\begin{titlepage}
+
+    %\begin{comment}
+    %\begin{textblock*}{297mm}(0mm,0mm)
+    %    \includegraphics[width=\paperwidth]{gfx/titlePage}
+    %\end{textblock*}
+    %\phantom{Invisible, but important}
+    %\newpage
+    %\end{comment}
+
+	% if you want the titlepage to be centered, uncomment and fine-tune the line below (KOMA classes environment)
+	\begin{addmargin}[-0.5cm]{\iftoggle{adrianstyle}{-2cm}{-3.5cm}}
+    \begin{center}
+        \large
+
+        \includegraphics[width=6cm]{gfx/logos/tud_logo}
+        
+        \vfill
+
+        \begingroup
+            %\color{Maroon}\spacedallcaps{\myTitle} \\ \bigskip
+            \color{Maroon}\spacedallcaps{\myTitle} \bigskip
+        \endgroup
+
+        \spacedlowsmallcaps{\myName}
+
+        \vfill
+
+        \medskip
+
+        \myDegree \\ \medskip
+        \myTime
+
+        \bigskip
+
+        \vfill
+
+        \myDepartment \\
+        \myFaculty \\[0.2cm]
+        %\myUni \\
+        \includegraphics[width=5cm]{gfx/logos/seemoo_logo} \\
+
+        %\vfill
+
+    \end{center}
+    \end{addmargin}
+\end{titlepage}   

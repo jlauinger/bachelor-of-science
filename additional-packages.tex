@@ -1,0 +1,32 @@
+\usepackage{tikz}
+\usetikzlibrary{dsp,chains}
+\usepackage{pgfplots}
+%\pgfplotsset{compat=newest}
+\usetikzlibrary{positioning}
+\DeclareMathAlphabet{\mathpzc}{OT1}{pzc}{m}{it}
+\newcommand{\z}{\mathpzc{z}}
+\usepackage{float}
+\usepackage{scalefnt}
+
+\usepackage{lipsum}
+
+% To cache tikz pictures you have to run pdflatex with -shell-escape or --enable-write18
+\ifnum\pdfshellescape=1
+\usepgfplotslibrary{external}
+\tikzexternalize[prefix=gfxcompiled/]
+%\tikzset{external/remake next}
+%\tikzset{external/force remake}
+\newcommand{\tikzremakenext}{\tikzset{external/remake next}}
+%\tikzexternalize[shell escape=-enable-write18]
+\else
+\newcommand{\tikzremakenext}{}
+\fi
+
+%lengths for matlab2tikz
+\newlength\figureheight
+\newlength\figurewidth 
+
+
+\usepackage{textpos}
+\usepackage{datetime}
+\usepackage{changepage}

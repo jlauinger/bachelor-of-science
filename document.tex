@@ -1,0 +1,150 @@
+% **************************************************************************************************************
+% A Classic Thesis Style
+% An Homage to The Elements of Typographic Style
+%
+% Copyright (C) 2015 André Miede http://www.miede.de
+%
+% If you like the style then I would appreciate a postcard. My address 
+% can be found in the file ClassicThesis.pdf. A collection of the 
+% postcards I received so far is available online at 
+% http://postcards.miede.de
+%
+% License:
+% This program is free software; you can redistribute it and/or modify
+% it under the terms of the GNU General Public License as published by
+% the Free Software Foundation; either version 2 of the License, or
+% (at your option) any later version.
+%
+% This program is distributed in the hope that it will be useful,
+% but WITHOUT ANY WARRANTY; without even the implied warranty of
+% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+% GNU General Public License for more details.
+%
+% You should have received a copy of the GNU General Public License
+% along with this program; see the file COPYING.  If not, write to
+% the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+% Boston, MA 02111-1307, USA.
+%
+% **************************************************************************************************************
+\RequirePackage{fix-cm} % fix some latex issues see: http://texdoc.net/texmf-dist/doc/latex/base/fixltx2e.pdf
+\documentclass[ twoside,openright,titlepage,numbers=noenddot,headinclude,%1headlines,% letterpaper a4paper
+                footinclude=true,cleardoublepage=empty,abstractoff, % <--- obsolete, remove (todo)
+                BCOR=5mm,paper=a4,fontsize=11pt,%11pt,a4paper,%
+                ngerman,american,%
+                ]{scrreprt}
+
+% ****************************************************************************************************
+% Set the encoding of your files. UTF-8 is the only sensible encoding nowadays. If you can't read
+% äöüßáéçèê∂åëæƒÏ€ then change the encoding setting in your editor, not the line below. If your editor
+% does not support utf8 use another editor!
+% ****************************************************************************************************
+\PassOptionsToPackage{utf8}{inputenc}
+	\usepackage{inputenc}
+	
+\usepackage{etoolbox}
+
+% ****************************************************************************************************
+% Insert the information about your thesis here
+% ****************************************************************************************************
+\newcommand{\myTitle}{Title\xspace}
+\newcommand{\myDegree}{Master Thesis\xspace}
+\newcommand{\myName}{Name of the Student\xspace}
+\newcommand{\myProf}{Prof. Dr.-Ing. Matthias Hollick\xspace}
+%\newcommand{\myOtherProf}{Second advisor\xspace}
+\newcommand{\mySupervisor}{Marc Werner and Matthias Schulz\xspace}
+\newcommand{\myThesiscode}{SEEMOO-MSC-$0000$\xspace} % You will get this from your supervisor
+\newcommand{\myFaculty}{Department of Computer Science\xspace}
+\newcommand{\myDepartment}{Secure Mobile Networking Lab\xspace}
+\newcommand{\myUni}{\protect{Technische Universität Darmstadt}\xspace}
+\newcommand{\myLocation}{Darmstadt\xspace}
+\newcommand{\myTime}{\formatdate{24}{04}{1337}\xspace}
+\newcommand{\myVersion}{0.1\xspace}
+
+% Choose if you want the standard template with enough space for margin notes or the tempate with small margins
+\newtoggle{adrianstyle}
+%\toggletrue{adrianstyle} % uncomment this line to have smaller margins
+\togglefalse{adrianstyle} % uncomment this line for the standard seemoo template
+
+%********************************************************************
+% Note: Make all your adjustments in here
+%*******************************************************
+\input{classicthesis-config}
+\input{additional-packages}
+
+%********************************************************************
+% Bibliographies
+%*******************************************************
+\addbibresource{Bibliography.bib}
+
+%********************************************************************
+% Hyphenation
+%*******************************************************
+%\hyphenation{put special hyphenation here}
+\input{hyphenation}
+
+% ********************************************************************
+% GO!GO!GO! MOVE IT!
+%*******************************************************
+\begin{document}
+\frenchspacing
+\raggedbottom
+\selectlanguage{american} % american ngerman
+%\renewcommand*{\bibname}{new name}
+%\setbibpreamble{}
+\pagenumbering{roman}
+\pagestyle{plain}
+%********************************************************************
+% Frontmatter
+%*******************************************************
+%\include{FrontBackmatter/DirtyTitlepage}
+\include{FrontBackmatter/Titlepage}
+\include{FrontBackmatter/Titleback}
+%\cleardoublepage\include{FrontBackmatter/Dedication}
+%\cleardoublepage\include{FrontBackmatter/Foreword}
+\cleardoublepage\include{FrontBackmatter/Abstract}
+%\cleardoublepage\include{FrontBackmatter/Publication}
+%\cleardoublepage\include{FrontBackmatter/Acknowledgments}
+\pagestyle{scrheadings}
+\cleardoublepage\include{FrontBackmatter/Contents}
+%********************************************************************
+% Mainmatter
+%*******************************************************
+\pagenumbering{arabic}
+%\setcounter{page}{90}
+% use \cleardoublepage here to avoid problems with pdfbookmark
+\cleardoublepage
+
+\ctparttext{The first chapter of this part gives an introduction and a motivation to this thesis, followed by a presentation of related work found in the area of physical layer security. In the third chapter, we present some definitions and background information to make it easier for the reader to quickly understand the subsequent parts of this thesis.}
+\part{Introduction}
+\include{Parts/Part01}
+
+\cleardoublepage
+\ctparttext{The contribution starts with a design chapter, where we mathematically describe the design of the physical layer security system, as well as the adaptive filter of the attacker. After the design follows the implementation on WARP nodes. Here we give an insight into the challenges of implementing the designed MIMO communication system. The last chapter concentrates on evaluating the performance of our proposed attack in simulation and practice.}
+\part{Contribution}
+\include{Parts/Part02}
+
+\cleardoublepage
+\ctparttext{After the evaluation, we further discuss the results and give an outlook. In addition, we finish this work with conclusions.}
+\part{Discussion and Conclusions}
+\include{Parts/Part03}
+
+% ********************************************************************
+% Backmatter
+%*******************************************************
+\appendix
+\cleardoublepage
+%\ctparttext{The appendix contains some additional developments, that strongly supported us in the design of our communication system. Furthermore, it contains solutions to some problems.}
+\part{Appendix}
+\include{Parts/Part04}
+%\include{Chapters/Part04_Chapter04_OOWARPLab}
+%********************************************************************
+% Other Stuff in the Back
+%*******************************************************
+\cleardoublepage\include{FrontBackmatter/Bibliography}%\bibliography{Bibliography}
+%\cleardoublepage\include{FrontBackmatter/Colophon}
+\cleardoublepage\include{FrontBackmatter/Declaration}
+% ********************************************************************
+% Game Over: Restore, Restart, or Quit?
+%*******************************************************
+\end{document}
+% ********************************************************************

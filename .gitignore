@@ -214,3 +214,8 @@ TSWLatexianTemp*
 
 # Git patches:
 *.patch
+
+# Binary files and libraries:
+*.o
+*.a
+

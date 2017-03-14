@@ -1,11 +1,17 @@
-%************************************************
+%% ---------------------------------------------------------------------------------------------------------------------
 \chapter{Introduction}\label{ch:introduction}
-%************************************************
+
 \glsresetall % Resets all acronyms to not used
+
+
+%% ---------------------------------------------------------------------------------------------------------------------
 
 Start a chapter with text and not with a section header. Open the
 \emph{classicthesis-config.tex} file to insert the title of your thesis, the
 names of your supervisors and the hand-in date of your thesis.
+
+
+%% ---------------------------------------------------------------------------------------------------------------------
 
 \section{First Section}
 \label{sec:first_section}
@@ -14,15 +20,11 @@ After a section there should always be text before the next section. The first
 paragraph is always without indentation. Starting from the second paragraph,
 there is an indentation.
 
-Here is an equation without numbers for referencing:
-\begin{align*}
-\underbrace{\begin{pmatrix}\mathcal{B}_1\\\mathcal{B}_2\\\vdots\\\mathcal{B}_R\end{pmatrix}}_\mathcal{B} &= \underbrace{\begin{pmatrix}H_{1,1} & H_{1,2} & \hdots & H_{1,T}\\H_{2,1} & H_{2,2} & \hdots & H_{2,T}\\\vdots & \vdots & \ddots & \vdots\\H_{R,1} & H_{R,2} & \hdots & H_{R,T}\end{pmatrix}}_{H_{A\rightarrow B}}\cdot \underbrace{\begin{pmatrix}\mathcal{A}_1\\\mathcal{A}_2\\\vdots\\\mathcal{A}_T\end{pmatrix}}_\mathcal{A}
-\end{align*}
-
 Here is an equation that you can reference:
 \begin{align}
 \underbrace{\begin{pmatrix}\mathcal{B}_1\\\mathcal{B}_2\\\vdots\\\mathcal{B}_R\end{pmatrix}}_\mathcal{B} &= \underbrace{\begin{pmatrix}H_{1,1} & H_{1,2} & \hdots & H_{1,T}\\H_{2,1} & H_{2,2} & \hdots & H_{2,T}\\\vdots & \vdots & \ddots & \vdots\\H_{R,1} & H_{R,2} & \hdots & H_{R,T}\end{pmatrix}}_{H_{A\rightarrow B}}\cdot \underbrace{\begin{pmatrix}\mathcal{A}_1\\\mathcal{A}_2\\\vdots\\\mathcal{A}_T\end{pmatrix}}_\mathcal{A}\label{eqn:example}
 \end{align}
+
 
 \subsection{Referencing}
 
@@ -33,11 +35,13 @@ Take a look in the following list to reference sections, figures and equations:
   \item \autoref{eqn:example}
 \end{itemize}
 
+
 \subsection{Acronyms}
 For acronyms you should use the \emph{glossaries} package and put your acronyms
 in the \emph{FrontBackmatter/acronyms.tex} file. The first acronym is always
 written in it's long form, the following occurrences are abbreviated: first
 occurrence \gls{SNR}, second occurrence \gls{SNR}, plural \glspl{SNR}.
+
 
 \subsection{Examples on Figures}
 
@@ -84,6 +88,9 @@ enough figures to fill a page only with figures.
 \label{fig:wiretapchannel}
 \end{figure}
 
+
+%% ---------------------------------------------------------------------------------------------------------------------
+
 \section{Margin Notes}
 
 Especially in the standard SEEMOO template with wide margins, you are
@@ -91,26 +98,3 @@ Especially in the standard SEEMOO template with wide margins, you are
 summarize the section next to it.} encouraged to insert text into the
 margins. If you decide to do so, plan to have at least one margin note
 per double page.
-
-\section{Some Example Text}
-\lipsum[3]
-
-\begin{figure}
-\centering
-\setlength\figureheight{5cm}
-\setlength\figurewidth{0.86\textwidth}
-% uncomment the following line to recompile the figure when it changes otherwise a cached version is used
-%\tikzset{external/remake next}
-\input{gfx/matlab/tikz/example.tikz}
-\caption[Caption for list of figures]{Caption of figure}
-\label{fig:example}
-\end{figure}
-
-\lipsum[6-10]
-
-%*****************************************
-\chapter{Related Work}\label{ch:relatedwork}
-%*****************************************
-\glsresetall % Resets all acronyms to not used
-
-\lipsum[4]

@@ -20,4 +20,71 @@ Performance Analysis of the IEEE 802.11 Distributed Coordination Function \cite{
 
 \section{perahia2013}
 
-Next Generation Wireless LANs \cite{perahia2013}:
+Next Generation Wireless LANs \cite{perahia2013}: Comprehensive overview on the IEEE 802.11 standards, such as a, b, g, n, and ac PHYs and MAC.\\
+
+\textbf{Interesting chapters:}
+
+\begin{itemize}
+	\item Chapter 1.1 Overview
+	\item Chapter 4.1 Packet structure
+	\item Chapter 8.4 Data/ACK frame exchange
+	\item Chapter 8.5 Hidden node problem
+	\item Chapter 12.1 Frame format
+\end{itemize}
+
+802.11 inherits 802 reference structure, such as 6 byte device addresses. 802.11 PHY is the physical layer, 802.11 medium access control (MAC) and 802.2 logical link control (LLC) form the data link layer. MAC uses carrier sense multiple access (CSMA): before transmitting a station listens to the medium. Ethernet uses CSMA/CD (collision detection), whereas 802.11 uses CSMA/CA (collision avoidance). Collision detection through lack of acknowledgements.\\
+
+\textbf{PHYs (overview in \cite{perahia2013} table 1.2):}
+
+\begin{itemize}
+	\item IR
+	\item 2.4 GHz frequency hopped spread spectrum (FHSS)
+	\item 2.4 GHz direct sequence spread spectrum (DSSS)
+	\item 802.11b: 2.4 GHz DSSS with complementary code keying (CCK), 11 Mbps
+	\item 802.11a: 5 GHz OFDM, 54 Mbps
+	\item 802.11g: 2.4 GHz OFDM, 54 Mbps
+	\item 802.11n: 5 GHz, 300 Mbps (20 MHz channels), 600 Mbps (40 MHz channels)
+	\item 802.11ac: 5 GHz, 1733 Mbps (80 MHz channels, 4 streams), 6933 Mbps (160 MHz channels, 8 streams)
+\end{itemize}
+
+Stations within a certain coverage area form a basic service set (BSS). Independent (ad-hoc) or infrastructure (AP). Infrastructure BSSs can be inter-connected as a distribution system (DS). Such a system is called extended service set (ESS). Often Ethernet is used for DS, so that wireless stations can directly address wired PCs in the LAN.
+
+A spatial stream is an independent data stream transmitted or received by an antenna. A device need to have at least as many antennas as spatial streams.\\
+
+\textbf{802.11a PHY packet structure:} see \cite{perahia2013} figure 4.1. STF-LTF-SIG-SRV-Data-Padding. The Short Training Field (STF) is used for start-of-packet detection and automatic gain control (AGC). The Long Training Field (LGF) is used for channel estimation, more precise frequency offset estimation, and time synchronization. The Signal Field (SIG) contains the rate and length information of the packet (BPSK / 64-QAM, $\frac{1}{2}$ / $\frac{3}{4}$ encoding). The Data Field consists of 16 bits Service Field (SRV) and the payload.
+
+STF: 8 $\mu$s, 10 repetitions of a 0.8 $\mu$s symbol. Frequency Domain symbol using 12 of 64 subcarriers. 20 Msample/s yield 2.3 $\mu$s signal which repeats 4 times. This is repeated 2.5 times. Chosen to have good correlation properties and a low peak-to-average power, meaning its properties are preserved after clipping.
+
+LTF: 8 $\mu$s, 2 3.2 $\mu$s training symbols and 1.6 $\mu$s cyclic prefix, 52 subcarriers populated with either 1 or -1, DC unused. Longer symbols mean more precise frequency offset estimation by correlating the two training symbols. Channel estimation after FFT using the basic communication systems equation.
+
+SIG: 24 information bits (4 rate, 1 reserved, 12 length, 1 parity, 6 tail). BPSK and rate $\frac{1}{2}$ binary convolution code (BCC). Nearby stations also decode the SIG to infer correct deferring of transmissions. 4 $\mu$s, 1 64 standard OFDM symbol and cyclic prefix, 52 subcarriers used, 4 pilot. Tail bits are set to 0, used to flush the encoder and decoder.
+
+Data: 16 bit service field, data bits, 6 tail bits (zero), padding. Stream of standard 4 $\mu$s symbols, 52 subcarrier, 4 of which are pilots.
+
+Service: 7 bit scrambler initialization sequence. Used to synchronize descrambler, initially 0. After that: 9 reserved bits set to 0.
+
+Scrambler: in 802.11a it is a length-127 frame synchronous scrambler derived by the polynomial $G(D)=D^7+D^4+1$. Sequence repeatedly generated: 00001110 11110010 11001001 00000010 00100110 00101110 10110110 00001100 11010100 11100111 10110100 00101010 11111010 01010001 10111000 1111111. When transmitting, the initial scrambler state is set to a pseudo-random non-zero state for each packet.´
+
+The data field is encoded with the following process: bit stream => prepend service bits, append tail and pad bits => scramble => convolutional encoding => grouping into symbols => interleaving => modulator => insert pilots => IFFT => prepend CP => pulse shaping filter => DAC => upmixing => amplification => antenna.
+
+Receiving of the data field: remove guard interval (GI) => FFT => channel equalization => phase rotation correction using pilot carriers => demodulation => deinterleaving => descrambling using first 7 bits of service field as initial state.
+
+In high throughput operations, the preamble consists of a legacy preamble which is compatible to 802.11a (STF, LTF, SIG). After that there is a HT preamble which consists of HT-SIG1, HT-SIG2, HT-STF, HT-STF-1, ... HT-STF-N.\\
+
+\textbf{Medium access control:}
+
+Service Data Unit (SDU): chunk of data handled on a particular OSI layer in service to the layer directly above, e.g. MSDU or PSDU. Beacon frames transmitted by AP in regular time intervals to allow clients to discover a service set.
+
+Distributed coordination function (DCF) (see also \cite{bianchi2000}): sensing the medium idle for a DIFS (DCF inter-frame space). While a station has access to the medium, it separates frames by a SIFS (short inter-frame space), but other stations will not capture the medium because they must wait for a DIFS which is longer. Virtual carrier sense mechanism is called NAV (network allocation vector). Frames may be prepended by a RTS/CTS handshake sequence to minimize effects of collisions. The SIFS is comprised of the PHY Rx latency, MAC processing, and PHY Tx latency. It's 16 $\mu$s. Slot time is 9 $\mu$s. The DIFS is a SIFS and 2 slots long.
+
+After the medium becoming idle, a station must wait a random backoff time before transmitting. This is to reduce collisions caused by multiple waiting stations transmitting. The backoff time is pseudo-randomly chosen out of the [0..CW] interval where CW is the so-called contention window (CW). On each unsuccessful transmit, CW is doubled, yielding exponential growth. After a successful transmission CW is reset.
+
+802.11 MAC employs positive frame acknowledgements by layer 2 ACKs. Without an ACK the sender retransmits the frame. Large MSDUs are fragmented into multiple PSDUs (individually acked) to reduce collision impact. To detect duplicate frames, the data frame includes a retry bit a sequence number field.
+
+Hidden node problem: occurs when a station sees the AP but not a third station that is currently transmitting to the AP. The medium is busy, but the first station senses idle and begins a transmission. Therefore, the transmission to the AP collides. This is mitigated using RTS/CTS and the NAV, since the third station will receive the AP's CTS frame (although it can't hear the RTS) and updates its NAV to reflect the medium being busy for the length of the frame.\\
+
+\textbf{MAC frame format:}
+
+A MAC frame has a MAC header, a variable-length body, and a frame check sequence (FCS) containing a CRC. The MAC header consists of 2 byte Frame Control, 2 byte Duration/ID, 18 bytes Address 1, 2, and 3, 2 bytes Sequence Control, 6 bytes Address 4, 2 bytes QoS Control, and 4 bytes HT control. Most of the time the address fields contain the receive address (RA), transmit address (TA), and the BSSID. The Frame Control part consists of 2 bits protocol version, 2 bits type and 4 bits subtype, and various flags. See \cite{perahia2013} figure 12.2.
+
+The type and subtype fields indicate the frame type, e.g. RTS, CTS, Data, or Beacon. The Sequence Control field is used for retransmission as described above. CTS and ACK frames do not carry a transmitter address, as they are merely sent in direct response to a previous frame.

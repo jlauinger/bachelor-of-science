@@ -113,5 +113,5 @@ Maximum load that the system can carry in stable conditions. Can be used for a l
 
 ZigZag Decoding: Combating Hidden Terminals in Wireless Networks \cite{gollakota2008}.\\
 
-When CSMA fails, such as with hidden terminals, the 802.11 MAC fails: sender repeatedly collide, or one captures the medium. RTS/CTS is not used as a counter measure due to its negative effects on throughput.
+When CSMA fails, such as with hidden terminals, the 802.11 MAC fails: sender repeatedly collide, or one captures the medium. RTS/CTS is not used as a counter measure due to its negative effects on throughput. Observations: senders tend to collide again on the exact same packets, and due to jittering collisions start with a random stretch of interval. With ZigZag, a station finds a part of the packet that is collision-free in one instance, and subtracts that from the collision in the second instance, hence decoding a bit. This bit can then again be subtracted from the first collision, and so on.
 

@@ -8,15 +8,7 @@
 This is currently a list of notes on papers and books I read, both for summarizing and working on this section in the future.
 
 
-\section{gollakota2008}
-
-ZigZag Decoding: Combating Hidden Terminals in Wireless Networks \cite{gollakota2008}:
-
-
-\section{bianchi2000}
-
-Performance Analysis of the IEEE 802.11 Distributed Coordination Function \cite{bianchi2000}:
-
+%% ---------------------------------------------------------------------------------------------------------------------
 
 \section{perahia2013}
 
@@ -88,3 +80,38 @@ Hidden node problem: occurs when a station sees the AP but not a third station t
 A MAC frame has a MAC header, a variable-length body, and a frame check sequence (FCS) containing a CRC. The MAC header consists of 2 byte Frame Control, 2 byte Duration/ID, 18 bytes Address 1, 2, and 3, 2 bytes Sequence Control, 6 bytes Address 4, 2 bytes QoS Control, and 4 bytes HT control. Most of the time the address fields contain the receive address (RA), transmit address (TA), and the BSSID. The Frame Control part consists of 2 bits protocol version, 2 bits type and 4 bits subtype, and various flags. See \cite{perahia2013} figure 12.2.
 
 The type and subtype fields indicate the frame type, e.g. RTS, CTS, Data, or Beacon. The Sequence Control field is used for retransmission as described above. CTS and ACK frames do not carry a transmitter address, as they are merely sent in direct response to a previous frame.
+
+
+%% ---------------------------------------------------------------------------------------------------------------------
+
+\section{bianchi2000}
+
+Performance Analysis of the IEEE 802.11 Distributed Coordination Function \cite{bianchi2000}.\\
+
+\textbf{Distribution Coordination Function:}
+
+Random access scheme for 802.11 MAC, based on CSMA/CA with retransmission scheduling based on binary exponential backoff rules. Positive acknowledgement of transmission using ACK frames. RTC/CTS: send short frame prior to data transmission, blocking the channel. Therefore if a collision occurs, a smaller amount of time is wasted.
+
+Point Coordination Function: alternative mode of operation, the AP controls who can transmit. Not commonly used.
+
+Problem of hidden terminals: some pairs of stations can not hear each other, therefore they can not always sense a busy medium.
+
+A station transmits after the medium is sensed idle for a distributed inter-frame space (DIFS). If it is sensed busy, the station waits until a DIFS idle. Before transmitting, the station then also waits for a random backoff time to allow other stations to kick in. The backoff time is measured in slots, where one slot is the time needed to detect another transmit (Rx Tx turnaround time, MAC processing).
+
+The backoff time is chosen out of the interval (0, w-1) where w is the contention window. Starting at CW\_MIN, w is doubled on each unsuccessful transmission, until CW\_MAX. Upon successful transmission, w is reset. When the medium is detected busy, w is frozen. ACKs are transmitted after a short inter-frame space (SIFS).\\
+
+\textbf{Saturation Throughput / Performace:}
+
+Maximum load that the system can carry in stable conditions. Can be used for a long time, unlike the Maximum Throughput which tends to lead to rapid performance decrease.
+
+\cite{bianchi2000} develops a Markov model to derive throughput estimations and verifies them against simulations. The paper contains a lot of figures and tables with the results, but these are not really relevant for me.
+
+
+%% ---------------------------------------------------------------------------------------------------------------------
+
+\section{gollakota2008}
+
+ZigZag Decoding: Combating Hidden Terminals in Wireless Networks \cite{gollakota2008}.\\
+
+When CSMA fails, such as with hidden terminals, the 802.11 MAC fails: sender repeatedly collide, or one captures the medium. RTS/CTS is not used as a counter measure due to its negative effects on throughput.
+

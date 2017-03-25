@@ -115,3 +115,14 @@ ZigZag Decoding: Combating Hidden Terminals in Wireless Networks \cite{gollakota
 
 When CSMA fails, such as with hidden terminals, the 802.11 MAC fails: sender repeatedly collide, or one captures the medium. RTS/CTS is not used as a counter measure due to its negative effects on throughput. Observations: senders tend to collide again on the exact same packets, and due to jittering collisions start with a random stretch of interval. With ZigZag, a station finds a part of the packet that is collision-free in one instance, and subtracts that from the collision in the second instance, hence decoding a bit. This bit can then again be subtracted from the first collision, and so on.
 
+With ZigZag, senders do not need to make a trade-off between resilience to collisions and throughput, instead they transmit at the saturation rate. Without a collisions, demodulating packets is unchanged with ZigZag. In the presence of a collision ZigZag achieves an information rate of R, which in theory is the maximum rate possible. ZigZag is modulation-independent, backwards-compatible, and generalizable to a collision with more than two packets.
+
+Unlike Successive Interference Cancellation (SIC), ZigZag works when the channel uses a data rate close to the maximum possible at the given SNR.
+
+If two senders collide, their signals are added up. Problems with standard-decoding of received symbols: Frequence offset and phase tracking (estimate delta f and compensate), Sampling offset (sender and receiver cannot sample the interpolated continuous signal at the exact same sampling points), Inter-symbol interference (ISI, linear equalizer to mitigate effects of neighboring symbols). ZigTag receiver kicks in after receiving a packet failed (wroon checksum).  It will then look for a second packet to check whether there was a collision.
+
+Detecting a packet start is done by correlating the signal with the known 802.11 preamble. Correlation is done on a shifting starting sample, such that the highest correlation value will indicate the sample at which the preamble starts. Correlation is almost zero except when the preamble is perfectly aligned because the preamble sequence is stochastically independent from itself. Two spikes indicate a collision and also show the delta in starting time. The AP maintains coarse estimates of frequency offset for each client.
+
+The AP stores the latest unmatched collisions to map them to possible future collision after retransmission. Collisions are aligned to the point where the second packet starts, and correlated to the stored data. If the packet is the same, correlation will spike.
+
+AP takes the first interference-free chunk of the packet, decodes it, re-encodes the symbol generating an image of the chunk, and subtracts that from the collision, thus deriving another interference-free chunk of the other packet. This process is repeated iteratively until all chunks are decoded.

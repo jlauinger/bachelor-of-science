@@ -55,7 +55,7 @@ Data: 16 bit service field, data bits, 6 tail bits (zero), padding. Stream of st
 
 Service: 7 bit scrambler initialization sequence. Used to synchronize descrambler, initially 0. After that: 9 reserved bits set to 0.
 
-Scrambler: in 802.11a it is a length-127 frame synchronous scrambler derived by the polynomial $G(D)=D^7+D^4+1$. Sequence repeatedly generated: 00001110 11110010 11001001 00000010 00100110 00101110 10110110 00001100 11010100 11100111 10110100 00101010 11111010 01010001 10111000 1111111. When transmitting, the initial scrambler state is set to a pseudo-random non-zero state for each packet.´
+Scrambler: in 802.11a it is a length-127 frame synchronous scrambler derived by the polynomial $G(D)=D^7+D^4+1$. Sequence repeatedly generated using all-1-initial: 00001110 11110010 11001001 00000010 00100110 00101110 10110110 00001100 11010100 11100111 10110100 00101010 11111010 01010001 10111000 1111111. When transmitting, the initial scrambler state is set to a pseudo-random non-zero state for each packet.´
 
 The data field is encoded with the following process: bit stream => prepend service bits, append tail and pad bits => scramble => convolutional encoding => grouping into symbols => interleaving => modulator => insert pilots => IFFT => prepend CP => pulse shaping filter => DAC => upmixing => amplification => antenna.
 
@@ -130,3 +130,10 @@ AP takes the first interference-free chunk of the packet, decodes it, re-encodes
 Compute the ZigZag system parameters using correlation, and inverse filters. Decoding errors propagate until the wrong symbol is by chance right. With BPSK, this has probability $\frac{1}{3}$, meaning errors die exponentially fast. Higher modulation schemes are more affected by errors. Better resilience by applying ZigZag forwards and backwards, picking the decoded symbol with higher confidence.
 
 AP can decode collision packets fast enough to send ACK frame, inserts random padding transmission to prevent hidden terminal from sending while a third station is still transmitting. ZigZag can also decode collision involving any number of senders.
+
+
+%% ---------------------------------------------------------------------------------------------------------------------
+
+\section{Notes}
+
+Scrambler: since 7 bits in SRV field are initialized to zero, after scrambling they resemble the first 7 output bits of the scrambler LFSR. This is because XOR 0 is a no-op. The receiver can directly insert these bits in its LFSR and from there on start iterating.

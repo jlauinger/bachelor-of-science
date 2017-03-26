@@ -4,3 +4,20 @@
 
 \glsresetall % Resets all acronyms to not used
 
+
+First sketch of detector design:
+
+\begin{itemize}
+	\item Maintain ARP table
+	\item Modulate all combinations of N MAC addresses and initial scrambler state
+	\item Receive collision
+	\item Correlate modulated fragments with collision samples
+	\item There should be four peaks, indicating sender and receiver of both packets
+\end{itemize}
+
+Problems:
+
+\begin{itemize}
+	\item symbol modulation -> do 6 bytes of address data provide enough samples to correlate to? With 64-QAM?
+	\item also need convolutional encoding, puncturing, and interleaving?
+\end{itemize}

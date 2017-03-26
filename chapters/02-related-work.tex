@@ -126,3 +126,7 @@ Detecting a packet start is done by correlating the signal with the known 802.11
 The AP stores the latest unmatched collisions to map them to possible future collision after retransmission. Collisions are aligned to the point where the second packet starts, and correlated to the stored data. If the packet is the same, correlation will spike.
 
 AP takes the first interference-free chunk of the packet, decodes it, re-encodes the symbol generating an image of the chunk, and subtracts that from the collision, thus deriving another interference-free chunk of the other packet. This process is repeated iteratively until all chunks are decoded.
+
+Compute the ZigZag system parameters using correlation, and inverse filters. Decoding errors propagate until the wrong symbol is by chance right. With BPSK, this has probability $\frac{1}{3}$, meaning errors die exponentially fast. Higher modulation schemes are more affected by errors. Better resilience by applying ZigZag forwards and backwards, picking the decoded symbol with higher confidence.
+
+AP can decode collision packets fast enough to send ACK frame, inserts random padding transmission to prevent hidden terminal from sending while a third station is still transmitting. ZigZag can also decode collision involving any number of senders.

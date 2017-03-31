@@ -228,7 +228,31 @@ This technique does not apply to this thesis, it is a notable work though.
 
 
 %% ---------------------------------------------------------------------------------------------------------------------
+
+\section{wu2010}
+
+ACR: active collision recovery in dense wireless sensor networks \cite{wu2010}.\\
+
+Active collision recovery tries to make collisions occur in LS-Form, i.e. a long packet is colliding with a short packet. This gives some opportunities, e.g. the receiver can still decode many bits in the long packet, and the partial corrupt pattern (PCP) is predictable. ACR then employs forward error correction (FEC) to decode the packet.
+
+On layer 2, data from layer 3 is actively shaped in long and short packets which are passed to the MAC. The MAC decides randomly whether to first send the short or long packet. Short packets are added a CRC checksum to verify their integrity. Long packets get FEC and CRC.
+
+Modified CSMA to increase LS collision likelihood: non-uniform distribution of contention slots, transmission delay for short packets.
+
+Receiver checks CRC to detect a possible collision.
+
+Since ACR requires a non-standard MAC, it is not applicable to this bachelor thesis.
+
+
 %% ---------------------------------------------------------------------------------------------------------------------
+
+\section{chen2014}
+
+In-band wireless cut-through: is it possible? \cite{chen2014}.\\
+
+Technique to send a packet through some forwarding stations, which receive and transmit at the same time. Irrelevant for this bachelor thesis.
+
+
 %% ---------------------------------------------------------------------------------------------------------------------
 %% ---------------------------------------------------------------------------------------------------------------------
 %% ---------------------------------------------------------------------------------------------------------------------

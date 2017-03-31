@@ -181,8 +181,57 @@ Lock step: an algorithm to reduce Wi-Fi Jitter \cite{lin2009}.\\
 For continuous and fairly regular data streams from multiple clients, such as in an environment with several VoIP transmissions, the 802.11 MAC exponential backoff can lead to some clients experiencing lower throughput. Lock step is an algorithm introducing pro-active backoff times after successful transmissions, allowing other clients to kick in. With lock step, clients extend carrier sense to measuring the fraction of free slots within 8 continuous slots. After some collisions, all clients will eventually be transmitting one eighth of the time, thus giving a fairer share.
 
 
+%% ---------------------------------------------------------------------------------------------------------------------
+
+\section{gudipati2011}
+
+Strider: automatic rate adaptation and collision handling \cite{gudipati2011}.\\
+
+Stripping decoder (Strider) is a rate-less code used for e.g. AutoMAC. Strider strives to be collision-resilient, i.e. senders do not need to care for collision as receivers will be able to decode packets even after suffering a collision. For this, a minimum distance transformer (MDT) is used. Modulated symbols are mapped to a larger symbol space, such as the minimum distance between symbols is larger than the required one to be able to decode signals. Hence, Strider automatically achieves the best code rate for a given channel.
+
+Difference to this thesis: Strider would probably allow to decode colliding MAC addresses, but only if the senders are a-priori using the code. This thesis should focus on standard 802.11.
+
+Exact Strider algorithm not read.
 
 
+%% ---------------------------------------------------------------------------------------------------------------------
+
+\section{gudipati2012}
+
+AutoMAC: rateless wireless concurrent medium access \cite{gudipati2012}.\\
+
+Similar to ZigZag, AutoMAC provides a way to decode collisions. The paper embraces collisions, as the lack of needing to avoid them allows for simpler MAC implementations. The algorithm uses rateless codes (such as Strider) and can therefore deal with packets with different code rates. Changed 802.11 MAC.
+
+Paper not entirely read.
+
+
+%% ---------------------------------------------------------------------------------------------------------------------
+
+\section{cao2009}
+
+Behavioral learning of exposed terminals in IEEE 802.11 wireless networks \cite{cao2009}.\\
+
+Description of different scenarios regarding hidden terminals. Algorithm to improve client behavior in that case to maximize throughput and minimize collisions. Irrelevant for bachelor thesis.
+
+
+%% ---------------------------------------------------------------------------------------------------------------------
+
+\section{wang2010}
+
+Efficient wireless broadcasting using onion decoding \cite{wang2010}.\\
+
+Decoding collisions with broadcast transmission would provide much better throughput. However, this is complicated and past work does not apply, e.g. SIC (one packet must be known) or ZigZag \cite{gollakota2008} (packets must be retransmitted at least once, this is not the case with non-acked broadcasts). Onion decoding uses an iterative approach much like ZigZag, where collision are detected by correlating the preambles, the onion decoder needs an offset between the colliding packets, and the first (collision-free) chunk is subtracted from the collision to obtain a new collision-free chunk. Onion does not need a second collision of the same packets though, because it is specifically designed for broadcast collisions, where multiple stations are forwarding the broadcast packet. Hence, both packets in the collision are the same.
+
+Cost-effective broadcast scheduling (CBS): iterative algorithm to determine the next sender for a broadcast packet, non-conflicting and cost-efficient.
+
+This technique does not apply to this thesis, it is a notable work though.
+
+
+%% ---------------------------------------------------------------------------------------------------------------------
+%% ---------------------------------------------------------------------------------------------------------------------
+%% ---------------------------------------------------------------------------------------------------------------------
+%% ---------------------------------------------------------------------------------------------------------------------
+%% ---------------------------------------------------------------------------------------------------------------------
 %% ---------------------------------------------------------------------------------------------------------------------
 
 \section{Notes}

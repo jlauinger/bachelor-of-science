@@ -277,11 +277,74 @@ Constellation of a received collision signal is a combined mn-constellation cons
 
 Cross Layer Multirate Adaptation Using Physical Capture \cite{park2009}.\\
 
+Detect the event that, due to physical capture effect, a packet with higher power is received while a packet with lower power is currently being received. This is counted as collision. The paper proposes an algorithm to share the amount of received collision using a new, special packet. Stations calculate the sum of collisions at neighboring nodes and adjust the code rate being used for sending packets based on that information.
 
+
+%% ---------------------------------------------------------------------------------------------------------------------
+
+\section{zhu2016}
+
+Packet-Level Failure Classification by Characterizing Failure Patterns in Wireless Sensor Networks \cite{zhu2016}.\\
+
+Observation: real-world packet loss can be caused by weak link or collisions, and those can change very fast. This is because a variety of different reasons such as humans in the signal path, external interference, and unpredictable transmissions by other stations. Thus, failure classification must be done at packet level to provide useful information.
+
+Both naive assumptions of only collisions, or weak link, as failure cause wastes resources, i.e. airtime or transmission power.
+
+PLFC collects byte-level RSSI (Received Signal Strength indicator) and packet-level LQI (link quality indicator) and assigns RSSI rise / fall tags to incoming packets. If a packet has LQI higher than a certain threshold and both a rise and fall tag, a collision is assumed, otherwise weak link.
+
+The receiver informs the sender with an elaborated retransmission request. PLFC could reduce retransmission count by about 50 \%.
+
+
+%% ---------------------------------------------------------------------------------------------------------------------
+
+\section{keene2010}
+
+Collision Localization for IEEE 802.11 Wireless LANs \cite{keene2010}.\\
+
+The paper presents an algorithm to locate the part of a packet that is not decodable due to a collision. While having some performance regressions to to ODFM, it works with 802.11a/g. The algorithm uses a likelihood ratio test to determine whether a symbol suffered from an error and then determines the packet area having the most errors using a sliding window approach. In some cases, the packet can be fully decoded by correcting the bit errors using an error resolving code.
+
+Problems with OFDM: when symbols are partially corrupted due to a narrow band interference, the timing correlation is lost and the collision can therefore not be exactly localized.
+
+
+%% ---------------------------------------------------------------------------------------------------------------------
+
+\section{chua2016}
+
+Classification of Transmission Events Based on Receive Power Pattern with Self-Tuning Thresholds in Wireless Receivers \cite{chua2016}.\\
+
+Tries to decide whether a packet failure was due to a collision or weak link by examining the power level at the receiver. Observation: when a collision occurs, the power level is not simply the sum of the two transmission, but rather includes some form of jitter due to oscillations in automatic gain control and other hardware with feedback loops.
+
+Detect power blocks: large difference in signal strength between adjacent samples. Detect collision when packet checksum is wrong and there are many peaks in the power level difference data.
+
+
+%% ---------------------------------------------------------------------------------------------------------------------
+
+\section{lacurts2010}
+
+Measurement and analysis of real-world 802.11 mesh networks \cite{lacurts2010}.\\
+
+SNR is a good indicator for the optimal bit rate, but one can not craft a SNR to bit rate look-up-table. Hidden terminals occur with a higher probability if the used bit rate is higher.
+
+Paper not entirely read, not really relevant for bachelor thesis.
+
+
+%% ---------------------------------------------------------------------------------------------------------------------
+
+\section{leonardi2013}
+
+A new adaptive receiver-initiated scheme for mitigating starvation in wireless networks \cite{leonardi2013}.\\
+
+CSMA/CARD: Collision avoidance with receiver detection. Each receiver can predict the presence of any potential sender in a timely fashion. When a collision occurs, the receiver sends a Request for Request to Send (RRTS) packet to expedite the RTS/CTS handshake and better distribute network capacity. Rather irrelevant for bachelor thesis.
 
 
 %% ---------------------------------------------------------------------------------------------------------------------
 %% ---------------------------------------------------------------------------------------------------------------------
+%% ---------------------------------------------------------------------------------------------------------------------
+%% ---------------------------------------------------------------------------------------------------------------------
+%% ---------------------------------------------------------------------------------------------------------------------
+%% ---------------------------------------------------------------------------------------------------------------------
+%% ---------------------------------------------------------------------------------------------------------------------
+
 
 \section{Notes}
 

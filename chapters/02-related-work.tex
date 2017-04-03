@@ -338,6 +338,77 @@ CSMA/CARD: Collision avoidance with receiver detection. Each receiver can predic
 
 
 %% ---------------------------------------------------------------------------------------------------------------------
+
+\section{cassidy2014}
+
+Collision correction using a cross-layer design architecture for dedicated short range communications vehicle safety messaging \cite{cassidy2014}.\\
+
+The paper presents an algorithm to decode collisions in 802.11p inter-vehicle communication safety messages. These messages are re-transmitted several times and collide with no difference in starting times due to strict slots. Hence, ZigZag can not be applied. The authors added a cache for recent successfully received packets and subtract those packets from incoming collisions, decoding the new, collided packet. Irrelevant for bachelor thesis.
+
+
+%% ---------------------------------------------------------------------------------------------------------------------
+
+\section{hejazi2010}
+
+Throughput analysis of multiple access relay channel under collision model \cite{hejazi2010}.\\
+
+Presents different strategies for relaying packets in a scenario where multiple stations are relaying and no collisions are allowed. The paper compares different scheduling algorithms and provides some numerical simulations for their maximum throughput.
+
+Irrelevant for this bachelor thesis, paper not entirely read.
+
+
+%% ---------------------------------------------------------------------------------------------------------------------
+
+\section{zhang2010}
+
+Chorus: collision resolution for efficient wireless broadcast \cite{zhang2010}.\\
+
+Similar to Onion Decoding \cite{wang2010}. Chorus is an algorithm to decode collisions between multiple instances of the same packet, i.e. broadcasts. The broadcast packets will probably start with a slight offset. Chorus takes the first, collision-free chunk and then iteratively subtracts it from the collision to get another collision-free chunk. It is also comparable to ZigZag \cite{gollakota2008}.
+
+
+%% ---------------------------------------------------------------------------------------------------------------------
+
+\section{choi2013}
+
+Carrier sensing multiple access with collision resolution (CSMA/CR) protocol for next-generation wireless LAN \cite{choi2013}.\\
+
+RTS/CTS is commonly not useful in modern real-world WLAN networks because hidden or exposed terminals do not typically exist. The network is shielded by walls and has relatively few stations. CSMA/CR is a proposed MAC change.
+
+If a collision is detected, one station is allowed priority access to retransmit, so that there won't be a follow-up-collision. Jamming signals.
+
+
+%% ---------------------------------------------------------------------------------------------------------------------
+
+\section{jibukumar2015}
+
+Impact of capture effect on receiver initiated collision detection with sequential resolution in WLAN \cite{jibukumar2015}.\\
+
+Somewhat similar to CSMA/CR in that when a station detects a collision, it sends out a jamming signal to inform all transmitters that they need to stop. After a collision, the collided packet gets priority access. "The average number of stations undergoing collision in a transmission slot is 2 - 3".
+
+Transmitting stations will send a header, wait a short time, and then send the packet. If a (third) station detects a collision between multiple header transmitters, it sends a jamming signal that is recognized by the transmitters during the sensing window. In that case, the transmitters will wait a random amount of time that is shorter than a DIFS (to prevent new stations to interfere with the collision resolution algorithm). There should now be one of the transmitters solely sending on the channel.
+
+The protocol is called Receiver initiated Fast Sequential collision Resolution (RFSR).
+
+
+%% ---------------------------------------------------------------------------------------------------------------------
+
+\section{vermeulen2016}
+
+Performance analysis of in-band full duplex collision and interference detection in dense networks \cite{vermeulen2016}.\\
+
+Full Duplex communication is possible for 802.11 with some adjustments to the hardware. This paper presents a MAC change to effectively reduce collisions using full duplex. A receiving station continuously transmits acknowledgements while it receives a packet. This is a simultaneous transmission. If the node senses a collision, it stops sending the ACK, and the transmitter will notice that and stop transmitting. The ACK thus acts like a continuous CTS packet, letting other stations know of the transmission and solving the hidden node problem.
+
+
+%% ---------------------------------------------------------------------------------------------------------------------
+
+\section{meng2015}
+
+On robust neighbor discovery in mobile wireless networks \cite{meng2015}.\\
+
+
+
+
+%% ---------------------------------------------------------------------------------------------------------------------
 %% ---------------------------------------------------------------------------------------------------------------------
 %% ---------------------------------------------------------------------------------------------------------------------
 %% ---------------------------------------------------------------------------------------------------------------------

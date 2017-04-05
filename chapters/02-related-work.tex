@@ -405,10 +405,29 @@ Full Duplex communication is possible for 802.11 with some adjustments to the ha
 
 On robust neighbor discovery in mobile wireless networks \cite{meng2015}.\\
 
+New algorithm for neighbor discovery in 802.11 networks that does not use Beacon frames that are decoded, but instead uses a new frame format that only needs to be correlated. Therefore, it saves energy and is more resilient to situations where decoding the packet is not possible.
 
+The frames start with a fixed, independent training sequence called RCover to identify a neighbor discovery message, similar to packet detection using the Short Training Field. After that, a two-stage identification pattern follows. The first stage is a fixed independent Gold-code signal, shifted by a unique amount of samples, randomly chosen by the sending station. Should two stations choose the same offset, are they distinguished by the second stage, a hash of the MAC address. The second stage is not quite as independent and distinguishable and therefore only acts as tie-beaker for identical first stages.
+
+Receivers are triggered by the RCover and correlate the first identity stage to the list of known identities. After a match is found, the second stage is compared. If both stations mismatch, the station is introduced into the list as new transmitter. If a match occurs, the list is updated to include the version with higher SINR.
+
+The detection of sequences is done by cross-correlation at the receiver. The SINR is estimated by self-correlation. If a match is detected at sampling point k, the following holds:
+
+\begin{align}
+	C(s,y,\Delta) = \sum_{i=1}^L (s_i^* \cdot y_{i+\Delta}) \approx \sum_{i=1}^L (h_{i+\Delta} \cdot \|s_i\|^2)
+	\label{eqn:correlation}
+\end{align}
 
 
 %% ---------------------------------------------------------------------------------------------------------------------
+
+\section{zhao2015}
+
+Collision tolerance: improving channel utilization with correlatable symbol sequences in wireless networks \cite{zhao2015}.\\
+
+Improve network performance by rescheduling collided packets, initiated by the receiver. Each sender picks a random, self-independent correlatable sequence of samples. If a collision is detected by the receiver, it broadcasts a request for these sequences. It then decodes those in parallel using cross-correlation and broadcasts a scheduling packet to all identified senders at once. The senders are assigned a slot and can then resend their packet in a well-defined queue, not wasting airtime by unused slots, as would occur with the binary backoff algorithm of CSMA/CA.
+
+
 %% ---------------------------------------------------------------------------------------------------------------------
 %% ---------------------------------------------------------------------------------------------------------------------
 %% ---------------------------------------------------------------------------------------------------------------------

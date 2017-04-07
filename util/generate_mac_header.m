@@ -9,15 +9,15 @@
 % Author: Johannes Lauinger <jlauinger@seemoo.de>
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-x8 = @(x) uint8(hex2dec(reshape(x,2,[])')');
-
 function psdu = generate_mac_header()
+
+  x8 = @(x) uint8(hex2dec(reshape(x,2,[])')');
 
   % from ieee_80211g_generate
   clear mac_header llc_header mac_frame;
   %                                   SUBTYPE TYP VER
-  mac_header.frame_control_1 = bi2de([0 0 0 0 1 0 0 0], 'left-msb'); % data frame
-  mac_header.frame_control_2 = bi2de([0 0 0 0 0 0 0 0], 'left-msb');
+  mac_header.frame_control_1 = x8('08'); %bi2de([0 0 0 0 1 0 0 0], 'left-msb'); % data frame
+  mac_header.frame_control_2 = x8('00'); %bi2de([0 0 0 0 0 0 0 0], 'left-msb');
   mac_header.duration = x8('0001'); % 1 byte
   mac_header.address_1 = x8('CCCCCCCCCCC1');
   mac_header.address_2 = x8('CCCCCCCCCCC2');

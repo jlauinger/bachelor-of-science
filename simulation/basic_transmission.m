@@ -12,7 +12,7 @@
 clear all; close all;
 
 % generate payload
-tx_psdu = generate_mac_header();
+tx_psdu = generate_mac_header('ABABAB42', 'CDCDCD43', 'EFEFEF44');
 
 % configure 802.11g
 cfg = wlanNonHTConfig;

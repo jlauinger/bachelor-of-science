@@ -9,7 +9,7 @@
 % Author: Johannes Lauinger <jlauinger@seemoo.de>
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function psdu = generate_mac_header()
+function psdu = generate_mac_header(addr1, addr2, addr3)
 
   x8 = @(x) uint8(hex2dec(reshape(x,2,[])')');
 
@@ -19,9 +19,9 @@ function psdu = generate_mac_header()
   mac_header.frame_control_1 = x8('08'); %bi2de([0 0 0 0 1 0 0 0], 'left-msb'); % data frame
   mac_header.frame_control_2 = x8('00'); %bi2de([0 0 0 0 0 0 0 0], 'left-msb');
   mac_header.duration = x8('0001'); % 1 byte
-  mac_header.address_1 = x8('CCCCCCCCCCC1');
-  mac_header.address_2 = x8('CCCCCCCCCCC2');
-  mac_header.address_3 = x8('CCCCCCCCCCC3');
+  mac_header.address_1 = x8(addr1);
+  mac_header.address_2 = x8(addr2);
+  mac_header.address_3 = x8(addr3);
   mac_header.sequence_control = x8('0000');
 
   llc_header.dsap = x8('aa');

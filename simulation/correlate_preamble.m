@@ -1,6 +1,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % correlate-preamble.m
-%  Create 802.11g packet and try to correlate preamble samples
+%  Create 802.11g packet and try to correlate the MAC address on sample
+%  level
 %
 % Required toolboxes:
 %  - WLAN System Toolbox
@@ -12,7 +13,7 @@
 clear all; close all;
 
 % generate payload
-tx_psdu = generate_mac_header();
+tx_psdu = generate_mac_header('ABABABABAB42', 'CDCDCDCDCD43', 'EFEFEFEFEF44');
 
 % configure 802.11g
 %cfg = wlanNonHTConfig;
@@ -29,7 +30,7 @@ tx_psdu = generate_mac_header();
 %tx = wlanWaveformGenerator(tx_psdu, cfg, 'ScramblerInitialization', scrambler);
 
 % Mock: since I don't have the WLAN Toolbox, use sine for now
-t = 0:1e-1:10;
+t = 0:0.1:10;
 tx = sin(t);
 preamble = sin(t);
 
@@ -39,7 +40,7 @@ preamble = sin(t);
 
 % introduce artificial delay, so that the packet does not begin right at
 % the start
-tx = [zeros(1, 15), tx];
+tx = [zeros(1, 25), tx];
 
 % correlate samples to find the preamble
 [acor, lag] = xcorr(tx, preamble);
@@ -49,4 +50,4 @@ delay = lag(I);
 % plot correlation values (probability of the preamble starting at this
 % frame) and show the estimated delay
 disp(delay);
-plot(lag(length(lag)/2:end), acor(length(lag)/2:end));
+plot(lag, acor);

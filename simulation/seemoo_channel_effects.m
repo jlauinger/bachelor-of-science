@@ -1,5 +1,5 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% seemoo_fractional_delays.m
+% seemoo_channel_effects.m
 %
 % Required toolboxes:
 %  - Communications System Toolbox
@@ -12,8 +12,6 @@ clear all; close all;
 referenceSender1 = 'ABABABABAB43';
 referenceSender2 = 'EFEFEFEFEF44';
 referenceDestination = 'CDCDCDCDCD43';
-frac_delay_1 = 0.5;
-frac_delay_2 = 0.75;
 
 % list of known MAC addresses, could e.g. be obtained from kernel ARP cache
 macs = ['ABABABABAB42'; 'ABABABABAB43'; 'CDCDCDCDCD43'; 'EFEFEFEFEF44'; '000000000000'];
@@ -34,13 +32,9 @@ tx2_struct = seemoo_generate_signal(SIGNAL, referenceSender2, referenceDestinati
 tx2_signal = tx2_struct.samples';
 tx2 = tx2_signal(960:1280);
 
-% now the sender has an out-of-sync clock
-d1 = fdesign.fracdelay(frac_delay_1);
-Hd1 = design(d1, 'lagrange', 'filterstructure', 'farrowfd');
-tx1 = filter(Hd1, tx1);
-d2 = fdesign.fracdelay(frac_delay_2);
-Hd2 = design(d2, 'lagrange', 'filterstructure', 'farrowfd');
-tx2 = filter(Hd2, tx2);
+% apply channel effects
+tx1 = awgn(tx1, 10);
+tx2 = awgn(tx2, 10);
 
 % oh no, there's a collision!!
 tx = tx1 + tx2;
@@ -71,7 +65,7 @@ legend(macs);
 fprintf(1, "==> Aligned reference correlation: %f\n", c1);
 for i=1:size(macs,1)
     c = acor(i,ceil(size(acor,2)/2));
-    fprintf(1, " * %s correlation: %f + %fi  (%f)\n", macs(i,:), real(c), imag(c), abs(c));
+    fprintf(1, " * %s correlation: %f\n", macs(i,:), c);
     fprintf(1, "   %s ratio: %f dB\n", macs(i,:), 20*log10(abs(c)/abs(c1)));
 end
 

@@ -1,5 +1,5 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% seemoo_decode_collision.m
+% seemoo_delayed_collision.m
 %
 % Required toolboxes:
 %  - Communications System Toolbox
@@ -35,6 +35,10 @@ tx2_signal = tx2_struct.samples';
 % introduce some delay
 tx1 = [tx1_signal zeros(1, delayed_samples)];
 tx2 = [zeros(1, delayed_samples) tx2_signal];
+
+% apply channel effects
+tx1 = awgn(tx1, 18);
+tx2 = awgn(tx2, 20);
 
 % oh no, there's a collision!!
 tx = tx1 + tx2;

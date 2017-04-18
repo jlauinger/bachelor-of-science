@@ -47,15 +47,15 @@ end
 acor = zeros(size(macs,1), 641);
 lag = zeros(size(macs,1), 641);
 for i = 1:size(macs,1)
-    [acor(i,:), lag(i,:)] = xcorr(real(tx), real(corr(i,:)));
+    [acor(i,:), lag(i,:)] = xcorr(tx, corr(i,:));
 end
 
 % compute reference correlation
-[reference_corr,~] = xcorr(real(tx), real(tx));
+[reference_corr,~] = xcorr(tx, tx);
 c1 = reference_corr(ceil(length(reference_corr)/2));
 
 % plot correlation values and delays
-plot(lag', acor');
+plot(lag', abs(acor'));
 legend(macs);
 
 fprintf(1, "==> Aligned reference correlation: %f\n", c1);
@@ -65,14 +65,13 @@ for i=1:size(macs,1)
     fprintf(1, "   %s ratio: %f dB\n", macs(i,:), 20*log10(abs(c)/abs(c1)));
 end
 
-[m,I] = max(acor(:,ceil(size(acor,2)/2)), [], 1);
+[A,I] = sort(acor(:,ceil(size(acor,2)/2)), 'descend');
+i1 = I(1); i2 = I(2);
+m1 = acor(i1,ceil(size(acor,2)/2)); m2 = acor(i2,ceil(size(acor,2)/2));
 
 fprintf(1, "==> Matching probability\n");
 for i=1:size(macs,1)
-    fprintf(1, " * %s: %05.2f%%\n", macs(i,:), 100*abs(acor(i,ceil(size(acor,2)/2)))/m);
+    fprintf(1, " * %s: %05.2f%%\n", macs(i,:), 100*abs(acor(i,ceil(size(acor,2)/2)))/m1);
 end
-
-%[m2,I2] = max(acor(:,acor<m));
-I2 = 4;
     
-fprintf(1, "==> Guessed MAC addresses: %s and %s\n", macs(I,:), macs(I2,:));
+fprintf(1, "==> Guessed MAC addresses: %s and %s\n", macs(i1,:), macs(i2,:));

@@ -33,30 +33,40 @@ tx2_signal = tx2_struct.samples';
 tx2 = tx2_signal(960:1280);
 
 % apply channel effects
-tx1 = awgn(tx1, 15); % this is the problematic part, low SNR yields terrible results!
-tx2 = awgn(tx2, 15);
+tx1 = awgn(tx1, 15);
+tx2 = awgn(tx2, 10); % looks horrifying in the plot, but pretty much works up to such low SNR
 
 % Configure a Rician channel object
 ricChan = comm.RicianChannel( ...
     'SampleRate',              40e6, ...
-    'PathDelays',              1500e-9, ... % 1.5us delay on one path
-    'AveragePathGains',        -8, ... % dB
-    'MaximumDopplerShift',     200, ... % Hz
+    'PathDelays',              100e-12, ... % 0.1ns delay on one path !! here be dragons
+    'AveragePathGains',        -2, ... % dB
+    'MaximumDopplerShift',     20, ... % Hz
     'RandomStream',            'mt19937ar with seed', ...
     'Seed',                    100, ...
     'PathGainsOutputPort',     true);
     %'Visualization',           'Impulse and frequency responses');
-ricChan(tx1');
+tx1 = ricChan(tx1')';
 
 rayChan = comm.RayleighChannel( ...
     'SampleRate',          40e6, ...
-    'PathDelays',          1350e-9, ... 1.35us delay on one path
-    'AveragePathGains',    -14, ... % dB
-    'MaximumDopplerShift', 200, ... % Hz
+    'PathDelays',          250e-12, ... 0.25ns delay on one path
+    'AveragePathGains',    -3, ... % dB
+    'MaximumDopplerShift', 20, ... % Hz
     'RandomStream',        'mt19937ar with seed', ...
     'Seed',                10, ...
     'PathGainsOutputPort', true);
-rayChan(tx2');
+tx2 = rayChan(tx2')';
+
+% for visualization, decode the tx1 BPSK syms and display constellation
+constDiag = comm.ConstellationDiagram( ...
+    'Name', 'Received Signal After Rician Fading (tx1)', ...
+    'ReferenceConstellation', [1 -1]);
+demod1 = reshape(tx1(2:end), 160, []);      % parallelize
+demod1 = demod1(33:160,:);           % remove CP
+demod1 = fft(demod1, 128, 1);        % FFT
+demod1 = reshape(demod1, 1, []);    % linerize
+constDiag(demod1');
 
 % oh no, there's a collision!!
 tx = tx1 + tx2;

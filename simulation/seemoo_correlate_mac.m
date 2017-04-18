@@ -1,4 +1,4 @@
-%clear all; close all;
+clear all; close all;
 
 referenceMac = 'ABABABABAB42';
 candidateMac = '000000000000';
@@ -19,7 +19,6 @@ tx_signal = tx_struct.samples';
 corr1_signal = corr1_struct.samples';
 corr2_signal = corr2_struct.samples';
 
-% extract MAC samples from corr1 and corr2
 % Data Field starts after STF (8 us) + LTF (8 us) + SIG (4 us) = 
 % 20 us @ 20 MHz = 400 samples
 % MAC address is 6 Bytes with 6 Byte offset (2B SRV + 4B MAC beginning)

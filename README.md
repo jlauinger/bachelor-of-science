@@ -9,6 +9,7 @@ This is the repository containing the MatLab implementation for thesis Collide, 
  - simulation: various simulation and correlation models
  - util: helper functions, such as MAC header generation
  - lib: functions from the Matlab File Exchange
+ - scratch: small tests, mainly to verify Matlab behavior
 
 
 ## Notes
@@ -16,7 +17,7 @@ This is the repository containing the MatLab implementation for thesis Collide, 
 When starting up MatLab:
 
 ```
-addpath seemoo simulation util lib
+addpath seemoo simulation util lib scratch
 ```
 
 

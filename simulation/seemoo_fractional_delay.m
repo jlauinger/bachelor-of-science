@@ -35,10 +35,10 @@ tx2_signal = tx2_struct.samples';
 tx2 = tx2_signal(960:1280);
 
 % now the sender has an out-of-sync clock
-d1 = fdesign.fracdelay(frac_delay_1);
+d1 = fdesign.fracdelay(frac_delay_1, 1);
 Hd1 = design(d1, 'lagrange', 'filterstructure', 'farrowfd');
 tx1 = filter(Hd1, tx1);
-d2 = fdesign.fracdelay(frac_delay_2);
+d2 = fdesign.fracdelay(frac_delay_2, 1);
 Hd2 = design(d2, 'lagrange', 'filterstructure', 'farrowfd');
 tx2 = filter(Hd2, tx2);
 

@@ -1,1 +1,1 @@
-addpath seemoo simulation util lib
+addpath seemoo simulation util lib scratch

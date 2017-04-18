@@ -18,7 +18,7 @@ function psdu = generate_mac_header(addr1, addr2, addr3)
   %                                   SUBTYPE TYP VER
   mac_header.frame_control_1 = x8('08'); %bi2de([0 0 0 0 1 0 0 0], 'left-msb'); % data frame
   mac_header.frame_control_2 = x8('00'); %bi2de([0 0 0 0 0 0 0 0], 'left-msb');
-  mac_header.duration = x8('0001'); % 1 byte
+  mac_header.duration = x8('0001'); % 1 byte duration
   mac_header.address_1 = x8(addr1);
   mac_header.address_2 = x8(addr2);
   mac_header.address_3 = x8(addr3);

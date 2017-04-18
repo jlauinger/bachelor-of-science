@@ -1,1 +1,1 @@
-addpath seemoo simulation util
+addpath seemoo simulation util lib

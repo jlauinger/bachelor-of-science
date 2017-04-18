@@ -8,6 +8,7 @@ This is the repository containing the MatLab implementation for thesis Collide, 
  - seemoo: 802.11 Encoder by SEEMOO lab and sample transmission implementation
  - simulation: various simulation and correlation models
  - util: helper functions, such as MAC header generation
+ - lib: functions from the Matlab File Exchange
 
 
 ## Notes
@@ -15,7 +16,7 @@ This is the repository containing the MatLab implementation for thesis Collide, 
 When starting up MatLab:
 
 ```
-addpath seemoo simulation util
+addpath seemoo simulation util lib
 ```
 
 

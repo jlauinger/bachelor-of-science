@@ -32,6 +32,9 @@ tx2_struct = seemoo_generate_signal(SIGNAL, referenceSender2, referenceDestinati
 tx2_signal = tx2_struct.samples';
 tx2 = tx2_signal(960:1280);
 
+% introduce some attenuation for one of the senders
+tx2 = 0.7*tx2;
+
 % oh no, there's a collision!!
 tx = tx1 + tx2;
 

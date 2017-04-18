@@ -42,6 +42,9 @@ d2 = fdesign.fracdelay(frac_delay_2, 1);
 Hd2 = design(d2, 'lagrange', 'filterstructure', 'farrowfd');
 tx2 = filter(Hd2, tx2);
 
+% introduce some attenuation for one of the senders
+tx2 = 0.7*tx2;
+
 % oh no, there's a collision!!
 tx = tx1 + tx2;
 

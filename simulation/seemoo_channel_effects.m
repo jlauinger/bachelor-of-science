@@ -14,7 +14,7 @@ referenceSender2 = 'EFEFEFEFEF44';
 referenceDestination = 'CDCDCDCDCD43';
 
 % list of known MAC addresses, could e.g. be obtained from kernel ARP cache
-macs = ['ABABABABAB42'; 'ABABABABAB43'; 'CDCDCDCDCD43'; 'EFEFEFEFEF44'; '000000000000'];
+macs = ['ABABABABAB42'; 'ABABABABAB43'; 'CDCDCDCDCD43'; 'EFEFEFEFEF44'];
 
 % Signal generation settings IEEE 802.11g OFDM
 SIGNAL = struct( ...
@@ -33,8 +33,30 @@ tx2_signal = tx2_struct.samples';
 tx2 = tx2_signal(960:1280);
 
 % apply channel effects
-tx1 = awgn(tx1, 10);
-tx2 = awgn(tx2, 10);
+tx1 = awgn(tx1, 15); % this is the problematic part, low SNR yields terrible results!
+tx2 = awgn(tx2, 15);
+
+% Configure a Rician channel object
+ricChan = comm.RicianChannel( ...
+    'SampleRate',              40e6, ...
+    'PathDelays',              1500e-9, ... % 1.5us delay on one path
+    'AveragePathGains',        -8, ... % dB
+    'MaximumDopplerShift',     200, ... % Hz
+    'RandomStream',            'mt19937ar with seed', ...
+    'Seed',                    100, ...
+    'PathGainsOutputPort',     true);
+    %'Visualization',           'Impulse and frequency responses');
+ricChan(tx1');
+
+rayChan = comm.RayleighChannel( ...
+    'SampleRate',          40e6, ...
+    'PathDelays',          1350e-9, ... 1.35us delay on one path
+    'AveragePathGains',    -14, ... % dB
+    'MaximumDopplerShift', 200, ... % Hz
+    'RandomStream',        'mt19937ar with seed', ...
+    'Seed',                10, ...
+    'PathGainsOutputPort', true);
+rayChan(tx2');
 
 % oh no, there's a collision!!
 tx = tx1 + tx2;

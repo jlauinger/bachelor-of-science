@@ -12,7 +12,7 @@ clear all; close all;
 referenceSender1 = 'ABABABABAB43';
 referenceSender2 = 'EFEFEFEFEF44';
 referenceDestination = 'CDCDCDCDCD43';
-delayed_samples = 400;
+delayed_samples = 0;
 preamble_corr_ratio_threshold = 0.5;
 
 % list of known MAC addresses, could e.g. be obtained from kernel ARP cache

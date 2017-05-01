@@ -8,7 +8,7 @@ SIGNAL = struct( ...
     'MOD_TYPE',           '80211g', ... % Signal type (kind of modulation / standard)
     'TYPE',               'DATA', ...   % Data frame
     'PAYLOAD',            randi([0 255], 1, 104), ...  % Custom payload data
-    'RATE',               2,  ...       % Modulation order (1-8)
+    'RATE',               1,  ...       % Modulation order (1-8)
     'SAMPLING_RATE',      20e6);        % Sampling rate of the signal
 
 % create signals

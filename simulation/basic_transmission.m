@@ -17,6 +17,7 @@ tx_psdu = generate_mac_header('ABABAB42', 'CDCDCD43', 'EFEFEF44');
 % configure 802.11g
 cfg = wlanNonHTConfig;
 cfg.MCS = 1;  % BPSK, rate 1/2
+cfg.PSDULength = length(tx_psdu);
 
 % get sampling rate
 fs = helperSampleRate(cfg);
@@ -26,9 +27,12 @@ fs = helperSampleRate(cfg);
 scrambler = de2bi(1, 'left-msb');
 
 % modulate packet
-tx = wlanWaveformGenerator(tx_psdu, cfg, 'ScramblerInitialization', scrambler);
+tx = wlanWaveformGenerator(int8(tx_psdu), cfg, 'ScramblerInitialization', scrambler);
 
 % Note: tx would now be correlated to a received real-world sample
+
+t=1:length(tx);
+plot(t, real(tx)');
 
 % introduce very little AWGN
 snr = 60;
@@ -37,13 +41,13 @@ rx = awgn(tx, snr);
 % get samples offsets for different fields
 indField = wlanFieldIndices(cfg);
 indLLTF = indField.LLTF(1):indField.LLTF(2);
-indData = indField.LSTF(1):indField.LSIG(2);
+indData = indField.NonHTData(1):indField.NonHTData(2);
 
 % demodulate long training fields
 demodLLTF = wlanLLTFDemodulate(rx(indLLTF), cfg);
 
 % estimate channel and noise
-chEst = wlanNonHTChannelEstimate(demodLLTF, cfg);
+chEst = wlanLLTFChannelEstimate(demodLLTF, cfg);
 noiseEst = 1e-6; % depending on SNR
 
 % recover payload data

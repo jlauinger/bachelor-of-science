@@ -21,42 +21,59 @@ SIGNAL = struct( ...
     'MOD_TYPE',           '80211g', ... % Signal type (kind of modulation / standard)
     'TYPE',               'DATA', ...   % Data frame
     'PAYLOAD',            randi([0 255], 1, 104), ...  % Custom payload data
-    'RATE',               2,  ...       % Modulation order (1-8)
+    'RATE',               1,  ...       % Modulation order (1-8)
     'SAMPLING_RATE',      20e6);        % Sampling rate of the signal
 
 % create signal
 tx1_struct = seemoo_generate_signal(SIGNAL, referenceSender1, referenceDestination, 'EFEFEFEFEF44');
 tx1_signal = tx1_struct.samples';
-tx1 = tx1_signal(960:1280);
 tx2_struct = seemoo_generate_signal(SIGNAL, referenceSender2, referenceDestination, 'EFEFEFEFEF44');
 tx2_signal = tx2_struct.samples';
-tx2 = tx2_signal(960:1280);
-
-% apply channel effects
-tx1 = awgn(tx1, 15);
-tx2 = awgn(tx2, 10); % looks horrifying in the plot, but pretty much works up to such low SNR
+tx2 = tx2_signal(1120:1440);
 
 % Configure a Rician channel object
 ricChan = comm.RicianChannel( ...
     'SampleRate',              40e6, ...
-    'PathDelays',              100e-12, ... % 0.1ns delay on one path !! here be dragons
+    'PathDelays',              100e-9, ... % 0.1ns delay on one path !! here be dragons
     'AveragePathGains',        -2, ... % dB
     'MaximumDopplerShift',     20, ... % Hz
     'RandomStream',            'mt19937ar with seed', ...
     'Seed',                    100, ...
     'PathGainsOutputPort',     true);
     %'Visualization',           'Impulse and frequency responses');
-tx1 = ricChan(tx1')';
+tx1_signal = ricChan(tx1_signal')';
 
 rayChan = comm.RayleighChannel( ...
     'SampleRate',          40e6, ...
-    'PathDelays',          250e-12, ... 0.25ns delay on one path
-    'AveragePathGains',    -3, ... % dB
+    'PathDelays',          100e-9, ... 0.25ns delay on one path
+    'AveragePathGains',    -2, ... % dB
     'MaximumDopplerShift', 20, ... % Hz
     'RandomStream',        'mt19937ar with seed', ...
-    'Seed',                10, ...
+    'Seed',                100, ...
     'PathGainsOutputPort', true);
 tx2 = rayChan(tx2')';
+
+% apply channel effects
+tx1_signal = awgn(tx1_signal, 40);
+tx2 = awgn(tx2, 40); % looks horrifying in the plot, but pretty much works up to such low SNR
+
+% IEEE 802.11g decoder settings
+settings.receiver.correct_coarse_cfo = true;
+settings.receiver.use_fixed_stf_position_for_cfo_correction = true;
+settings.receiver.shift_by_detected_position = true;
+settings.receiver.fixed_position_shift = 0;
+settings.receiver.enable_plotting = false;
+settings.receiver.use_ideal_signal_field = true;
+settings.receiver.sync_threshold = 0.8;
+settings.receiver.sync_search = 'off';
+settings.receiver.sync_search_threshold = 1.0;
+settings.channel_model.time_shift = 0;
+RX = struct(...
+    'samples', tx1_signal');
+results = ieee_80211g_decode(tx1_struct, RX, settings);
+fprintf(1, "BER: %f", results.ber.data_descrambled);
+
+tx1 = tx1_signal(1120:1440);
 
 % for visualization, decode the tx1 BPSK syms and display constellation
 constDiag = comm.ConstellationDiagram( ...
@@ -76,7 +93,7 @@ corr = zeros(size(macs,1), 321);
 for i = 1:size(macs,1)
     corr_struct = seemoo_generate_signal(SIGNAL, macs(i,:), '000000000000', '000000000000');
     samples = corr_struct.samples';
-    corr(i,:) = samples(960:1280);
+    corr(i,:) = samples(1120:1440);
 end
 
 % correlate samples to find the addresses

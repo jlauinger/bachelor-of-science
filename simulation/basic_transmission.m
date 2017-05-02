@@ -13,11 +13,12 @@ clear all; close all;
 
 % generate payload
 tx_psdu = generate_mac_header('ABABAB42', 'CDCDCD43', 'EFEFEF44');
+tx_psdu = int8(tx_psdu');
 
 % configure 802.11g
 cfg = wlanNonHTConfig;
 cfg.MCS = 1;  % BPSK, rate 1/2
-cfg.PSDULength = length(tx_psdu);
+cfg.PSDULength = length(tx_psdu/8);
 
 % get sampling rate
 fs = helperSampleRate(cfg);
@@ -27,7 +28,7 @@ fs = helperSampleRate(cfg);
 scrambler = de2bi(1, 'left-msb');
 
 % modulate packet
-tx = wlanWaveformGenerator(int8(tx_psdu), cfg, 'ScramblerInitialization', scrambler);
+tx = wlanWaveformGenerator(tx_psdu, cfg, 'ScramblerInitialization', scrambler);
 
 % Note: tx would now be correlated to a received real-world sample
 
@@ -52,7 +53,9 @@ noiseEst = 1e-6; % depending on SNR
 
 % recover payload data
 rx_psdu = wlanNonHTDataRecover(rx(indData,:), chEst, noiseEst, cfg);
+% somehow rx_psdu gets replicated 8 times
+rx_psdu = rx_psdu(1:length(tx_psdu));
 
 % display bit error rate
-ber = biterr(rx_psdu, tx_psdu);
+ber = biterr(tx_psdu, rx_psdu);
 disp(ber);

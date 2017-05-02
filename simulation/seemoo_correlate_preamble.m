@@ -38,6 +38,10 @@ tx = [tx(1:320); tx(1:320); tx];
 lts_corr = abs(conv(conj(fliplr(ltf_symbol_t)), sign(tx)));
 sts_corr = abs(conv(conj(fliplr(stf_symbol_t)), sign(tx)));
 
+% remove samples introduced by convolution
+lts_corr = lts_corr(128:end);
+sts_corr = sts_corr(32:end);
+
 [~, I] = max(lts_corr);
 delay = I;
 
@@ -51,10 +55,11 @@ plot(lag, abs(acor)*25, 'g');
 plot(lts_corr, '.-b', 'LineWidth', 1);
 ylims = ylim();
 line([960 960], [0 ylims(2)], 'LineStyle', '--', 'Color', 'r', 'LineWidth', 2);
-line([1320 1320], [0 ylims(2)], 'LineStyle', '--', 'Color', 'r', 'LineWidth', 2);
+line([1280 1280], [0 ylims(2)], 'LineStyle', '--', 'Color', 'r', 'LineWidth', 2);
+line([0 0], [0 ylims(2)], 'LineStyle', '--', 'Color', 'r', 'LineWidth', 2);
 myAxis = axis();
-axis([1, 2000, myAxis(3), myAxis(4)])
-legend(["abs(xcorr(.,.))", "abs(conv(conj(fliplr(.)),sign(.)))", "LTF start", "LTF end"]);
+axis([-200, 2000, myAxis(3), myAxis(4)])
+legend(["abs(xcorr(.,.))", "abs(conv(conj(fliplr(.)),sign(.)))", "LTF start", "LTF end", "Packet start"]);
 
 figure(2); clf; hold on;
 title("STF one-symbol correlation");
@@ -62,6 +67,7 @@ plot(sts_lag, abs(sts_acor)*25, 'g');
 plot(sts_corr, '.-b', 'LineWidth', 1);
 ylims = ylim();
 line([960 960], [0 ylims(2)], 'LineStyle', '--', 'Color', 'r', 'LineWidth', 2);
+line([0 0], [0 ylims(2)], 'LineStyle', '--', 'Color', 'r', 'LineWidth', 2);
 myAxis = axis();
-axis([1, 2000, myAxis(3), myAxis(4)])
-legend(["abs(xcorr(.,.))", "abs(conv(conj(fliplr(.)),sign(.)))", "STF end"]);
+axis([-200, 2000, myAxis(3), myAxis(4)])
+legend(["abs(xcorr(.,.))", "abs(conv(conj(fliplr(.)),sign(.)))", "STF end", "Packet start"]);

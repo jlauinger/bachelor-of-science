@@ -39,8 +39,8 @@ lts_corr = abs(conv(conj(fliplr(ltf_symbol_t)), sign(tx)));
 sts_corr = abs(conv(conj(fliplr(stf_symbol_t)), sign(tx)));
 
 % remove samples introduced by convolution
-lts_corr = lts_corr(128:end);
-sts_corr = sts_corr(32:end);
+lts_corr = lts_corr(length(ltf_symbol_t):end);
+sts_corr = sts_corr(length(stf_symbol_t):end);
 
 [~, I] = max(lts_corr);
 delay = I;

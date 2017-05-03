@@ -7,7 +7,7 @@
 % Author: Johannes Lauinger <jlauinger@seemoo.de>
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-clear all; close all;
+% clear all; close all;
 
 referenceSender1 = 'ABABABABAB43';
 referenceSender2 = 'EFEFEFEFEF44';
@@ -21,34 +21,31 @@ SIGNAL = struct( ...
     'MOD_TYPE',           '80211g', ... % Signal type (kind of modulation / standard)
     'TYPE',               'DATA', ...   % Data frame
     'PAYLOAD',            randi([0 255], 1, 104), ...  % Custom payload data
-    'RATE',               2,  ...       % Modulation order (1-8)
-    'SAMPLING_RATE',      20e6);        % Sampling rate of the signal
+    'RATE',               1,  ...       % Modulation order (1-8)
+    'SAMPLING_RATE',      40e6);        % Sampling rate of the signal
 
 % create signal
 tx1_struct = seemoo_generate_signal(SIGNAL, referenceSender1, referenceDestination, 'EFEFEFEFEF44');
 tx1_signal = tx1_struct.samples';
-tx1 = tx1_signal(960:1280);
+tx1 = tx1_signal(1121:1440);
 tx2_struct = seemoo_generate_signal(SIGNAL, referenceSender2, referenceDestination, 'EFEFEFEFEF44');
 tx2_signal = tx2_struct.samples';
-tx2 = tx2_signal(960:1280);
-
-% introduce some attenuation for one of the senders
-tx2 = 0.7*tx2;
+tx2 = tx2_signal(1121:1440);
 
 % oh no, there's a collision!!
 tx = tx1 + tx2;
 
 % create modulations of all known MAC addresses
-corr = zeros(size(macs,1), 321);
+corr = zeros(size(macs,1), length(tx1));
 for i = 1:size(macs,1)
     corr_struct = seemoo_generate_signal(SIGNAL, macs(i,:), '000000000000', '000000000000');
     samples = corr_struct.samples';
-    corr(i,:) = samples(960:1280);
+    corr(i,:) = samples(1121:1440);
 end
 
 % correlate samples to find the addresses
-acor = zeros(size(macs,1), 641);
-lag = zeros(size(macs,1), 641);
+acor = zeros(size(macs,1), 2*length(tx1)-1);
+lag = zeros(size(macs,1), 2*length(tx1)-1);
 for i = 1:size(macs,1)
     [acor(i,:), lag(i,:)] = xcorr(tx, corr(i,:));
 end

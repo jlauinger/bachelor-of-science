@@ -60,8 +60,7 @@ ind.ltf = ind.payload - 320; % subtract LTF length
 ind.stf = ind.ltf - 320; % subtract STF length
 
 
-% plot correlation values (probability of the preamble starting at this
-% frame) and show the estimated delay
+% plot LTF correlation
 figure(1); clf; hold on;
 title("LTF correlation and packet indices");
 plot(ltf_lag, abs(ltf_corr), '.-b', 'LineWidth', 1);
@@ -75,6 +74,7 @@ myAxis = axis();
 axis([0, ind.payload+400, myAxis(3), myAxis(4)])
 legend(["abs(xcorr(.,.))", "LTF correlation threshold", "Packet/STF start", "LTF start", "SIG start"]);
 
+% plot STF correlation
 figure(2); clf; hold on;
 title("STF correlation and packet indices");
 plot(stf_lag, abs(stf_corr), '.-b', 'LineWidth', 1);
@@ -85,6 +85,7 @@ myAxis = axis();
 axis([0, ind.payload+400, myAxis(3), myAxis(4)])
 legend(["abs(xcorr(.,.))", "Packet/STF start", "LTF start"]);
 
+% plot time domain signal with indices
 figure(3); clf; hold on;
 title("Tx real waveform with estimated field indices");
 plot(real(tx), 'k');

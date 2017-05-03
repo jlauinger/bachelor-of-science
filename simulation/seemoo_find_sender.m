@@ -10,7 +10,7 @@
 % Author: Johannes Lauinger <jlauinger@seemoo.de>
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-clear all; close all;
+% clear all; close all;
 
 referenceSender = 'ABABABABAB43';
 referenceDestination = 'CDCDCDCDCD43';
@@ -23,25 +23,25 @@ SIGNAL = struct( ...
     'MOD_TYPE',           '80211g', ... % Signal type (kind of modulation / standard)
     'TYPE',               'DATA', ...   % Data frame
     'PAYLOAD',            randi([0 255], 1, 104), ...  % Custom payload data
-    'RATE',               2,  ...       % Modulation order (1-8)
-    'SAMPLING_RATE',      20e6);        % Sampling rate of the signal
+    'RATE',               1,  ...       % Modulation order (1-8)
+    'SAMPLING_RATE',      40e6);        % Sampling rate of the signal
 
 % create signal
 tx_struct = seemoo_generate_signal(SIGNAL, referenceSender, 'CDCDCDCDCD43', 'EFEFEFEFEF44');
 tx_signal = tx_struct.samples';
-tx = tx_signal(960:1280);
+tx = tx_signal(1121:1440);
 
 % create modulations of all known MAC addresses
-corr = zeros(size(macs,1), 321);
+corr = zeros(size(macs,1), length(tx));
 for i = 1:size(macs,1)
     corr_struct = seemoo_generate_signal(SIGNAL, macs(i,:), '000000000000', '000000000000');
     samples = corr_struct.samples';
-    corr(i,:) = samples(960:1280);
+    corr(i,:) = samples(1121:1440);
 end
 
 % correlate samples to find the addresses
-acor = zeros(size(macs,1), 641);
-lag = zeros(size(macs,1), 641);
+acor = zeros(size(macs,1), 2*length(tx)-1);
+lag = zeros(size(macs,1), 2*length(tx)-1);
 for i = 1:size(macs,1)
     [acor(i,:), lag(i,:)] = xcorr(real(tx), real(corr(i,:)));
 end

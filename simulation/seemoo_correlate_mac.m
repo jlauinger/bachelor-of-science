@@ -1,4 +1,4 @@
-clear all; close all;
+% clear all; close all;
 
 referenceMac = 'ABABABABAB42';
 candidateMac = '000000000000';
@@ -9,7 +9,7 @@ SIGNAL = struct( ...
     'TYPE',               'DATA', ...   % Data frame
     'PAYLOAD',            randi([0 255], 1, 104), ...  % Custom payload data
     'RATE',               1,  ...       % Modulation order (1-8)
-    'SAMPLING_RATE',      20e6);        % Sampling rate of the signal
+    'SAMPLING_RATE',      40e6);        % Sampling rate of the signal
 
 % create signals
 tx_struct = seemoo_generate_signal(SIGNAL, referenceMac, 'CDCDCDCDCD43', 'EFEFEFEFEF44');
@@ -20,16 +20,20 @@ corr1_signal = corr1_struct.samples';
 corr2_signal = corr2_struct.samples';
 
 % Data Field starts after STF (8 us) + LTF (8 us) + SIG (4 us) = 
-% 20 us @ 20 MHz = 400 samples
+% 20 us @ 40 MHz = 800 samples
 % MAC address is 6 Bytes with 6 Byte offset (2B SRV + 4B MAC beginning)
-% BPSK and 48 SCs yield 48 bit = 6 Byte per OFDM symbol
-% Therefore addr1 is in the second OFDM symbol (4 us) in Data
-% Symbols (4 us). 4 us @ 20 MHz = 80 samples
-% !Above calculation not yet right! Convolutional Encoding => 2 times
-% samples. Also still seems to be 40 MHz
-tx = tx_signal(960:1280);
-corr1 = corr1_signal(960:1280);
-corr2 = corr2_signal(960:1280);
+% BPSK and 48 SCs yield 48 bit = 6 Byte per OFDM symbol, but need to think
+% about 1/2 encoding => 3 Byte per OFDM symbol
+% Therefore addr1 is in the third and fourth OFDM symbol (8 us) in Data
+% 8 us @ 40 MHz = 320 samples
+tx = tx_signal(1121:1440);
+corr1 = corr1_signal(1121:1440);
+corr2 = corr2_signal(1121:1440);
+
+% Note: the next OFDM symbol (1440:1600) is also different in time domain.
+% This is because the Trellis convolutional encoder is stateful, hence due
+% to the differing data in the last symbol, the next symbol will get
+% encoded differently.
 
 % results
 
@@ -45,7 +49,7 @@ legend('reference', 'candidate');
 title('cross correlation');
 
 figure(2);
-t = 0:320;
+t = 1:320;
 plot(t, real(corr1), 'b', t, real(corr2), 'r');
 legend('reference', 'candidate');
 title('MAC addr 1 (real)');

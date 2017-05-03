@@ -24,15 +24,15 @@ SIGNAL = struct( ...
     'TYPE',               'DATA', ...   % Data frame
     'PAYLOAD',            randi([0 255], 1, 104), ...  % Custom payload data
     'RATE',               1,  ...       % Modulation order (1-8)
-    'SAMPLING_RATE',      20e6);        % Sampling rate of the signal
+    'SAMPLING_RATE',      40e6);        % Sampling rate of the signal
 
 % create signal
 tx1_struct = seemoo_generate_signal(SIGNAL, referenceSender1, referenceDestination, 'EFEFEFEFEF44');
 tx1_signal = tx1_struct.samples';
-tx1 = tx1_signal(960:1280);
+tx1 = tx1_signal(1121:1440);
 tx2_struct = seemoo_generate_signal(SIGNAL, referenceSender2, referenceDestination, 'EFEFEFEFEF44');
 tx2_signal = tx2_struct.samples';
-tx2 = tx2_signal(960:1280);
+tx2 = tx2_signal(1121:1440);
 
 % now the sender has an out-of-sync clock
 d1 = fdesign.fracdelay(frac_delay_1, 1);
@@ -49,16 +49,16 @@ tx2 = filter(Hd2, tx2);
 tx = tx1 + tx2;
 
 % create modulations of all known MAC addresses
-corr = zeros(size(macs,1), 321);
+corr = zeros(size(macs,1), 320);
 for i = 1:size(macs,1)
     corr_struct = seemoo_generate_signal(SIGNAL, macs(i,:), '000000000000', '000000000000');
     samples = corr_struct.samples';
-    corr(i,:) = samples(960:1280);
+    corr(i,:) = samples(1121:1440);
 end
 
 % correlate samples to find the addresses
-acor = zeros(size(macs,1), 641);
-lag = zeros(size(macs,1), 641);
+acor = zeros(size(macs,1), 639);
+lag = zeros(size(macs,1), 639);
 for i = 1:size(macs,1)
     [acor(i,:), lag(i,:)] = xcorr(tx, corr(i,:));
 end

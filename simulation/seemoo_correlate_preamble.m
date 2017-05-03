@@ -1,4 +1,4 @@
-%clear all; close all;
+clear all; close all;
 
 % Signal generation settings IEEE 802.11g OFDM
 SIGNAL = struct( ...
@@ -14,60 +14,53 @@ tx = SIGNAL.samples;
 
 % create a reference preamble
 ieeeenc = ieee_80211_encoder();
-
 stf_phase_shift = 0;
-ltf_format = 'LTF';
-
+ltf_format = 'LTF'; % NonHT
 [preamble, stf_t_pre, ltf_t_pre] = ...
     ieeeenc.create_preamble(stf_phase_shift, ltf_format);
 
+% cut one individual symbol out of the sequences
 ltf_symbol_t = ltf_t_pre(193:320);
 stf_symbol_t = stf_t_pre(1:32);
-
-% results
 
 % introduce artificial delay, so that the packet does not begin right at
 % the start
 % also insert two more copies of the STF to match wl_example_siso plots :)
-tx = [tx(1:320); tx(1:320); tx];
+tx = [zeros(0, 1); tx(1:320); tx(1:320); tx];
 
 % correlate samples to find the LTF
-[acor, lag] = xcorr(tx, ltf_symbol_t);
-[sts_acor, sts_lag] = xcorr(tx, stf_symbol_t);
+[full_ltf_corr, full_ltf_lag] = xcorr(tx, ltf_symbol_t);
+[full_stf_corr, full_stf_lag] = xcorr(tx, stf_symbol_t);
 
-lts_corr = abs(conv(conj(fliplr(ltf_symbol_t)), sign(tx)));
-sts_corr = abs(conv(conj(fliplr(stf_symbol_t)), sign(tx)));
+% remove correlation values for negative shifts
+ltf_corr = full_ltf_corr(ceil(length(full_ltf_corr)/2):end);
+stf_corr = full_stf_corr(ceil(length(full_stf_corr)/2):end);
+ltf_lag = full_ltf_lag(ceil(length(full_ltf_lag)/2):end);
+stf_lag = full_ltf_lag(ceil(length(full_stf_lag)/2):end);
 
-% remove samples introduced by convolution
-lts_corr = lts_corr(length(ltf_symbol_t):end);
-sts_corr = sts_corr(length(stf_symbol_t):end);
-
-[~, I] = max(lts_corr);
-delay = I;
-
-disp(delay-320*3); % subtract STF length
+%[~, I] = max(ltf_corr);
+%delay = I;
+%disp(delay-320*3); % subtract STF length
 
 % plot correlation values (probability of the preamble starting at this
 % frame) and show the estimated delay
 figure(1); clf; hold on;
 title("LTF one-symbol correlation");
-plot(lag, abs(acor)*25, 'g');
-plot(lts_corr, '.-b', 'LineWidth', 1);
-ylims = ylim();
-line([960 960], [0 ylims(2)], 'LineStyle', '--', 'Color', 'r', 'LineWidth', 2);
-line([1280 1280], [0 ylims(2)], 'LineStyle', '--', 'Color', 'r', 'LineWidth', 2);
-line([0 0], [0 ylims(2)], 'LineStyle', '--', 'Color', 'r', 'LineWidth', 2);
+plot(ltf_lag, abs(ltf_corr), '.-b', 'LineWidth', 1);
+myYlim = ylim();
+line([960 960], [0 myYlim(2)], 'LineStyle', '--', 'Color', 'r', 'LineWidth', 2);
+line([1280 1280], [0 myYlim(2)], 'LineStyle', '--', 'Color', 'r', 'LineWidth', 2);
+line([0 0], [0 myYlim(2)], 'LineStyle', '--', 'Color', 'r', 'LineWidth', 2);
 myAxis = axis();
-axis([-200, 2000, myAxis(3), myAxis(4)])
-legend(["abs(xcorr(.,.))", "abs(conv(conj(fliplr(.)),sign(.)))", "LTF start", "LTF end", "Packet start"]);
+axis([-50, 2000, myAxis(3), myAxis(4)])
+legend(["abs(xcorr(.,.))", "LTF start", "LTF end", "Packet start"]);
 
 figure(2); clf; hold on;
 title("STF one-symbol correlation");
-plot(sts_lag, abs(sts_acor)*25, 'g');
-plot(sts_corr, '.-b', 'LineWidth', 1);
-ylims = ylim();
-line([960 960], [0 ylims(2)], 'LineStyle', '--', 'Color', 'r', 'LineWidth', 2);
-line([0 0], [0 ylims(2)], 'LineStyle', '--', 'Color', 'r', 'LineWidth', 2);
+plot(stf_lag, abs(stf_corr), '.-b', 'LineWidth', 1);
+myYlim = ylim();
+line([960 960], [0 myYlim(2)], 'LineStyle', '--', 'Color', 'r', 'LineWidth', 2);
+line([0 0], [0 myYlim(2)], 'LineStyle', '--', 'Color', 'r', 'LineWidth', 2);
 myAxis = axis();
-axis([-200, 2000, myAxis(3), myAxis(4)])
-legend(["abs(xcorr(.,.))", "abs(conv(conj(fliplr(.)),sign(.)))", "STF end", "Packet start"]);
+axis([-50, 2000, myAxis(3), myAxis(4)])
+legend(["abs(xcorr(.,.))", "STF end", "Packet start"]);

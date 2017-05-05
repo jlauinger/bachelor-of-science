@@ -18,6 +18,12 @@ referenceDestination = 'CDCDCDCDCD43';
 % list of known MAC addresses, could e.g. be obtained from kernel ARP cache
 macs = ['000000000000'; 'ABABABABAB42'; 'ABABABABAB43'; 'CDCDCDCDCD43'; 'EFEFEFEFEF44'];
 
+% LTS for CFO and channel estimation
+lts_f = zeros(1, 128);
+lts_f(1:27) = [0 1 -1 -1 1 1 -1 1 -1 1 -1 -1 -1 -1 -1 1 1 -1 -1 1 -1 1 -1 1 1 1 1];
+lts_f((128-25):128) = [1 1 -1 -1 1 1 -1 1 -1 1 1 1 1 1 1 -1 -1 1 1 -1 1 -1 1 1 1 1];
+
+
 % Signal generation settings IEEE 802.11g OFDM
 SIGNAL = struct( ...
     'MOD_TYPE',           '80211g', ... % Signal type (kind of modulation / standard)
@@ -95,16 +101,67 @@ constDiag1(demod1');
 
 % try to equalize tx1 so that there is no frequency offset or phase drift
 
+%Extract LTS (not yet CFO corrected)
+lts = tx1_signal(321:640);
+lts1 = lts(33:160);
+lts2 = lts(193:320);
+
+%Calculate coarse CFO est
+cfo_est_lts = mean(unwrap(angle(lts2 .* conj(lts1))));
+cfo_est_lts = cfo_est_lts/(2*pi*128);
+
+% Apply CFO correction to raw waveform
+rx_t = tx1_signal .* exp(-1i*2*pi*cfo_est_lts*[0:length(tx1_signal)-1]);
+
+% Re-extract LTS for channel estimate
+lts = rx_t(321:640);
+lts1 = lts(33:160);
+lts2 = lts(193:320);
+
+lts1_f = fft(lts1);
+lts2_f = fft(lts2);
+
+% Calculate channel estimate from average of 2 training symbols
+H_est = lts_f .* (lts1_f + lts2_f)/2;
+
+% (re-)cut the part containing MACs
+tx1_mac_t = tx1_signal(1121:1440);
+tx2_mac_t = tx2_signal(1121:1440);
+
+% transform received signal to frequency domain for further equalization
+demod1 = reshape(tx1_mac_t, 160, []);             % parallelize
+demod1 = demod1(33:160,:);                        % remove CP
+tx1_mac_f = fft(demod1, 128, 1);                     % FFT
+
+% Equalize (zero-forcing, just divide by complex chan estimates)
+N_OFDM_SYMS = 2;
+syms_eq_mat = tx1_mac_f' ./ repmat(H_est.', N_OFDM_SYMS, 1);
+
+% Extract the pilot tones and "equalize" them by their nominal Tx values
+pilots_f_mat = syms_eq_mat(SC_IND_PILOTS, :);
+pilots_f_mat_comp = pilots_f_mat.*pilots_mat;
+
+% Calculate the phases of every Rx pilot tone
+pilot_phases = unwrap(angle(fftshift(pilots_f_mat_comp,1)), [], 1);
+
+% Calculate slope of pilot tone phases vs frequency in each OFDM symbol
+pilot_spacing_mat = repmat(mod(diff(fftshift(SC_IND_PILOTS)),64).', 1, N_OFDM_SYMS);                        
+pilot_slope_mat = mean(diff(pilot_phases) ./ pilot_spacing_mat);
+
+% Calculate the SFO correction phases for each OFDM symbol
+pilot_phase_sfo_corr = fftshift((-32:31).' * pilot_slope_mat, 1);
+pilot_phase_corr = exp(-1i*(pilot_phase_sfo_corr));
+
+% Apply the pilot phase correction per symbol
+syms_eq_mat = syms_eq_mat .* pilot_phase_corr;
+
 
 % display constellation again
+tx1_mac_f = reshape(tx1_mac_f, 1, []);               % linerize
 constDiag2 = comm.ConstellationDiagram( ...
     'Name', 'Equalized Received Signal (tx1)', ...
     'ReferenceConstellation', [1 -1]);
-demod1 = reshape(tx1_mac_t, 160, []);             % parallelize
-demod1 = demod1(33:160,:);                        % remove CP
-demod1 = fft(demod1, 128, 1);                     % FFT
-demod1 = reshape(demod1, 1, []);                  % linerize
-constDiag2(demod1');
+constDiag2(syms_eq_mat);
 
 
 % oh no, there's a collision!!

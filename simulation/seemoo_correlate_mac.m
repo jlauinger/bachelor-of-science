@@ -12,9 +12,9 @@ SIGNAL = struct( ...
     'SAMPLING_RATE',      40e6);        % Sampling rate of the signal
 
 % create signals
-tx_struct = seemoo_generate_signal(SIGNAL, referenceMac, 'CDCDCDCDCD43', 'EFEFEFEFEF44');
-corr1_struct = seemoo_generate_signal(SIGNAL, referenceMac, 'CDCDCDCDCD43', 'EFEFEFEFEF44');
-corr2_struct = seemoo_generate_signal(SIGNAL, candidateMac, 'CDCDCDCDCD43', 'EFEFEFEFEF44');
+tx_struct = seemoo_generate_signal(SIGNAL, referenceMac, 'CDCDCDCDCD43', 'EFEFEFEFEF44', 'ff');
+corr1_struct = seemoo_generate_signal(SIGNAL, referenceMac, 'CDCDCDCDCD43', 'EFEFEFEFEF44', 'ff');
+corr2_struct = seemoo_generate_signal(SIGNAL, candidateMac, 'CDCDCDCDCD43', 'EFEFEFEFEF44', 'ff');
 tx_signal = tx_struct.samples';
 corr1_signal = corr1_struct.samples';
 corr2_signal = corr2_struct.samples';

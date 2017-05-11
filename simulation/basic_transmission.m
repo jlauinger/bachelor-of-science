@@ -12,7 +12,7 @@
 clear all; close all;
 
 % generate payload
-tx_psdu = generate_mac_header('ABABAB42', 'CDCDCD43', 'EFEFEF44');
+tx_psdu = generate_data_mac_frame('0f', 'ABABABABAB42', 'CDCDCDCDCD43', 'EFEFEFEFEF44', 'ff');
 tx_psdu = int8(tx_psdu');
 
 % configure 802.11g

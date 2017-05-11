@@ -21,14 +21,15 @@ SIGNAL = struct( ...
     'MOD_TYPE',           '80211g', ... % Signal type (kind of modulation / standard)
     'TYPE',               'DATA', ...   % Data frame
     'PAYLOAD',            randi([0 255], 1, 104), ...  % Custom payload data
+    'DURATION',           'ff', ...     % duration in us (for MAC frame)
     'RATE',               1,  ...       % Modulation order (1-8)
     'SAMPLING_RATE',      40e6);        % Sampling rate of the signal
 
 % create signal
-tx1_struct = seemoo_generate_signal(SIGNAL, referenceSender1, referenceDestination, 'EFEFEFEFEF44');
+tx1_struct = seemoo_generate_signal(SIGNAL, referenceSender1, referenceDestination, 'EFEFEFEFEF44', 'ff');
 tx1_signal = tx1_struct.samples';
 tx1 = tx1_signal(1121:1440);
-tx2_struct = seemoo_generate_signal(SIGNAL, referenceSender2, referenceDestination, 'EFEFEFEFEF44');
+tx2_struct = seemoo_generate_signal(SIGNAL, referenceSender2, referenceDestination, 'EFEFEFEFEF44', 'ff');
 tx2_signal = tx2_struct.samples';
 tx2 = tx2_signal(1121:1440);
 
@@ -38,7 +39,7 @@ tx = tx1 + tx2;
 % create modulations of all known MAC addresses
 corr = zeros(size(macs,1), length(tx1));
 for i = 1:size(macs,1)
-    corr_struct = seemoo_generate_signal(SIGNAL, macs(i,:), '000000000000', '000000000000');
+    corr_struct = seemoo_generate_signal(SIGNAL, macs(i,:), '000000000000', '000000000000', 'ff');
     samples = corr_struct.samples';
     corr(i,:) = samples(1121:1440);
 end

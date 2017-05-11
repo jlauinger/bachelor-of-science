@@ -1,5 +1,5 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% generate_mac_header.m
+% generate_data_mac_frame.m
 %  Create a MAC frame, return PSDU
 %
 % Required toolboxes:
@@ -9,7 +9,7 @@
 % Author: Johannes Lauinger <jlauinger@seemoo.de>
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function psdu = generate_data_mac_frame(duration, addr1, addr2, addr3)
+function psdu = generate_data_mac_frame(duration, addr1, addr2, addr3, payload)
 
   x8 = @(x) uint8(hex2dec(reshape(x,2,[])')');
 
@@ -33,7 +33,7 @@ function psdu = generate_data_mac_frame(duration, addr1, addr2, addr3)
 
   mac_frame.mac_header = struct2array(mac_header);
   mac_frame.llc_header = struct2array(llc_header);
-  mac_frame.data = x8('ff');                % just some data, does not matter
+  mac_frame.data = payload;                  % just some data, does not matter
   mac_frame.fcs = x8(ieee_80211_fcs(struct2array(mac_frame)));
 
   psdu = reshape(logical(de2bi(struct2array(mac_frame),8,'left-msb')'),1,[]);

@@ -33,18 +33,18 @@ tx2_signal = tx2_struct.samples';
 % Configure a Rician channel object
 ricChan = comm.RicianChannel( ...
     'SampleRate',              40e6, ...
-    'PathDelays',              2e-6, ... % 2us delay on one path !! here be dragons
+    'PathDelays',              0.4e-6, ... % 0.4us delay on one path !! here be dragons
     'AveragePathGains',        -10, ... % dB
     'MaximumDopplerShift',     20, ... % Hz
     'RandomStream',            'mt19937ar with seed', ...
     'Seed',                    100, ...
     'PathGainsOutputPort',     true);
     %'Visualization',           'Impulse and frequency responses');
-tx1_signal = ricChan(tx1_signal')';
+%tx1_signal = ricChan(tx1_signal')';
 
 rayChan = comm.RayleighChannel( ...
     'SampleRate',          40e6, ...
-    'PathDelays',          2e-6, ... 2us delay on one path
+    'PathDelays',          0.4e-6, ... 0.4us delay on one path
     'AveragePathGains',    -10, ... % dB
     'MaximumDopplerShift', 20, ... % Hz
     'RandomStream',        'mt19937ar with seed', ...
@@ -53,8 +53,8 @@ rayChan = comm.RayleighChannel( ...
 tx2_signal = rayChan(tx2_signal')';
 
 % apply channel effects
-tx1_signal = awgn(tx1_signal, 25);
-tx2_signal = awgn(tx2_signal, 25); % looks horrifying in the plot, but pretty much works up to such low SNR
+tx1_signal = awgn(tx1_signal, 30);
+tx2_signal = awgn(tx2_signal, 30); % looks horrifying in the plot, but pretty much works up to such low SNR
 
 % try and decode both packets using the library, to test if the channel
 % was really too bad, maybe?

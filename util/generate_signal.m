@@ -21,10 +21,7 @@ function SIGNAL = generate_signal(SIGNAL, addr1, addr2, addr3, duration, scrambl
 
     % get sampling rate
     SIGNAL.fs = helperSampleRate(cfg);
-
-    % initialize scrambler
-    scrambler = de2bi(scrambler, 'left-msb');
-
+    
     % modulate packet
     SIGNAL.samples = wlanWaveformGenerator(tx_psdu, cfg, 'ScramblerInitialization', scrambler);
     

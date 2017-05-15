@@ -1,5 +1,5 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% different_header_fields_vary_duration.m
+% vary_duration.m
 %
 % Test recognition quality for different values of duration
 %

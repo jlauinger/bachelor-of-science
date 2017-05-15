@@ -1,8 +1,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% different_header_fields.m
+% different_mod_orders.m
 %
-% Try and change the duration MAC header field and the scrambler
-% initialization
+% Try and change the modulation order
 %
 % Required toolboxes:
 %  - Communications System Toolbox
@@ -11,7 +10,7 @@
 % Author: Johannes Lauinger <jlauinger@seemoo.de>
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function different_header_fields(probe)
+function different_mod_orders(probe, rate)
 
 % clear all; close all;
 
@@ -39,7 +38,7 @@ macs = ['000000000000'; 'ABABABABAB42'; 'ABABABABAB43'; 'CDCDCDCDCD43'; 'EFEFEFE
 
 % Signal generation settings IEEE 802.11g OFDM
 SIGNAL = struct( ...
-    'RATE',               0,  ...                   % Modulation order (0-7)
+    'RATE',               rate,  ...                % Modulation order (0-7)
     'PAYLOAD',            randi([0 255], 1, 104));  % Custom payload data
 
 % create signal

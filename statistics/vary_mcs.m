@@ -16,7 +16,7 @@ for order = 0:7
         'duration', 'FFFF', ...
         'scrambler', 1);
 
-    T = evalc('different_mod_orders(probe, order);');
+    T = evalc('find_sender(probe, order);');
     lines = splitlines(T);
     disp([num2str(order) ':  ' char(lines(end-1))]);
 end

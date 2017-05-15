@@ -1,5 +1,5 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% different_mod_orders.m
+% find_sender.m
 %
 % Try and change the modulation order
 %
@@ -10,7 +10,7 @@
 % Author: Johannes Lauinger <jlauinger@seemoo.de>
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function different_mod_orders(probe, rate)
+function find_sender(probe, rate)
 
 % clear all; close all;
 
@@ -86,10 +86,6 @@ acor = abs(acor);
 % compute reference correlation
 [auto_corr,~] = xcorr(tx);
 c1 = abs(auto_corr(ceil(length(auto_corr)/2)));
-
-% plot correlation values and delays
-plot(lag', abs(acor'));
-legend(macs);
 
 % find sample index (x-axis) with the spikes - can be a bit off due to
 % channel effects

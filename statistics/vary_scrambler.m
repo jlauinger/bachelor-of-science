@@ -16,7 +16,7 @@ for s = 1:127
         'duration', 'FFFF', ...
         'scrambler', s);
 
-    T = evalc('different_header_fields(probe);');
+    T = evalc('find_sender(probe, 0);');
     lines = splitlines(T);
     disp([num2str(s) ':  ' char(lines(end-1))]);
 end

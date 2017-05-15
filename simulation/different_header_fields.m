@@ -6,14 +6,32 @@
 %
 % Required toolboxes:
 %  - Communications System Toolbox
+%  - WLAN System Toolbox
 %
 % Author: Johannes Lauinger <jlauinger@seemoo.de>
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+function different_header_fields(probe)
+
 % clear all; close all;
 
-referenceSender1 = 'ABABABABAB43';
-referenceSender2 = 'EFEFEFEFEF44';
+% configure packets to send
+p1 = struct(...
+    'sender', 'ABABABABAB43', ...
+    'duration', 'ffff', ...
+    'scrambler', 1);
+p2 = struct(...
+    'sender', 'EFEFEFEFEF44', ...
+    'duration', 'ffff', ...
+    'scrambler', 1);
+
+% configure values under test
+if (nargin < 1)
+    probe = struct(...
+        'duration', '0000', ...
+        'scrambler', 1);
+end
+    
 referenceDestination = 'CDCDCDCDCD43';
 
 % list of known MAC addresses, could e.g. be obtained from kernel ARP cache
@@ -21,68 +39,46 @@ macs = ['000000000000'; 'ABABABABAB42'; 'ABABABABAB43'; 'CDCDCDCDCD43'; 'EFEFEFE
 
 % Signal generation settings IEEE 802.11g OFDM
 SIGNAL = struct( ...
-    'MOD_TYPE',           '80211g', ... % Signal type (kind of modulation / standard)
-    'TYPE',               'DATA', ...   % Data frame
-    'PAYLOAD',            randi([0 255], 1, 104), ...  % Custom payload data
-    'RATE',               1,  ...       % Modulation order (1-8)
-    'SAMPLING_RATE',      40e6);        % Sampling rate of the signal
+    'RATE',               0,  ...                   % Modulation order (1-8)
+    'PAYLOAD',            randi([0 255], 1, 104));  % Custom payload data
 
 % create signal
-tx1_struct = seemoo_generate_signal(SIGNAL, referenceSender1, referenceDestination, 'EFEFEFEFEF44', 'ff');
+tx1_struct = generate_signal(SIGNAL, p1.sender, referenceDestination, 'EFEFEFEFEF44', p1.duration, p1.scrambler);
 tx1_signal = tx1_struct.samples';
-tx2_struct = seemoo_generate_signal(SIGNAL, referenceSender2, referenceDestination, 'EFEFEFEFEF44', 'ff');
+tx2_struct = generate_signal(SIGNAL, p2.sender, referenceDestination, 'EFEFEFEFEF44', p2.duration, p2.scrambler);
 tx2_signal = tx2_struct.samples';
 
 % Configure a Rician channel object
 ricChan = comm.RicianChannel( ...
     'SampleRate',              40e6, ...
-    'PathDelays',              0.4e-6, ... % 0.4us delay on one path !! here be dragons
+    'PathDelays',              0.4e-6, ... % 0.4us delay on one path
     'AveragePathGains',        -10, ... % dB
     'MaximumDopplerShift',     20, ... % Hz
     'RandomStream',            'mt19937ar with seed', ...
     'Seed',                    100, ...
     'PathGainsOutputPort',     true);
-%tx1_signal = ricChan(tx1_signal')';
-%tx2_signal = ricChan(tx2_signal')';
+tx1_signal = ricChan(tx1_signal')';
+tx2_signal = ricChan(tx2_signal')';
 
-% try and decode both packets using the library, to test if the channel
-% was really too bad, maybe?
-fprintf(1, "==> Trying to decode packets using standard decoder\n");
-settings.receiver.correct_coarse_cfo = true;
-settings.receiver.use_fixed_stf_position_for_cfo_correction = true;
-settings.receiver.shift_by_detected_position = true;
-settings.receiver.fixed_position_shift = 0;
-settings.receiver.enable_plotting = false;
-settings.receiver.use_ideal_signal_field = true;
-settings.receiver.sync_threshold = 0.8;
-settings.receiver.sync_search = 'off';
-settings.receiver.sync_search_threshold = 1.0;
-settings.channel_model.time_shift = 0;
-RX = struct('samples', tx1_signal');
-results = ieee_80211g_decode(tx1_struct, RX, settings);
-fprintf(1, "BER rx1: %f\n", results.ber.data_descrambled);
-RX = struct('samples', tx2_signal');
-results = ieee_80211g_decode(tx2_struct, RX, settings);
-fprintf(1, "BER rx2: %f\n", results.ber.data_descrambled);
 
 % cut the part containing MACs
-tx1_mac_t = tx1_signal(1121:1440);
-tx2_mac_t = tx2_signal(1121:1440);
+tx1_mac_t = tx1_signal(561:720);
+tx2_mac_t = tx2_signal(561:720);
 
 % oh no, there's a collision!!
 tx = tx1_mac_t + tx2_mac_t;
 
 % create modulations of all known MAC addresses
-mac_reference_corr = zeros(size(macs,1), 320);
+mac_reference_corr = zeros(size(macs,1), 160);
 for i = 1:size(macs,1)
-    corr_struct = seemoo_generate_signal(SIGNAL, macs(i,:), '000000000000', '000000000000', 'ff');
+    corr_struct = generate_signal(SIGNAL, macs(i,:), '000000000000', '000000000000', probe.duration, probe.scrambler);
     samples = corr_struct.samples';
-    mac_reference_corr(i,:) = samples(1121:1440);
+    mac_reference_corr(i,:) = samples(561:720);
 end
 
 % correlate samples to find the addresses
-acor = zeros(size(macs,1), 639);
-lag = zeros(size(macs,1), 639);
+acor = zeros(size(macs,1), 319);
+lag = zeros(size(macs,1), 319);
 for i = 1:size(macs,1)
     [acor(i,:), lag(i,:)] = xcorr(tx, mac_reference_corr(i,:));
 end
@@ -118,3 +114,5 @@ for i=1:size(macs,1)
 end
     
 fprintf(1, "==> Guessed MAC addresses: %s and %s\n", macs(i1,:), macs(i2,:));
+
+end

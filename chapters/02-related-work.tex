@@ -105,7 +105,7 @@ Problem of hidden terminals: some pairs of stations can not hear each other, the
 
 A station transmits after the medium is sensed idle for a distributed inter-frame space (DIFS). If it is sensed busy, the station waits until a DIFS idle. Before transmitting, the station then also waits for a random backoff time to allow other stations to kick in. The backoff time is measured in slots, where one slot is the time needed to detect another transmit (Rx Tx turnaround time, MAC processing).
 
-The backoff time is chosen out of the interval (0, w-1) where w is the contention window. Starting at CW\_MIN, w is doubled on each unsuccessful transmission, until CW\_MAX. Upon successful transmission, w is reset. When the medium is detected busy, w is frozen. ACKs are transmitted after a short inter-frame space (SIFS).\\
+The backoff time is chosen out of the interval (0, w-1) where w is the contention window. Starting at CW\_MIN, w is doubled on each unsuccessful transmission, until CW\_MAX. Upon successful transmission, w is reset. The backoff timer is randomly chosen out of the contention window. When the medium is detected busy, the selected backoff timer is frozen. ACKs are transmitted after a short inter-frame space (SIFS).\\
 
 \textbf{Saturation Throughput / Performace:}
 
@@ -429,6 +429,14 @@ Improve network performance by rescheduling collided packets, initiated by the r
 
 
 %% ---------------------------------------------------------------------------------------------------------------------
+
+\section{magistretti2012}
+
+802.11ec: collision avoidance without control messages \cite{magistretti2012}.\\
+
+
+
+
 %% ---------------------------------------------------------------------------------------------------------------------
 %% ---------------------------------------------------------------------------------------------------------------------
 %% ---------------------------------------------------------------------------------------------------------------------

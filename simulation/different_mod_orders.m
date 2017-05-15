@@ -61,23 +61,23 @@ tx2_signal = ricChan(tx2_signal')';
 
 
 % cut the part containing MACs
-tx1_mac_t = tx1_signal(561:720);
-tx2_mac_t = tx2_signal(561:720);
+tx1_mac_t = tx1_signal(helper_mac_sample_indices(rate));
+tx2_mac_t = tx2_signal(helper_mac_sample_indices(rate));
 
 % oh no, there's a collision!!
 tx = tx1_mac_t + tx2_mac_t;
 
 % create modulations of all known MAC addresses
-mac_reference_corr = zeros(size(macs,1), 160);
+mac_reference_corr = zeros(size(macs,1), length(tx));
 for i = 1:size(macs,1)
     corr_struct = generate_signal(SIGNAL, macs(i,:), '000000000000', '000000000000', probe.duration, probe.scrambler);
     samples = corr_struct.samples';
-    mac_reference_corr(i,:) = samples(561:720);
+    mac_reference_corr(i,:) = samples(helper_mac_sample_indices(rate));
 end
 
 % correlate samples to find the addresses
-acor = zeros(size(macs,1), 319);
-lag = zeros(size(macs,1), 319);
+acor = zeros(size(macs,1), 2*length(tx)-1);
+lag = zeros(size(macs,1), 2*length(tx)-1);
 for i = 1:size(macs,1)
     [acor(i,:), lag(i,:)] = xcorr(tx, mac_reference_corr(i,:));
 end

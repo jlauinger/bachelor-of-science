@@ -1,6 +1,9 @@
 ## IQ samples etc.
 data/
 
+## LibreOffice
+.~lock*#
+
 ## All PDF files in top directory:
 /*.pdf
 

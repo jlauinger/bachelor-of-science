@@ -11,6 +11,11 @@ This is the repository containing the MatLab implementation for thesis Collide, 
  - lib: functions from the Matlab File Exchange
  - scratch: small tests, mainly to verify Matlab behavior
  - warp: experiments using Warp SDRs
+ - statistics: code to do some experiments several times
+
+
+ - figures: Matlab figures
+ - results: data, e.g. calc sheets, containing results
 
 
 ## Notes
@@ -18,7 +23,7 @@ This is the repository containing the MatLab implementation for thesis Collide, 
 When starting up MatLab:
 
 ```
-addpath seemoo simulation util lib scratch warp
+addpath seemoo simulation util lib scratch warp statistics
 ```
 
 

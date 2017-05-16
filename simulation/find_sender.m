@@ -10,7 +10,7 @@
 % Author: Johannes Lauinger <jlauinger@seemoo.de>
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function find_sender(probe, rate)
+function guesses = find_sender(probe, rate, macs, senders)
 
 % clear all; close all;
 
@@ -30,11 +30,17 @@ if (nargin < 1)
         'duration', '0000', ...
         'scrambler', 1);
 end
+if (nargin < 3)
+    % list of known MAC addresses, could e.g. be obtained from kernel ARP cache
+    macs = ['000000000000'; 'ABABABABAB42'; 'ABABABABAB43'; ...
+            'CDCDCDCDCD43'; 'EFEFEFEFEF44'];
+end
+if (nargin >= 4)
+    p1.sender = senders(1,:);
+    p2.sender = senders(2,:);
+end
     
-referenceDestination = 'CDCDCDCDCD43';
-
-% list of known MAC addresses, could e.g. be obtained from kernel ARP cache
-macs = ['000000000000'; 'ABABABABAB42'; 'ABABABABAB43'; 'CDCDCDCDCD43'; 'EFEFEFEFEF44'];
+referenceDestination = macs(1,:);
 
 % Signal generation settings IEEE 802.11g OFDM
 SIGNAL = struct( ...
@@ -109,5 +115,7 @@ for i=1:size(macs,1)
 end
     
 fprintf(1, "==> Guessed MAC addresses: %s and %s\n", macs(i1,:), macs(i2,:));
+
+guesses = [macs(i1,:); macs(i2,:)];
 
 end

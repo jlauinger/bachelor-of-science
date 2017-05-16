@@ -11,7 +11,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % MCS for this experiment
-rate = 0;
+rate = 1;
 
 for d = 0:128  % only last 7 bits matter
     probe = struct(...

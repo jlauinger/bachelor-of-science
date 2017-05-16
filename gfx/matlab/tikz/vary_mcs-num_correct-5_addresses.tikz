@@ -1,0 +1,46 @@
+% This file was created by matlab2tikz.
+%
+%The latest updates can be retrieved from
+%  http://www.mathworks.com/matlabcentral/fileexchange/22022-matlab2tikz-matlab2tikz
+%where you can also make suggestions and rate matlab2tikz.
+%
+\definecolor{mycolor1}{rgb}{0.24220,0.15040,0.66030}%
+%
+\begin{tikzpicture}[%
+font=\footnotesize
+]
+
+\begin{axis}[%
+width=0.951\figurewidth,
+height=\figureheight,
+at={(0\figurewidth,0\figureheight)},
+scale only axis,
+bar shift auto,
+xmin=-1,
+xmax=8,
+xtick={0, 1, 2, 3, 4, 5, 6, 7},
+xlabel style={font=\color{white!15!black}},
+xlabel={MCS},
+ymin=0,
+ymax=2,
+axis background/.style={fill=white},
+title style={font=\bfseries},
+title={Correct guesses for different MCS (out of 5 addresses)},
+clip mode=individual,transpose legend,legend columns=2,legend style={at={(0,1)},anchor=north west,draw=black,fill=white,legend cell align=left}
+]
+\addplot[ybar, bar width=0.8, fill=mycolor1, draw=black, area legend] table[row sep=crcr] {%
+0	2\\
+1	2\\
+2	2\\
+3	2\\
+4	2\\
+5	2\\
+6	2\\
+7	2\\
+};
+\addplot[forget plot, color=white!15!black] table[row sep=crcr] {%
+-1	0\\
+8	0\\
+};
+\end{axis}
+\end{tikzpicture}%

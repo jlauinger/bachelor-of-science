@@ -31,4 +31,7 @@ function indices = helper_mac_sample_indices(rate)
         otherwise
             indices = 561:720;
     end
+    % Note: since we use wlanNonHTData, there is no preamble -> skip
+    % samples
+    indices = indices-400;
 end

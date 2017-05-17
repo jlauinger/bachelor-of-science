@@ -12,20 +12,20 @@ function SIGNAL = generate_signal(SIGNAL, addr1, addr2, addr3, duration, scrambl
 
     % generate payload
     tx_psdu = generate_data_mac_frame(duration, addr1, addr2, addr3, SIGNAL.PAYLOAD);
-    tx_psdu = int8(tx_psdu');
+    tx_psdu = int8(tx_psdu)';
 
     % configure 802.11g
     cfg = wlanNonHTConfig;
     cfg.MCS = SIGNAL.RATE;
-    cfg.PSDULength = length(tx_psdu/8);
+    cfg.PSDULength = length(tx_psdu)/8;
 
     % get sampling rate
     SIGNAL.fs = helperSampleRate(cfg);
     
     % modulate packet
-    SIGNAL.samples = wlanWaveformGenerator(tx_psdu, cfg, 'ScramblerInitialization', scrambler);
+    SIGNAL.samples = wlanNonHTData(tx_psdu, cfg, scrambler);
     
     % calculate field indices (in samples)
     SIGNAL.ind = wlanFieldIndices(cfg);
-
+    
 end

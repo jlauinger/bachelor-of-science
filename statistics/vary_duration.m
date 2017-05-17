@@ -17,7 +17,7 @@ filename_macs = "data/mac-addresses-eduroam-20170516.dat";
 NUM_ADDRESSES_TO_USE = 64;
 
 % number of experiments per MCS and scrambler
-NUM_EXPERIMENTS = 100;
+NUM_EXPERIMENTS = 1;
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -33,14 +33,14 @@ macs = macs(1:NUM_ADDRESSES_TO_USE, :);
 for order = 0:7
     order_time = tic;
     for duration = 0:127 % only last 7 bits are important
-        for ex = 0:NUM_EXPERIMENTS
+        for ex = 1:NUM_EXPERIMENTS
             % Note: it is possible that both senders are the same MAC here
             senders = macs(ceil(rand(2,1).*size(macs,1)),:);
             probe = struct( ...
                 'duration', sprintf('%04X', duration), ...
                 'scrambler', 1);
             % calculate
-            evalc('guesses = find_sender(probe, order, macs, senders);');
+            guesses = find_sender(probe, order, macs, senders);
             nc = correct_guesses(guesses, senders);
             % now store the stuff :D
             results(order+1, duration+1, nc+1) = results(order+1, duration+1, nc+1) + 1;

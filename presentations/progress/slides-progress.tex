@@ -45,11 +45,11 @@
 
 
 \begin{frame}
-\frametitle{IEE 802.11 Background: Frame Generation}
+\frametitle{IEEE 802.11 Background: Frame Generation}
 \begin{itemize}
 	\item PSDU bit stream
 	\item Prepend service bits, append tail and pad bits
-	\item \textbf{Apply scrambler} (7 bit LSFR)
+	\item \textbf{Apply scrambler} (7 bit LFSR)
 	\item \textbf{Apply convolutional encoding}
 	\item Group into symbols, apply interleaving
 	\item Modulate
@@ -95,7 +95,7 @@ $$ (f \star g)(n) = \sum_{m=-\infty}^{\infty} f^{\ast}(m) g(m+n) $$\\
 	\begin{itemize}
 		\setlength\itemsep{1em}
 		\item Scrambler initialization (essential)
-		\item MSDU duration field (quite unimportant)
+		\item MSDU duration field / Destination Address (quite unimportant)
 		\item Higher MCS
 	\end{itemize}
 \end{itemize}
@@ -172,7 +172,7 @@ $$ (f \star g)(n) = \sum_{m=-\infty}^{\infty} f^{\ast}(m) g(m+n) $$\\
 
 \begin{frame}[allowframebreaks]
 \frametitle{References}
-\bibliographystyle{abbrv}
+\bibliographystyle{plain}
 \bibliography{../../config/bibliography}
 \end{frame}
 

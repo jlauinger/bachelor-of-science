@@ -33,12 +33,13 @@ macs = macs(1:NUM_ADDRESSES_TO_USE, :);
 for order = 0:7
     order_time = tic;
     for duration = 0:127 % only last 7 bits are important
+        probe = struct( ...
+            'duration', sprintf('%04X', duration), ...
+            'scrambler', 1);
+        probe_signals = generate_signal_pool(probe, order, macs);
         for ex = 1:NUM_EXPERIMENTS
             % Note: it is possible that both senders are the same MAC here
             senders = macs(ceil(rand(2,1).*size(macs,1)),:);
-            probe = struct( ...
-                'duration', sprintf('%04X', duration), ...
-                'scrambler', 1);
             % calculate
             guesses = find_sender(probe, order, macs, senders);
             nc = correct_guesses(guesses, senders);

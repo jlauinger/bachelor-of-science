@@ -11,7 +11,7 @@
 % Author: Johannes Lauinger <jlauinger@seemoo.de>
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function guesses = find_sender_after_channel(reference, macs, senders, rate, snr)
+function guesses = find_sender_after_channel(reference, macs, senders, rate, snr, model)
 
 % clear all; close all;
 
@@ -34,9 +34,19 @@ referenceDestination = macs(1,:);
 
 % create signal
 tx1_struct = generate_signal(SIGNAL, referenceDestination, p1.sender, 'EFEFEFEFEF44', p1.duration, p1.scrambler);
-tx1_signal = tx1_struct.samples';
+tx1_signal = tx1_struct.samples;
 tx2_struct = generate_signal(SIGNAL, referenceDestination, p2.sender, 'EFEFEFEFEF44', p2.duration, p2.scrambler);
-tx2_signal = tx2_struct.samples';
+tx2_signal = tx2_struct.samples;
+
+% if a TGn delay profile is specified, apply the channel
+if (model ~= "None") 
+    tgnchan = wlanTGnChannel( ...
+        'SampleRate', 20e6, ...
+        'LargeScaleFadingEffect', 'Pathloss and shadowing', ...
+        'DelayProfile', model);
+    tx1_signal = tgnchan(tx1_signal);
+    tx2_signal = tgnchan(tx2_signal);
+end
 
 % cut the part containing MACs
 tx1_mac_t = tx1_signal(helper_mac_sample_indices(rate));
@@ -51,6 +61,9 @@ tx2_mac_t = awgn(tx2_mac_t, snr, 'measured');
 
 % oh no, there's a collision!!
 tx = tx1_mac_t + tx2_mac_t;
+
+% use a row vector from here
+tx = tx';
 
 % correlate samples to find the addresses
 acor = zeros(size(macs,1), 2*length(tx)-1);

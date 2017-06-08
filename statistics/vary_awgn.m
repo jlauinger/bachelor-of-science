@@ -10,6 +10,7 @@
 % Author: Johannes Lauinger <jlauinger@seemoo.de>
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+
 % Dataset to use
 filename_macs = "data/mac-addresses-eduroam-20170516.dat";
 

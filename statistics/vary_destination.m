@@ -20,7 +20,7 @@ filename_macs = "data/mac-addresses-eduroam-20170516.dat";
 NUM_ADDRESSES_TO_USE = 64;
 
 % number of experiments per MCS and scrambler
-NUM_EXPERIMENTS = 5;
+NUM_EXPERIMENTS = 100;
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -33,14 +33,13 @@ macs = cell2mat(out{1});
 macs = macs(:, [1:2 4:5 7:8 10:11 13:14 16:17]);
 macs = macs(1:NUM_ADDRESSES_TO_USE, :);
 
-for rate = 0:1
-    order_time = tic;
-    for destination = 0:5 % only last 7 bits are important
+for rate = 0:7
+    rate_time = tic;
+    for destination = 0:127 % only last 7 bits are important
         duration_hex = sprintf('ABCDEF0123%02X', destination);
         scrambler = 1;
         reference_signals = generate_signal_pool(macs, rate, duration_hex, scrambler);
         for ex = 1:NUM_EXPERIMENTS
-            % Note: it is possible that both senders are the same MAC here
             senders = helper_choose_senders(macs);
             % calculate
             guesses = find_sender(reference_signals, macs, senders, rate);
@@ -49,7 +48,7 @@ for rate = 0:1
             results(rate+1, destination+1, nc+1) = results(rate+1, destination+1, nc+1) + 1;
         end
     end
-    fprintf(1, "INFO: done with MCS %d in %fs\n", rate, toc(order_time));
+    fprintf(1, "INFO: done with MCS %d in %fs\n", rate, toc(rate_time));
 end
 
 

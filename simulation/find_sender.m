@@ -10,49 +10,32 @@
 % Author: Johannes Lauinger <jlauinger@seemoo.de>
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function guesses = find_sender(probe, rate, macs, senders)
+function guesses = find_sender(reference, macs, senders, rate)
 
 % clear all; close all;
-
-% configure packets to send
-p1 = struct(...
-    'sender', 'ABABABABAB43', ...
-    'duration', 'ffff', ...
-    'scrambler', 1);
-p2 = struct(...
-    'sender', 'EFEFEFEFEF44', ...
-    'duration', 'ffff', ...
-    'scrambler', 1);
-
-% configure values under test
-if (nargin < 1)
-    probe = struct(...
-        'duration', '0000', ...
-        'scrambler', 1);
-end
-if (nargin < 3)
-    % list of known MAC addresses, could e.g. be obtained from kernel ARP cache
-    macs = ['000000000000'; 'ABABABABAB42'; 'ABABABABAB43'; ...
-            'CDCDCDCDCD43'; 'EFEFEFEFEF44'];
-end
-if (nargin >= 4)
-    p1.sender = senders(1,:);
-    p2.sender = senders(2,:);
-end
-    
-referenceDestination = macs(1,:);
 
 % Signal generation settings IEEE 802.11g OFDM
 SIGNAL = struct( ...
     'RATE',               rate,  ...                % Modulation order (0-7)
     'PAYLOAD',            randi([0 255], 1, 1));    % Custom payload data (1 byte)
 
-% create signal
-tx1_struct = generate_signal(SIGNAL, p1.sender, referenceDestination, 'EFEFEFEFEF44', p1.duration, p1.scrambler);
-tx1_signal = tx1_struct.samples';
-tx2_struct = generate_signal(SIGNAL, p2.sender, referenceDestination, 'EFEFEFEFEF44', p2.duration, p2.scrambler);
-tx2_signal = tx2_struct.samples';
+% configure packets to send
+p1 = struct(...
+    'sender', senders(1,:), ...
+    'duration', 'ffff', ...
+    'scrambler', 1);
+p2 = struct(...
+    'sender', senders(2,:), ...
+    'duration', 'ffff', ...
+    'scrambler', 1);
+    
+referenceDestination = macs(1,:);
 
+% create signal
+tx1_struct = generate_signal(SIGNAL, referenceDestination, p1.sender, 'EFEFEFEFEF44', p1.duration, p1.scrambler);
+tx1_signal = tx1_struct.samples';
+tx2_struct = generate_signal(SIGNAL, referenceDestination, p2.sender, 'EFEFEFEFEF44', p2.duration, p2.scrambler);
+tx2_signal = tx2_struct.samples';
 
 % cut the part containing MACs
 tx1_mac_t = tx1_signal(helper_mac_sample_indices(rate));
@@ -61,19 +44,11 @@ tx2_mac_t = tx2_signal(helper_mac_sample_indices(rate));
 % oh no, there's a collision!!
 tx = tx1_mac_t + tx2_mac_t;
 
-% create modulations of all known MAC addresses
-mac_reference_corr = zeros(size(macs,1), length(tx));
-for i = 1:size(macs,1)
-    corr_struct = generate_signal(SIGNAL, macs(i,:), '000000000000', '000000000000', probe.duration, probe.scrambler);
-    samples = corr_struct.samples';
-    mac_reference_corr(i,:) = samples(helper_mac_sample_indices(rate));
-end
-
 % correlate samples to find the addresses
 acor = zeros(size(macs,1), 2*length(tx)-1);
 lag = zeros(size(macs,1), 2*length(tx)-1);
 for i = 1:size(macs,1)
-    [acor(i,:), lag(i,:)] = xcorr(tx, mac_reference_corr(i,:));
+    [acor(i,:), lag(i,:)] = xcorr(tx, reference(i,:));
 end
 acor = abs(acor);
 

@@ -13,15 +13,15 @@
 function indices = helper_mac_sample_indices(rate)
     switch rate
         case 0
-            indices = 561:720;
+            indices = 721:880;
         case 1
-            indices = 481:640;
+            indices = 561:720;
         case 2
-            indices = 481:560;
+            indices = 561:640;
         case 3
-            indices = 401:560;
+            indices = 481:560;
         case 4
-            indices = 401:480;
+            indices = 481:560;
         case 5
             indices = 401:480;
         case 6
@@ -29,7 +29,7 @@ function indices = helper_mac_sample_indices(rate)
         case 7
             indices = 401:480;
         otherwise
-            indices = 561:720;
+            indices = 721:880;
     end
     % Note: since we use wlanNonHTData, there is no preamble -> skip
     % samples

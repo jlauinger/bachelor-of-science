@@ -37,8 +37,7 @@ for rate = 0:7
     rate_time = tic;
     for destination = 0:127 % only last 7 bits are important
         duration_hex = sprintf('ABCDEF0123%02X', destination);
-        scrambler = 1;
-        reference_signals = generate_signal_pool(macs, rate, duration_hex, scrambler);
+        reference_signals = generate_signal_pool(macs, rate, duration_hex, 1);
         for ex = 1:NUM_EXPERIMENTS
             senders = helper_choose_senders(macs);
             % calculate

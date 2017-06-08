@@ -1,7 +1,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % find_sender.m
 %
-% Try and change the modulation order
+% For given parameters, guess and find MAC addresses out of a sample pool.
 %
 % Required toolboxes:
 %  - Communications System Toolbox

@@ -31,7 +31,7 @@ macs = cell2mat(out{1});
 macs = macs(:, [1:2 4:5 7:8 10:11 13:14 16:17]);
 macs = macs(1:NUM_ADDRESSES_TO_USE, :);
 
-for rate = 0:1
+for rate = 0:7
     rate_time = tic;
     reference_signals = generate_signal_pool(macs, rate, 'ABCDEF012345', 1);
     for trms = 100e-9:50e-9:500e-9

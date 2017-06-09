@@ -55,7 +55,7 @@ for rate = 0:7
     figure(rate+1);
     bar(100e-9:50e-9:500e-9, reshape(results(rate+1,:,:), 9, 3), 'stacked');
     title(sprintf("MCS %d", rate));
-    xlabel("802.11g stdchan: t_RMS in seconds");
+    xlabel("802.11g stdchan: t_{RMS} in seconds");
     ylabel("# experiments");
     legend("0 correct", "1 correct", "2 correct");
     

@@ -1,7 +1,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % vary_mcs.m
 %
-% Test recognition quality for decreasing AWGN SNR
+% Test recognition quality for different t_RMS, using stdchan for 802.11g
 %
 % Required toolboxes:
 %  - Communications System Toolbox
@@ -23,7 +23,7 @@ NUM_EXPERIMENTS = 10;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-results = zeros(8, 41, 3);
+results = zeros(8, 9, 3);
 
 file = fopen(filename_macs);
 out = textscan(file, "%s");
@@ -31,17 +31,17 @@ macs = cell2mat(out{1});
 macs = macs(:, [1:2 4:5 7:8 10:11 13:14 16:17]);
 macs = macs(1:NUM_ADDRESSES_TO_USE, :);
 
-for rate = 0:7
+for rate = 0:1
     rate_time = tic;
     reference_signals = generate_signal_pool(macs, rate, 'ABCDEF012345', 1);
-    for snr = 60:-2:-20
+    for trms = 100e-9:50e-9:500e-9
         for ex = 1:NUM_EXPERIMENTS
             senders = helper_choose_senders(macs);
             % calculate
-            guesses = find_sender_after_channel(reference_signals, macs, senders, rate, snr, "None", 0);
+            guesses = find_sender_after_channel(reference_signals, macs, senders, rate, 45, "None", trms);
             nc = helper_correct_guesses(guesses, senders);
             % now store the stuff :D
-            results(rate+1, snr/2+11, nc+1) = results(rate+1, snr/2+11, nc+1) + 1;
+            results(rate+1, trms/50e-9-1, nc+1) = results(rate+1, trms/50e-9-1, nc+1) + 1;
         end
     end
     fprintf(1, "INFO: done with MCS %d in %fs\n", rate, toc(rate_time));
@@ -53,26 +53,26 @@ end
 for rate = 0:7
     % configure plot
     figure(rate+1);
-    bar(-20:2:60, reshape(results(rate+1,:,:), 41, 3), 'stacked');
+    bar(100e-9:50e-9:500e-9, reshape(results(rate+1,:,:), 9, 3), 'stacked');
     title(sprintf("MCS %d", rate));
-    xlabel("AGWN SNR");
+    xlabel("802.11g stdchan: t_RMS in seconds");
     ylabel("# experiments");
     legend("0 correct", "1 correct", "2 correct");
     
     % save figure
     saveas(gcf, ...
-        sprintf('figures/vary_awgn-%s-num_correct-%d_addresses-%d_experiments-mcs_%d.fig', ...
+        sprintf('figures/vary_trms-%s-num_correct-%d_addresses-%d_experiments-mcs_%d.fig', ...
         datetime('now','Format','yyyyMMdd-HHmm'), ...
         NUM_ADDRESSES_TO_USE, ...
         NUM_EXPERIMENTS, ...
         rate));
     
     % save data
-    helper_csvwrite(sprintf('results/vary_awgn-%s-num_correct-%d_addresses-%d_experiments-mcs_%d.csv', ...
+    helper_csvwrite(sprintf('results/vary_trms-%s-num_correct-%d_addresses-%d_experiments-mcs_%d.csv', ...
         datetime('now','Format','yyyyMMdd-HHmm'), ...
         NUM_ADDRESSES_TO_USE, ...
         NUM_EXPERIMENTS, ...
         rate), ...
         "0 correct,1 correct,2 correct", ...
-        reshape(results(rate+1,:,:), 41, 3));
+        reshape(results(rate+1,:,:), 9, 3));
 end

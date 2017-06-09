@@ -11,7 +11,7 @@
 % Author: Johannes Lauinger <jlauinger@seemoo.de>
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function guesses = find_sender_after_channel(reference, macs, senders, rate, snr, model)
+function guesses = find_sender_after_channel(reference, macs, senders, rate, snr, model, trms)
 
 % clear all; close all;
 
@@ -50,12 +50,10 @@ if (model ~= "None")
 end
 
 % if a stdchan profile is specified, apply the channel
-if (false)
+if (trms > 0)
     fs = 20e6;
-    fd = 3;
-    trms = 100e-9;
-    profile = '802.11g';
-    chan = stdchan(1/fs, fd, profile, trms);
+    fd = 10; % Hz Doppler spread
+    chan = stdchan(1/fs, fd, '802.11g', trms);
     tx1_signal = filter(chan, tx1_signal);
     tx2_signal = filter(chan, tx2_signal);
 end

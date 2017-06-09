@@ -43,9 +43,21 @@ if (model ~= "None")
     tgnchan = wlanTGnChannel( ...
         'SampleRate', 20e6, ...
         'LargeScaleFadingEffect', 'Pathloss and shadowing', ...
+        'NumTransmitAntennas', 1, 'NumReceiveAntennas', 1, ...
         'DelayProfile', model);
     tx1_signal = tgnchan(tx1_signal);
     tx2_signal = tgnchan(tx2_signal);
+end
+
+% if a stdchan profile is specified, apply the channel
+if (false)
+    fs = 20e6;
+    fd = 3;
+    trms = 100e-9;
+    profile = '802.11g';
+    chan = stdchan(1/fs, fd, profile, trms);
+    tx1_signal = filter(chan, tx1_signal);
+    tx2_signal = filter(chan, tx2_signal);
 end
 
 % cut the part containing MACs
@@ -53,11 +65,8 @@ tx1_mac_t = tx1_signal(helper_mac_sample_indices(rate));
 tx2_mac_t = tx2_signal(helper_mac_sample_indices(rate));
 
 % apply AWGN
-%figure(10); hold on;
-%plot(real(tx1_mac_t), 'b');
-tx1_mac_t = awgn(tx1_mac_t, snr);
+tx1_mac_t = awgn(tx1_mac_t, snr, 'measured');
 tx2_mac_t = awgn(tx2_mac_t, snr, 'measured');
-%plot(real(tx1_mac_t), 'r');
 
 % oh no, there's a collision!!
 tx = tx1_mac_t + tx2_mac_t;

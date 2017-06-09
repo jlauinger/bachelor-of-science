@@ -38,7 +38,7 @@ for rate = 0:7
         for ex = 1:NUM_EXPERIMENTS
             senders = helper_choose_senders(macs);
             % calculate
-            guesses = find_sender_after_channel(reference_signals, macs, senders, rate, snr);
+            guesses = find_sender_after_channel(reference_signals, macs, senders, rate, snr, "None");
             nc = helper_correct_guesses(guesses, senders);
             % now store the stuff :D
             results(rate+1, snr/2+11, nc+1) = results(rate+1, snr/2+11, nc+1) + 1;

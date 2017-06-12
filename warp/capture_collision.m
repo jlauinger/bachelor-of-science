@@ -21,8 +21,7 @@ filename_macs = "data/mac-addresses-eduroam-20170516.dat";
 NUM_ADDRESSES_TO_USE    = 64;          % limit simulation time
 
 RATE                    = 0;           % MCS
-TRIGGER_OFFSET_TOL_NS   = 3000;        % Trigger time offset toleration between Tx and Rx that can be accomodated
-TX_SCALE                = 1.0;         % Scale for Tx waveform ([0:1])
+MAX_TX_LEN              = 2^15;        % 2^20 =  1048576 --> Soft max TX / RX length for WARP v3 Java Transport (WARPLab 7.5.x)
 
 file = fopen(filename_macs);
 out = textscan(file, "%s");
@@ -51,49 +50,40 @@ eth_trig = wl_trigger_eth_udp_broadcast;
 wl_triggerManagerCmd(nodes, 'add_ethernet_trigger', eth_trig);
 
 % Read Trigger IDs into workspace
-trig_in_ids  = wl_getTriggerInputIDs(nodes(1));
-trig_out_ids = wl_getTriggerOutputIDs(nodes(1));
+[T_IN_ETH_A, T_IN_ENERGY, T_IN_AGCDONE, T_IN_REG, T_IN_D0, T_IN_D1, T_IN_D2, T_IN_D3, T_IN_ETH_B] =  wl_getTriggerInputIDs(nodes(1));
+[T_OUT_BASEBAND, T_OUT_AGC, T_OUT_D0, T_OUT_D1, T_OUT_D2, T_OUT_D3] = wl_getTriggerOutputIDs(nodes(1));
 
 % For all nodes, we will allow Ethernet to trigger the buffer baseband and the AGC
-wl_triggerManagerCmd(nodes, 'output_config_input_selection', [trig_out_ids.BASEBAND, trig_out_ids.AGC], [trig_in_ids.ETH_A]);
+wl_triggerManagerCmd(nodes, 'output_config_input_selection', [T_OUT_BASEBAND, T_OUT_AGC], [T_IN_ETH_A]);
 
 % Set the trigger output delays.
-nodes.wl_triggerManagerCmd('output_config_delay', [trig_out_ids.BASEBAND], 0);
-nodes.wl_triggerManagerCmd('output_config_delay', [trig_out_ids.AGC], TRIGGER_OFFSET_TOL_NS);
+nodes.wl_triggerManagerCmd('output_config_delay', T_OUT_BASEBAND, 0);
+nodes.wl_triggerManagerCmd('output_config_delay', T_OUT_AGC, 3000); % 3000 ns delay before starting the AGC
 
 % Get IDs for the interfaces on the boards. 
-ifc_ids_TX1 = wl_getInterfaceIDs(node_tx1);
-ifc_ids_TX2 = wl_getInterfaceIDs(node_tx2);
-ifc_ids_RX = wl_getInterfaceIDs(node_rx);
-
-% Set up the TX / RX nodes and RF interfaces
-TX1_RF     = ifc_ids_TX1.RF_A;
-TX1_RF_VEC = ifc_ids_TX1.RF_A;
-TX1_RF_ALL = ifc_ids_TX1.RF_ALL;
-
-TX2_RF     = ifc_ids_TX2.RF_A;
-TX2_RF_VEC = ifc_ids_TX2.RF_A;
-TX2_RF_ALL = ifc_ids_TX2.RF_ALL;
-
-RX_RF     = ifc_ids_RX.RF_A;
-RX_RF_VEC = ifc_ids_RX.RF_A;
-RX_RF_ALL = ifc_ids_RX.RF_ALL;
+[RFA,RFB] = wl_getInterfaceIDs(nodes(1));
 
 % Set up the interface for the experiment
-wl_interfaceCmd(node_tx, TX1_RF_ALL, 'channel', 2.4, CHANNEL);
-wl_interfaceCmd(node_tx, TX2_RF_ALL, 'channel', 2.4, CHANNEL);
-wl_interfaceCmd(node_rx, RX_RF_ALL, 'channel', 2.4, CHANNEL);
-
-wl_interfaceCmd(node_tx, TX_RF_ALL, 'tx_gains', 3, 30);
+wl_interfaceCmd(nodes, 'RF_ALL', 'tx_gains', 3, 30);
+wl_interfaceCmd(nodes, 'RF_ALL', 'channel', 2.4, 11);
 
 % AGC setup
-wl_interfaceCmd(node_rx, RX_RF_ALL, 'rx_gain_mode', 'automatic');
-wl_basebandCmd(nodes, 'agc_target', -13);
+wl_interfaceCmd(nodes, 'RF_ALL', 'rx_gain_mode', 'automatic');
+wl_basebandCmd(nodes, 'agc_target', -10);
 
 % Get parameters from the node
 SAMP_FREQ    = wl_basebandCmd(nodes(1), 'tx_buff_clk_freq');
 Ts           = 1/SAMP_FREQ;
-maximum_buffer_len = min(MAX_TX_LEN, wl_basebandCmd(node_tx, TX_RF_VEC, 'tx_buff_max_num_samples'));
+
+% get tx length
+maximum_buffer_len = wl_basebandCmd(node_tx1, RFA, 'tx_buff_max_num_samples');
+txLength = min(MAX_TX_LEN, maximum_buffer_len);
+rxLength = txLength;
+
+% set up baseband
+wl_basebandCmd(nodes, 'tx_delay', 0);
+wl_basebandCmd(nodes, 'tx_length', txLength);
+wl_basebandCmd(nodes, 'rx_length', rxLength);
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -109,49 +99,48 @@ tx2_struct = generate_signal(SIGNAL, destination, sender2, 'EFEFEFEFEF44', 'FF',
 tx2_signal = tx2_struct.samples;
 
 % Scale the Tx vector to +/- 1
-tx1_vec_air = TX_SCALE .* tx1_signal ./ max(abs(tx1_signal));
-tx2_vec_air = TX_SCALE .* tx2_signal ./ max(abs(tx2_signal));
+tx1_vec_air = tx1_signal ./ max(abs(tx1_signal));
+tx2_vec_air = tx2_signal ./ max(abs(tx2_signal));
 
 TX_NUM_SAMPS = length(tx1_vec_air);
+RX_NUM_SAMPS = TX_NUM_SAMPS;
 
 wl_basebandCmd(nodes, 'tx_delay', 0);
-wl_basebandCmd(nodes, 'tx_length', TX_NUM_SAMPS);                                                        % Number of samples to send
-wl_basebandCmd(nodes, 'rx_length', TX_NUM_SAMPS + ceil((TRIGGER_OFFSET_TOL_NS*1e-9) / (1/SAMP_FREQ)));   % Number of samples to receive
+wl_basebandCmd(nodes, 'tx_length', TX_NUM_SAMPS);   % Number of samples to send
+wl_basebandCmd(nodes, 'rx_length', TX_NUM_SAMPS);   % Number of samples to receive
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % WARPLab Tx/Rx
 
 % Write the Tx waveforms to the Tx nodes
-wl_basebandCmd(node_tx1, TX1_RF_VEC, 'write_IQ', tx1_vec_air(:));
-wl_basebandCmd(node_tx2, TX2_RF_VEC, 'write_IQ', tx2_vec_air(:));
+wl_basebandCmd(node_tx1, RFA, 'write_IQ', tx1_vec_air(:));
+wl_basebandCmd(node_tx2, RFA, 'write_IQ', tx2_vec_air(:));
 
 % Enable the Tx and Rx radios
-wl_interfaceCmd(node_tx1, TX1_RF, 'tx_en');
-wl_interfaceCmd(node_tx2, TX2_RF, 'tx_en');
-wl_interfaceCmd(node_rx, RX_RF, 'rx_en');
+wl_interfaceCmd(node_tx1, RFA, 'tx_en');
+wl_interfaceCmd(node_tx2, RFA, 'tx_en');
+wl_interfaceCmd(node_rx, RFA, 'rx_en');
 
 % Enable the Tx and Rx buffers
-wl_basebandCmd(node_tx1, TX1_RF, 'tx_buff_en');
-wl_basebandCmd(node_tx2, TX2_RF, 'tx_buff_en');
-wl_basebandCmd(node_rx, RX_RF, 'rx_buff_en');
+wl_basebandCmd(node_tx1, RFA, 'tx_buff_en');
+wl_basebandCmd(node_tx2, RFA, 'tx_buff_en');
+wl_basebandCmd(node_rx, RFA, 'rx_buff_en');
 
 % Trigger the Tx/Rx cycle at all nodes
 eth_trig.send();
 
+% Wait until the TX / RX is done
+%pause(1.2 * txLength * Ts);
+
 % Retrieve the received waveform from the Rx node
-rx_vec_air = wl_basebandCmd(node_rx, RX_RF_VEC, 'read_IQ', 0, TX_NUM_SAMPS + (ceil((TRIGGER_OFFSET_TOL_NS*1e-9) / (1/SAMP_FREQ))));
+rx_vec_air = wl_basebandCmd(node_rx, RFA, 'read_IQ', 0, RX_NUM_SAMPS);
 
 rx_vec_air = rx_vec_air(:).';
 
-% Disable the Tx/Rx radios and buffers
-wl_basebandCmd(node_tx1, TX1_RF_ALL, 'tx_rx_buff_dis');
-wl_basebandCmd(node_tx2, TX2_RF_ALL, 'tx_rx_buff_dis');
-wl_basebandCmd(node_rx, RX_RF_ALL, 'tx_rx_buff_dis');
-
-wl_interfaceCmd(node_tx1, TX1_RF_ALL, 'tx_rx_dis');
-wl_interfaceCmd(node_tx2, TX2_RF_ALL, 'tx_rx_dis');
-wl_interfaceCmd(node_rx, RX_RF_ALL, 'tx_rx_dis');
+% Disable the buffers and RF interfaces for TX / RX
+wl_basebandCmd(nodes, 'RF_ALL', 'tx_rx_buff_dis');
+wl_interfaceCmd(nodes, 'RF_ALL', 'tx_rx_dis');
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -176,7 +165,7 @@ rx_to_corr = rx_vec_air(indices);
 acor = zeros(size(macs,1), 2*length(rx_to_corr)-1);
 lag = zeros(size(macs,1), 2*length(rx_to_corr)-1);
 for i = 1:size(macs,1)
-    [acor(i,:), lag(i,:)] = xcorr(rx_to_corr, reference(i,:));
+    [acor(i,:), lag(i,:)] = xcorr(rx_to_corr, reference_signals(i,:));
 end
 acor = abs(acor);
 

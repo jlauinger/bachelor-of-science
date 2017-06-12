@@ -1,0 +1,9 @@
+>> capture_collision
+==> Using senders: 80A589A2F5CF and 4491DB3ABA7D
+OS reduced recv buffer size to 212992
+OS reduced recv buffer size to 212992
+OS reduced recv buffer size to 212992
+OS reduced recv buffer size to 212992
+OS reduced recv buffer size to 212992
+==> Wrote tx1, tx2, and rx samples to disk.
+==> Guessed MAC addresses: 5C5188B82787 and 9C4E36AEE9AC

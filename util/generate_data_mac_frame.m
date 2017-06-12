@@ -37,5 +37,5 @@ function [psdu, mac_frame] = generate_data_mac_frame(duration, addr1, addr2, add
   %%mac_frame.fcs = x8(ieee_80211_fcs(struct2array(mac_frame)));
   mac_frame.fcs = x8('42424242'); % use bogus checksum, since we're only interested in MAC samples
 
-  psdu = reshape(logical(de2bi(struct2array(mac_frame),8,'left-msb')'),1,[]);
+  psdu = reshape(logical(de2bi(struct2array(mac_frame),8,'left-msb')),1,[]);
 end

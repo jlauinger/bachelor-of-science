@@ -17,9 +17,12 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+filename_macs = "data/mac-addresses-eduroam-20170516.dat";
+NUM_ADDRESSES_TO_USE    = 64;          % limit simulation time
+
 RATE                    = 0;           % MCS
 TRIGGER_OFFSET_TOL_NS   = 3000;        % Trigger time offset toleration between Tx and Rx that can be accomodated
-TX_SCALE                = 1.0;          % Scale for Tx waveform ([0:1])
+TX_SCALE                = 1.0;         % Scale for Tx waveform ([0:1])
 
 file = fopen(filename_macs);
 out = textscan(file, "%s");

@@ -23,8 +23,9 @@ NUM_ADDRESSES_TO_USE    = 64;          % limit simulation time
 RATE                    = 0;           % MCS
 MAX_TX_LEN              = 2^20;        % 2^20 =  1048576 --> Soft max TX / RX length for WARP v3 Java Transport (WARPLab 7.5.x)
 
-LTF_CORR_THRESHOLD      = 0.8;
-PACKET_DELAY            = 0;
+LTF_CORR_THRESHOLD      = 0.8;         % threshold to detect LTF correlation peaks
+PACKET_DELAY            = 0;           % hardware tx delay
+CUTAWAY_LENGTH          = 200;         % for LTF correlation, cut away some noisy samples in the beginning
 
 file = fopen(filename_macs);
 out = textscan(file, "%s");
@@ -167,8 +168,8 @@ fprintf(1, "==> Wrote tx1, tx2, and rx samples to disk.\n");
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % try and correlate the LTF
 
-% remove first 200 samples (too much noise)
-rx_vec_air = rx_vec_air(201:end);
+% remove first samples (too much noise)
+rx_vec_air = rx_vec_air(CUTAWAY_LENGTH+1:end);
 
 % create a reference preamble
 ieeeenc = ieee_80211_encoder();
@@ -229,10 +230,10 @@ line([ind2.stf ind2.stf], [0 myYlim(2)], 'LineStyle', '--', 'Color', 'g', 'LineW
 line([ind2.ltf ind2.ltf], [0 myYlim(2)], 'LineStyle', '--', 'Color', 'g', 'LineWidth', 2);
 line([ind2.sig ind2.sig], [0 myYlim(2)], 'LineStyle', '--', 'Color', 'g', 'LineWidth', 2);
 line([ind2.payload ind2.payload], [0 myYlim(2)], 'LineStyle', '--', 'Color', 'g', 'LineWidth', 2);
-p=patch(ind2.payload+[320 640 640 320], [0 0 myYlim(2) myYlim(2)], 'g');
+p=patch(ind2.payload+[640 960 960 640], [0 0 myYlim(2) myYlim(2)], 'g');
 set(p,'FaceAlpha',0.2);
 myAxis = axis();
-axis([-30, ind2.payload+800, myAxis(3), myAxis(4)])
+axis([-10, ind2.payload+1200, myAxis(3), myAxis(4)])
 legend(["abs(xcorr(.,.))", "LTF correlation threshold", ...
     "1. Packet/STF start", "1. LTF start", "1. SIG start", "1. DATA start", "1. MAC interval", ...
     "2. Packet/STF start", "2. LTF start", "2. SIG start", "2. DATA start", "2. MAC interval"]);
@@ -244,8 +245,9 @@ legend(["abs(xcorr(.,.))", "LTF correlation threshold", ...
 reference_signals = generate_signal_pool(macs, RATE, 'ABCDEF012345', 1, 40e6);
 
 % cut out the part containing the MAC addresses of both samples
+rx_offset = ind1.stf + CUTAWAY_LENGTH;
 indices = helper_mac_sample_indices(RATE, 40e6);
-start = ind1.payload+indices(1); stop = ind2.payload+indices(end);
+start = ind1.payload+indices(1)+rx_offset; stop = ind2.payload+indices(end)+rx_offset;
 rx_to_corr = rx_vec_air(start:stop);
 
 % correlate samples to find the addresses
@@ -299,7 +301,7 @@ end
 
 % check if there is any offset and adjust accordingly
 if (iswithin(ind1.stf-ind2.stf, -10, 10))
-    fprintf(1, "==> NOTE: detected negligible delay, return two best correlations\n");
+    fprintf(1, "==> NOTE: detected negligible delay, return two best correlations from first index\n");
     mac2 = mac2_2;
 else
     mac2 = mac2_1;

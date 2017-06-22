@@ -23,7 +23,8 @@ function SIGNAL = generate_signal(SIGNAL, addr1, addr2, addr3, duration, scrambl
     SIGNAL.fs = helperSampleRate(cfg);
     
     % modulate packet
-    SIGNAL.samples = wlanNonHTData(tx_psdu, cfg, scrambler);
+    %SIGNAL.samples = wlanNonHTData(tx_psdu, cfg, scrambler);
+    SIGNAL.samples = wlanWaveformGenerator(tx_psdu, cfg);
     
     % calculate field indices (in samples)
     SIGNAL.ind = wlanFieldIndices(cfg);

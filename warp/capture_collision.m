@@ -18,10 +18,10 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 filename_macs = "data/mac-addresses-eduroam-20170516.dat";
-NUM_ADDRESSES_TO_USE    = 64;          % limit simulation time
+NUM_ADDRESSES_TO_USE    = 3;          % limit simulation time
 
 RATE                    = 0;           % MCS
-MAX_TX_LEN              = 2^15;        % 2^20 =  1048576 --> Soft max TX / RX length for WARP v3 Java Transport (WARPLab 7.5.x)
+MAX_TX_LEN              = 2^20;        % 2^20 =  1048576 --> Soft max TX / RX length for WARP v3 Java Transport (WARPLab 7.5.x)
 
 file = fopen(filename_macs);
 out = textscan(file, "%s");
@@ -98,9 +98,17 @@ tx1_signal = tx1_struct.samples;
 tx2_struct = generate_signal(SIGNAL, destination, sender2, 'EFEFEFEFEF44', 'FF', 1);
 tx2_signal = tx2_struct.samples;
 
+% interpolate to get from 20 to 40 MHz sampling rate
+tx1_signal = interp(tx1_signal, 2);
+tx2_signal = interp(tx2_signal, 2);
+
 % Scale the Tx vector to +/- 1
 tx1_vec_air = tx1_signal ./ max(abs(tx1_signal));
 tx2_vec_air = tx2_signal ./ max(abs(tx2_signal));
+
+% Prepend some zeros to delay one of the transmissions
+tx1_vec_air = [tx1_vec_air; zeros(200, 1)];
+tx2_vec_air = [zeros(200, 1); tx2_vec_air];
 
 TX_NUM_SAMPS = length(tx1_vec_air);
 RX_NUM_SAMPS = TX_NUM_SAMPS;
@@ -131,7 +139,7 @@ wl_basebandCmd(node_rx, RFA, 'rx_buff_en');
 eth_trig.send();
 
 % Wait until the TX / RX is done
-%pause(1.2 * txLength * Ts);
+pause(1.2 * txLength * Ts);
 
 % Retrieve the received waveform from the Rx node
 rx_vec_air = wl_basebandCmd(node_rx, RFA, 'read_IQ', 0, RX_NUM_SAMPS);
@@ -154,9 +162,43 @@ fprintf(1, "==> Wrote tx1, tx2, and rx samples to disk.\n");
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% try and correlate the LTF
+
+% create a reference preamble
+ieeeenc = ieee_80211_encoder();
+stf_phase_shift = 0;
+ltf_format = 'LTF'; % NonHT
+[preamble, stf_t_pre, ltf_t_pre] = ...
+    ieeeenc.create_preamble(stf_phase_shift, ltf_format);
+
+% cut one individual symbol out of the sequences
+ltf_symbol_t = ltf_t_pre(193:320);
+
+% correlate samples to find the LTF
+[full_ltf_corr, full_ltf_lag] = xcorr(rx_vec_air, ltf_symbol_t);
+
+% remove correlation values for negative shifts
+ltf_corr = full_ltf_corr(ceil(length(full_ltf_corr)/2):end);
+ltf_lag = full_ltf_lag(ceil(length(full_ltf_lag)/2):end);
+
+% plot LTF correlation
+figure(1); clf; hold on;
+title("LTF correlation for real-world samples");
+plot(ltf_lag, abs(ltf_corr), '.-b', 'LineWidth', 1);
+myAxis = axis();
+axis([0, 1800, myAxis(3), myAxis(4)])
+legend("abs(xcorr(.,.))");
+
+% save figure
+saveas(gcf, ...
+    sprintf('figures/capture_collision-%s-ltf_correlation.fig', ...
+    datetime('now','Format','yyyyMMdd-HHmm')));
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % try to correlate and guess MACs
 
-reference_signals = generate_signal_pool(macs, RATE, 'ABCDEF012345', 1);
+reference_signals = generate_signal_pool(macs, RATE, 'ABCDEF012345', 1, 40e6);
 
 indices = helper_mac_sample_indices(RATE);
 rx_to_corr = rx_vec_air(indices);
@@ -179,3 +221,5 @@ i1 = I(1); i2 = I(2);
 fprintf(1, "==> Guessed MAC addresses: %s and %s\n", macs(i1,:), macs(i2,:));
 
 guesses = [macs(i1,:); macs(i2,:)];
+
+fprintf(1, "==> Correct guesses: %d\n", helper_correct_guesses(guesses, [sender1; sender2]));

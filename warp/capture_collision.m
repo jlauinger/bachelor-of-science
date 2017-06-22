@@ -23,6 +23,8 @@ NUM_ADDRESSES_TO_USE    = 3;          % limit simulation time
 RATE                    = 0;           % MCS
 MAX_TX_LEN              = 2^20;        % 2^20 =  1048576 --> Soft max TX / RX length for WARP v3 Java Transport (WARPLab 7.5.x)
 
+LTF_CORR_THRESHOLD      = 0.6;
+
 file = fopen(filename_macs);
 out = textscan(file, "%s");
 macs = cell2mat(out{1});
@@ -164,6 +166,9 @@ fprintf(1, "==> Wrote tx1, tx2, and rx samples to disk.\n");
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % try and correlate the LTF
 
+% remove first 200 samples (too much noise)
+rx_vec_air = rx_vec_air(201:end);
+
 % create a reference preamble
 ieeeenc = ieee_80211_encoder();
 stf_phase_shift = 0;
@@ -181,18 +186,55 @@ ltf_symbol_t = ltf_t_pre(193:320);
 ltf_corr = full_ltf_corr(ceil(length(full_ltf_corr)/2):end);
 ltf_lag = full_ltf_lag(ceil(length(full_ltf_lag)/2):end);
 
+% try to locate the packet start by finding the LTF peaks
+% Find all correlation peaks
+ltf_peaks = find(abs(ltf_corr) > LTF_CORR_THRESHOLD*max(abs(ltf_corr)));
+
+% As I trust here that there are exactly two packets, I cluster the peaks
+% into 4 means to get rid of very close values
+[~, C] = kmeans(ltf_peaks', 4);
+uniq_ltf_peaks = sort(floor(C))';
+
+% Select best candidate correlation peak as LTS-payload boundary
+[LTF1, LTF2] = meshgrid(uniq_ltf_peaks, uniq_ltf_peaks);
+[ltf_second_peak_index, y] = find(iswithin(LTF2-LTF1, length(ltf_symbol_t)/1.2, length(ltf_symbol_t)*1.2));
+
+% calculate estimated indices
+% Note: using max and min only works because, here, I trust that there
+% are exactly two packets involved in the collision.
+ind2.sig = uniq_ltf_peaks(max(ltf_second_peak_index)) + 128; % add 128 samples for the symbol itself
+ind2.ltf = ind2.sig - 320; % subtract LTF length
+ind2.stf = ind2.ltf - 320; % subtract STF length
+ind2.payload = ind2.sig + 160; % add 4us SIG field
+ind1.sig = uniq_ltf_peaks(min(ltf_second_peak_index)) + 128; % add 128 samples for the symbol itself
+ind1.ltf = ind1.sig - 320; % subtract LTF length
+ind1.stf = ind1.ltf - 320; % subtract STF length
+ind1.payload = ind1.sig + 160; % add 4us SIG field
+
 % plot LTF correlation
 figure(1); clf; hold on;
-title("LTF correlation for real-world samples");
+title("LTF correlation and packet indices (real-world data)");
 plot(ltf_lag, abs(ltf_corr), '.-b', 'LineWidth', 1);
+myYlim = ylim();
+myXlim = xlim();
+line([myXlim(1) myXlim(2)], [LTF_CORR_THRESHOLD*abs(max(ltf_corr)) LTF_CORR_THRESHOLD*abs(max(ltf_corr))], 'LineStyle', '--', 'Color', 'k', 'LineWidth', 2);
+line([ind1.stf ind1.stf], [0 myYlim(2)], 'LineStyle', '--', 'Color', 'r', 'LineWidth', 2);
+line([ind1.ltf ind1.ltf], [0 myYlim(2)], 'LineStyle', '--', 'Color', 'r', 'LineWidth', 2);
+line([ind1.sig ind1.sig], [0 myYlim(2)], 'LineStyle', '--', 'Color', 'r', 'LineWidth', 2);
+line([ind1.payload ind1.payload], [0 myYlim(2)], 'LineStyle', '--', 'Color', 'r', 'LineWidth', 2);
+p=patch(ind1.payload+[320 640 640 320], [0 0 myYlim(2) myYlim(2)], 'r');
+set(p,'FaceAlpha',0.2);
+line([ind2.stf ind2.stf], [0 myYlim(2)], 'LineStyle', '--', 'Color', 'g', 'LineWidth', 2);
+line([ind2.ltf ind2.ltf], [0 myYlim(2)], 'LineStyle', '--', 'Color', 'g', 'LineWidth', 2);
+line([ind2.sig ind2.sig], [0 myYlim(2)], 'LineStyle', '--', 'Color', 'g', 'LineWidth', 2);
+line([ind2.payload ind2.payload], [0 myYlim(2)], 'LineStyle', '--', 'Color', 'g', 'LineWidth', 2);
+p=patch(ind2.payload+[320 640 640 320], [0 0 myYlim(2) myYlim(2)], 'g');
+set(p,'FaceAlpha',0.2);
 myAxis = axis();
-axis([0, 1800, myAxis(3), myAxis(4)])
-legend("abs(xcorr(.,.))");
-
-% save figure
-saveas(gcf, ...
-    sprintf('figures/capture_collision-%s-ltf_correlation.fig', ...
-    datetime('now','Format','yyyyMMdd-HHmm')));
+axis([-30, ind2.payload+800, myAxis(3), myAxis(4)])
+legend(["abs(xcorr(.,.))", "LTF correlation threshold", ...
+    "1. Packet/STF start", "1. LTF start", "1. SIG start", "1. DATA start", "1. MAC interval", ...
+    "2. Packet/STF start", "2. LTF start", "2. SIG start", "2. DATA start", "2. MAC interval"]);
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -200,8 +242,10 @@ saveas(gcf, ...
 
 reference_signals = generate_signal_pool(macs, RATE, 'ABCDEF012345', 1, 40e6);
 
-indices = helper_mac_sample_indices(RATE);
-rx_to_corr = rx_vec_air(indices);
+% cut out the part containing the MAC addresses of both samples
+indices = helper_mac_sample_indices(RATE, 40e6);
+start = ind1.payload+indices(1); stop = ind2.payload+indices(end);
+rx_to_corr = rx_vec_air(start:stop);
 
 % correlate samples to find the addresses
 acor = zeros(size(macs,1), 2*length(rx_to_corr)-1);

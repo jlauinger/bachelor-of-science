@@ -18,12 +18,13 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 filename_macs = "data/mac-addresses-eduroam-20170516.dat";
-NUM_ADDRESSES_TO_USE    = 3;          % limit simulation time
+NUM_ADDRESSES_TO_USE    = 64;          % limit simulation time
 
 RATE                    = 0;           % MCS
 MAX_TX_LEN              = 2^20;        % 2^20 =  1048576 --> Soft max TX / RX length for WARP v3 Java Transport (WARPLab 7.5.x)
 
-LTF_CORR_THRESHOLD      = 0.6;
+LTF_CORR_THRESHOLD      = 0.8;
+PACKET_DELAY            = 0;
 
 file = fopen(filename_macs);
 out = textscan(file, "%s");
@@ -95,9 +96,9 @@ SIGNAL = struct( ...
     'RATE',               RATE,  ...                % Modulation order (0-7)
     'PAYLOAD',            randi([0 255], 1, 1));    % Custom payload data (1 byte)
 
-tx1_struct = generate_signal(SIGNAL, destination, sender1, 'EFEFEFEFEF44', 'FF', 1);
+tx1_struct = generate_signal(SIGNAL, destination, sender1, 'EFEFEFEFEF44', 'FF', 1, 1);
 tx1_signal = tx1_struct.samples;
-tx2_struct = generate_signal(SIGNAL, destination, sender2, 'EFEFEFEFEF44', 'FF', 1);
+tx2_struct = generate_signal(SIGNAL, destination, sender2, 'EFEFEFEFEF44', 'FF', 1, 1);
 tx2_signal = tx2_struct.samples;
 
 % interpolate to get from 20 to 40 MHz sampling rate
@@ -109,8 +110,8 @@ tx1_vec_air = tx1_signal ./ max(abs(tx1_signal));
 tx2_vec_air = tx2_signal ./ max(abs(tx2_signal));
 
 % Prepend some zeros to delay one of the transmissions
-tx1_vec_air = [tx1_vec_air; zeros(200, 1)];
-tx2_vec_air = [zeros(200, 1); tx2_vec_air];
+tx1_vec_air = [tx1_vec_air; zeros(PACKET_DELAY, 1)];
+tx2_vec_air = [zeros(PACKET_DELAY, 1); tx2_vec_air];
 
 TX_NUM_SAMPS = length(tx1_vec_air);
 RX_NUM_SAMPS = TX_NUM_SAMPS;
@@ -248,22 +249,62 @@ start = ind1.payload+indices(1); stop = ind2.payload+indices(end);
 rx_to_corr = rx_vec_air(start:stop);
 
 % correlate samples to find the addresses
-acor = zeros(size(macs,1), 2*length(rx_to_corr)-1);
-lag = zeros(size(macs,1), 2*length(rx_to_corr)-1);
+corr = zeros(size(macs,1), size(rx_to_corr,2)*2-1);
+lag = zeros(size(macs,1), size(rx_to_corr,2)*2-1);
 for i = 1:size(macs,1)
-    [acor(i,:), lag(i,:)] = xcorr(rx_to_corr, reference_signals(i,:));
+    [corr(i,:), lag(i,:)] = xcorr(rx_to_corr, reference_signals(i,:));
 end
-acor = abs(acor);
 
-% find sample index (x-axis) with the spikes - can be a bit off due to
-% channel effects
-[~,max_idx] = find(acor==max(acor(:)));
+% compute reference correlation
+[reference_corr,~] = xcorr(rx_to_corr);
+c_ref = abs(reference_corr(ceil(length(reference_corr)/2)));
+fprintf(1, "==> Aligned reference correlation: %f\n", c_ref);
 
-[~,I] = sort(acor(:,max_idx), 'descend');
-i1 = I(1); i2 = I(2);
+% calculate correlations for first packet
+for i=1:size(macs,1)
+    c = abs(corr(i,ceil(size(corr,2)/2)));
+end
 
-fprintf(1, "==> Guessed MAC addresses: %s and %s\n", macs(i1,:), macs(i2,:));
+% calculate correlations for second packet
+for i=1:size(macs,1)
+    c = abs(corr(i,ceil(size(corr,2)/2+(ind2.stf-ind1.stf))));
+end
 
-guesses = [macs(i1,:); macs(i2,:)];
+% calculate matching probabilities for first packet
+[mag1, mac1] = max(abs(corr(:,ceil(size(corr,2)/2))));
+probability1 = zeros(size(macs,1));
+for i=1:size(macs,1)
+    probability1(i) = 100*abs(corr(i,ceil(size(corr,2)/2)))/mag1;
+end
+[~, perm1] = sort(probability1);
+fprintf(1, "==> Matching probabilities for first packet (after %i samples)\n", ind1.stf-1);
+for i=1:size(macs,1)
+    fprintf(1, " * %s: %05.2f%%\n", macs(perm1(i),:), probability1(perm1(i)));
+end
 
-fprintf(1, "==> Correct guesses: %d\n", helper_correct_guesses(guesses, [sender1; sender2]));
+% calculate matching probabilities for second packet. f the offsets are
+% the same, we must use the second likeliest here
+[~,I] = sort(abs(corr(:,ceil(size(corr,2)/2+(ind2.stf-ind1.stf)))), 'descend');
+mac2_1 = I(1); mac2_2 = I(2);
+mag2_1 = abs(corr(mac2_1,ceil(size(corr,2)/2+(ind2.stf-ind1.stf)))); mag2_2 = abs(corr(mac2_2,ceil(size(corr,2)/2+(ind2.stf-ind1.stf))));
+probability2 = zeros(size(macs,1));
+for i=1:size(macs,1)
+    probability2(i) = 100*abs(corr(i,ceil(size(corr,2)/2+(ind2.stf-ind1.stf))))/mag2_1;
+end
+[~,perm2] = sort(probability2);
+fprintf(1, "==> Matching probabilities for second packet (after %i samples)\n", ind2.stf-1);
+for i=1:size(macs,1)
+    fprintf(1, " * %s: %05.2f%%\n", macs(perm2(i),:), probability2(perm2(i)));
+end
+
+% check if there is any offset and adjust accordingly
+if (iswithin(ind1.stf-ind2.stf, -10, 10))
+    fprintf(1, "==> NOTE: detected negligible delay, return two best correlations\n");
+    mac2 = mac2_2;
+else
+    mac2 = mac2_1;
+end
+    
+fprintf(1, "==> Guessed MAC addresses: %s and %s\n", macs(mac1,:), macs(mac2,:));
+fprintf(1, "==> Senders were: %s and %s\n", sender1, sender2);
+fprintf(1, "==> Correct guesses: %d\n", helper_correct_guesses([macs(mac1,:); macs(mac2,:)], [sender1; sender2]));

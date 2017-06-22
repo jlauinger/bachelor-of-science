@@ -1,4 +1,8 @@
-function SIGNAL = generate_signal(SIGNAL, addr1, addr2, addr3, duration, scrambler)
+function SIGNAL = generate_signal(SIGNAL, addr1, addr2, addr3, duration, scrambler, whole_packet)
+
+    if (nargin < 7)
+        whole_packet = 0;
+    end
 
     % The following parameters are expected:
     % SIGNAL: a structure with fields
@@ -23,8 +27,11 @@ function SIGNAL = generate_signal(SIGNAL, addr1, addr2, addr3, duration, scrambl
     SIGNAL.fs = helperSampleRate(cfg);
     
     % modulate packet
-    %SIGNAL.samples = wlanNonHTData(tx_psdu, cfg, scrambler);
-    SIGNAL.samples = wlanWaveformGenerator(tx_psdu, cfg);
+    if (whole_packet)
+        SIGNAL.samples = wlanWaveformGenerator(tx_psdu, cfg);
+    else
+        SIGNAL.samples = wlanNonHTData(tx_psdu, cfg, scrambler);
+    end
     
     % calculate field indices (in samples)
     SIGNAL.ind = wlanFieldIndices(cfg);

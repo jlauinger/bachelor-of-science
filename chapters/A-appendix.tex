@@ -77,7 +77,7 @@ enough figures to fill a page only with figures.
 	\node[dspsquare,minimum height=3.2em, minimum width=10em,text height=2em, fill=white, below=1cm of n1]
 	(wiretapch) {Wiretap Channel\\$Q_W$};
 	\node[coordinate,below=of wiretapch] (n3) {};
-	
+
 	\draw[dspconn] (source) -- node[midway,above] {$S^K$} (encoder);
 	\draw[dspconn] (encoder) -- node[midway,above] {$X^N$} (mainch);
 	\draw[dspconn] (mainch) -- node[midway,above] {$Y^N$} (decoder);

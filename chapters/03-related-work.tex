@@ -1,23 +1,51 @@
-%% ---------------------------------------------------------------------------------------------------------------------
+%% -----------------------------------------------------------------------------
 
 \chapter{Related Work}\label{ch:relatedwork}
-
 \glsresetall % Resets all acronyms to not used
 
 
-This is currently a list of notes on papers and books I read, both for summarizing and working on this section in the future.
+%% -----------------------------------------------------------------------------
+
+\section{Distributed Coordination Function}
 
 
-%% ---------------------------------------------------------------------------------------------------------------------
+%% -----------------------------------------------------------------------------
 
-\section{ieee2012}
+\section{Hidden Terminals}
+
+
+%% -----------------------------------------------------------------------------
+
+\section{Collision Detection and Decoding}
+
+
+%% -----------------------------------------------------------------------------
+
+\section{Capture Effect}
+
+
+%% -----------------------------------------------------------------------------
+
+\section{Scrambler and Hardware Implementation}
+
+
+%% -----------------------------------------------------------------------------
+
+\section{Paper Summaries}
+
+This is a list of notes on papers and books I read, both for summarizing and working on this section in the future.
+
+
+%% -----------------------------------------------------------------------------
+
+\section*{ieee2012}
 
 That is the 802.11 MAC and PHY standard specification \cite{ieee2012}. Useful for citations and stuff.
 
 
-%% ---------------------------------------------------------------------------------------------------------------------
+%% -----------------------------------------------------------------------------
 
-\section{perahia2013}
+\section*{perahia2013}
 
 Next Generation Wireless LANs \cite{perahia2013}: Comprehensive overview on the IEEE 802.11 standards, such as a, b, g, n, and ac PHYs and MAC.\\
 
@@ -89,9 +117,9 @@ A MAC frame has a MAC header, a variable-length body, and a frame check sequence
 The type and subtype fields indicate the frame type, e.g. RTS, CTS, Data, or Beacon. The Sequence Control field is used for retransmission as described above. CTS and ACK frames do not carry a transmitter address, as they are merely sent in direct response to a previous frame.
 
 
-%% ---------------------------------------------------------------------------------------------------------------------
+%% -----------------------------------------------------------------------------
 
-\section{bianchi2000}
+\section*{bianchi2000}
 
 Performance Analysis of the IEEE 802.11 Distributed Coordination Function \cite{bianchi2000}.\\
 
@@ -114,9 +142,9 @@ Maximum load that the system can carry in stable conditions. Can be used for a l
 \cite{bianchi2000} develops a Markov model to derive throughput estimations and verifies them against simulations. The paper contains a lot of figures and tables with the results, but these are not really relevant for me.
 
 
-%% ---------------------------------------------------------------------------------------------------------------------
+%% -----------------------------------------------------------------------------
 
-\section{gollakota2008}
+\section*{gollakota2008}
 
 ZigZag Decoding: Combating Hidden Terminals in Wireless Networks \cite{gollakota2008}.\\
 
@@ -139,9 +167,9 @@ Compute the ZigZag system parameters using correlation, and inverse filters. Dec
 AP can decode collision packets fast enough to send ACK frame, inserts random padding transmission to prevent hidden terminal from sending while a third station is still transmitting. ZigZag can also decode collision involving any number of senders.
 
 
-%% ---------------------------------------------------------------------------------------------------------------------
+%% -----------------------------------------------------------------------------
 
-\section{basha2005}
+\section*{basha2005}
 
 Hardware Implementation of an 802.11a Transmitter \cite{basha2005}.\\
 
@@ -161,36 +189,36 @@ Interleaver: block size $N_{cbps}$ of 48, 06, or 192 bits. First step: reorder b
 Cyclic prefix: prepend 16 samples, append 1 sample, yielding 81 instead of 64 samples total.
 
 
-%% ---------------------------------------------------------------------------------------------------------------------
+%% -----------------------------------------------------------------------------
 
-\section{anitha2005}
+\section*{anitha2005}
 
 A perfect scrambler and descrambler for IEEE 802.11g wireless networks \cite{anitha2005}.\\
 
 The paper develops a scrambling algorithm based on multiple packets that provides physical layer security. The scrambling provides means of transmitting a LFSR seed to generate network keys, where clients can only receive the seed near the AP. Minimal receiving errors generate very large bit errors in the seed. Irrelevant for bachelor thesis.
 
 
-%% ---------------------------------------------------------------------------------------------------------------------
+%% -----------------------------------------------------------------------------
 
-\section{nychis2009}
+\section*{nychis2009}
 
 Enabling MAC protocol implementations on software-defined radios \cite{nychis2009}.\\
 
 MAC layer implementations require precise timing (e.g. for carrier sense), therefore it is difficult to implement on an SDR. \cite{nychis2009} introduces a split-layer architecture to combine timing precision with flexibility of the host CPU. This can be used to incorporate new techniques that operate somewhat between layer 1 and 2, such as ZigZag \cite{gollakota2008}.
 
 
-%% ---------------------------------------------------------------------------------------------------------------------
+%% -----------------------------------------------------------------------------
 
-\section{lin2009}
+\section*{lin2009}
 
 Lock step: an algorithm to reduce Wi-Fi Jitter \cite{lin2009}.\\
 
 For continuous and fairly regular data streams from multiple clients, such as in an environment with several VoIP transmissions, the 802.11 MAC exponential backoff can lead to some clients experiencing lower throughput. Lock step is an algorithm introducing pro-active backoff times after successful transmissions, allowing other clients to kick in. With lock step, clients extend carrier sense to measuring the fraction of free slots within 8 continuous slots. After some collisions, all clients will eventually be transmitting one eighth of the time, thus giving a fairer share.
 
 
-%% ---------------------------------------------------------------------------------------------------------------------
+%% -----------------------------------------------------------------------------
 
-\section{gudipati2011}
+\section*{gudipati2011}
 
 Strider: automatic rate adaptation and collision handling \cite{gudipati2011}.\\
 
@@ -201,9 +229,9 @@ Difference to this thesis: Strider would probably allow to decode colliding MAC 
 Exact Strider algorithm not read.
 
 
-%% ---------------------------------------------------------------------------------------------------------------------
+%% -----------------------------------------------------------------------------
 
-\section{gudipati2012}
+\section*{gudipati2012}
 
 AutoMAC: rateless wireless concurrent medium access \cite{gudipati2012}.\\
 
@@ -212,18 +240,18 @@ Similar to ZigZag, AutoMAC provides a way to decode collisions. The paper embrac
 Paper not entirely read.
 
 
-%% ---------------------------------------------------------------------------------------------------------------------
+%% -----------------------------------------------------------------------------
 
-\section{cao2009}
+\section*{cao2009}
 
 Behavioral learning of exposed terminals in IEEE 802.11 wireless networks \cite{cao2009}.\\
 
 Description of different scenarios regarding hidden terminals. Algorithm to improve client behavior in that case to maximize throughput and minimize collisions. Irrelevant for bachelor thesis.
 
 
-%% ---------------------------------------------------------------------------------------------------------------------
+%% -----------------------------------------------------------------------------
 
-\section{wang2010}
+\section*{wang2010}
 
 Efficient wireless broadcasting using onion decoding \cite{wang2010}.\\
 
@@ -234,9 +262,9 @@ Cost-effective broadcast scheduling (CBS): iterative algorithm to determine the 
 This technique does not apply to this thesis, it is a notable work though.
 
 
-%% ---------------------------------------------------------------------------------------------------------------------
+%% -----------------------------------------------------------------------------
 
-\section{wu2010}
+\section*{wu2010}
 
 ACR: active collision recovery in dense wireless sensor networks \cite{wu2010}.\\
 
@@ -251,18 +279,18 @@ Receiver checks CRC to detect a possible collision.
 Since ACR requires a non-standard MAC, it is not applicable to this bachelor thesis.
 
 
-%% ---------------------------------------------------------------------------------------------------------------------
+%% -----------------------------------------------------------------------------
 
-\section{chen2014}
+\section*{chen2014}
 
 In-band wireless cut-through: is it possible? \cite{chen2014}.\\
 
 Technique to send a packet through some forwarding stations, which receive and transmit at the same time. Irrelevant for this bachelor thesis.
 
 
-%% ---------------------------------------------------------------------------------------------------------------------
+%% -----------------------------------------------------------------------------
 
-\section{halperin2007}
+\section*{halperin2007}
 
 Interference Cancellation: Better Receivers for a New Wireless MAC \cite{halperin2007}.\\
 
@@ -271,18 +299,18 @@ CSMA/CA is often over-protective. A better approach is looking at receiver condi
 Constellation of a received collision signal is a combined mn-constellation consisting of the pairwise sums of the points in the individual constellations. Decoding can be done by mapping a sample to a pair of symbols corresponding to the closest of the mn joint constellation points.
 
 
-%% ---------------------------------------------------------------------------------------------------------------------
+%% -----------------------------------------------------------------------------
 
-\section{park2009}
+\section*{park2009}
 
 Cross Layer Multirate Adaptation Using Physical Capture \cite{park2009}.\\
 
 Detect the event that, due to physical capture effect, a packet with higher power is received while a packet with lower power is currently being received. This is counted as collision. The paper proposes an algorithm to share the amount of received collision using a new, special packet. Stations calculate the sum of collisions at neighboring nodes and adjust the code rate being used for sending packets based on that information.
 
 
-%% ---------------------------------------------------------------------------------------------------------------------
+%% -----------------------------------------------------------------------------
 
-\section{zhu2016}
+\section*{zhu2016}
 
 Packet-Level Failure Classification by Characterizing Failure Patterns in Wireless Sensor Networks \cite{zhu2016}.\\
 
@@ -295,9 +323,9 @@ PLFC collects byte-level RSSI (Received Signal Strength indicator) and packet-le
 The receiver informs the sender with an elaborated retransmission request. PLFC could reduce retransmission count by about 50 \%.
 
 
-%% ---------------------------------------------------------------------------------------------------------------------
+%% -----------------------------------------------------------------------------
 
-\section{keene2010}
+\section*{keene2010}
 
 Collision Localization for IEEE 802.11 Wireless LANs \cite{keene2010}.\\
 
@@ -306,9 +334,9 @@ The paper presents an algorithm to locate the part of a packet that is not decod
 Problems with OFDM: when symbols are partially corrupted due to a narrow band interference, the timing correlation is lost and the collision can therefore not be exactly localized.
 
 
-%% ---------------------------------------------------------------------------------------------------------------------
+%% -----------------------------------------------------------------------------
 
-\section{chua2016}
+\section*{chua2016}
 
 Classification of Transmission Events Based on Receive Power Pattern with Self-Tuning Thresholds in Wireless Receivers \cite{chua2016}.\\
 
@@ -317,9 +345,9 @@ Tries to decide whether a packet failure was due to a collision or weak link by 
 Detect power blocks: large difference in signal strength between adjacent samples. Detect collision when packet checksum is wrong and there are many peaks in the power level difference data.
 
 
-%% ---------------------------------------------------------------------------------------------------------------------
+%% -----------------------------------------------------------------------------
 
-\section{lacurts2010}
+\section*{lacurts2010}
 
 Measurement and analysis of real-world 802.11 mesh networks \cite{lacurts2010}.\\
 
@@ -328,27 +356,27 @@ SNR is a good indicator for the optimal bit rate, but one can not craft a SNR to
 Paper not entirely read, not really relevant for bachelor thesis.
 
 
-%% ---------------------------------------------------------------------------------------------------------------------
+%% -----------------------------------------------------------------------------
 
-\section{leonardi2013}
+\section*{leonardi2013}
 
 A new adaptive receiver-initiated scheme for mitigating starvation in wireless networks \cite{leonardi2013}.\\
 
 CSMA/CARD: Collision avoidance with receiver detection. Each receiver can predict the presence of any potential sender in a timely fashion. When a collision occurs, the receiver sends a Request for Request to Send (RRTS) packet to expedite the RTS/CTS handshake and better distribute network capacity. Rather irrelevant for bachelor thesis.
 
 
-%% ---------------------------------------------------------------------------------------------------------------------
+%% -----------------------------------------------------------------------------
 
-\section{cassidy2014}
+\section*{cassidy2014}
 
 Collision correction using a cross-layer design architecture for dedicated short range communications vehicle safety messaging \cite{cassidy2014}.\\
 
 The paper presents an algorithm to decode collisions in 802.11p inter-vehicle communication safety messages. These messages are re-transmitted several times and collide with no difference in starting times due to strict slots. Hence, ZigZag can not be applied. The authors added a cache for recent successfully received packets and subtract those packets from incoming collisions, decoding the new, collided packet. Irrelevant for bachelor thesis.
 
 
-%% ---------------------------------------------------------------------------------------------------------------------
+%% -----------------------------------------------------------------------------
 
-\section{hejazi2010}
+\section*{hejazi2010}
 
 Throughput analysis of multiple access relay channel under collision model \cite{hejazi2010}.\\
 
@@ -357,18 +385,18 @@ Presents different strategies for relaying packets in a scenario where multiple 
 Irrelevant for this bachelor thesis, paper not entirely read.
 
 
-%% ---------------------------------------------------------------------------------------------------------------------
+%% -----------------------------------------------------------------------------
 
-\section{zhang2010}
+\section*{zhang2010}
 
 Chorus: collision resolution for efficient wireless broadcast \cite{zhang2010}.\\
 
 Similar to Onion Decoding \cite{wang2010}. Chorus is an algorithm to decode collisions between multiple instances of the same packet, i.e. broadcasts. The broadcast packets will probably start with a slight offset. Chorus takes the first, collision-free chunk and then iteratively subtracts it from the collision to get another collision-free chunk. It is also comparable to ZigZag \cite{gollakota2008}.
 
 
-%% ---------------------------------------------------------------------------------------------------------------------
+%% -----------------------------------------------------------------------------
 
-\section{choi2013}
+\section*{choi2013}
 
 Carrier sensing multiple access with collision resolution (CSMA/CR) protocol for next-generation wireless LAN \cite{choi2013}.\\
 
@@ -377,9 +405,9 @@ RTS/CTS is commonly not useful in modern real-world WLAN networks because hidden
 If a collision is detected, one station is allowed priority access to retransmit, so that there won't be a follow-up-collision. Jamming signals.
 
 
-%% ---------------------------------------------------------------------------------------------------------------------
+%% -----------------------------------------------------------------------------
 
-\section{jibukumar2015}
+\section*{jibukumar2015}
 
 Impact of capture effect on receiver initiated collision detection with sequential resolution in WLAN \cite{jibukumar2015}.\\
 
@@ -390,18 +418,18 @@ Transmitting stations will send a header, wait a short time, and then send the p
 The protocol is called Receiver initiated Fast Sequential collision Resolution (RFSR).
 
 
-%% ---------------------------------------------------------------------------------------------------------------------
+%% -----------------------------------------------------------------------------
 
-\section{vermeulen2016}
+\section*{vermeulen2016}
 
 Performance analysis of in-band full duplex collision and interference detection in dense networks \cite{vermeulen2016}.\\
 
 Full Duplex communication is possible for 802.11 with some adjustments to the hardware. This paper presents a MAC change to effectively reduce collisions using full duplex. A receiving station continuously transmits acknowledgements while it receives a packet. This is a simultaneous transmission. If the node senses a collision, it stops sending the ACK, and the transmitter will notice that and stop transmitting. The ACK thus acts like a continuous CTS packet, letting other stations know of the transmission and solving the hidden node problem.
 
 
-%% ---------------------------------------------------------------------------------------------------------------------
+%% -----------------------------------------------------------------------------
 
-\section{meng2015}
+\section*{meng2015}
 
 On robust neighbor discovery in mobile wireless networks \cite{meng2015}.\\
 
@@ -419,31 +447,31 @@ The detection of sequences is done by cross-correlation at the receiver. The SIN
 \end{align}
 
 
-%% ---------------------------------------------------------------------------------------------------------------------
+%% -----------------------------------------------------------------------------
 
-\section{zhao2015}
+\section*{zhao2015}
 
 Collision tolerance: improving channel utilization with correlatable symbol sequences in wireless networks \cite{zhao2015}.\\
 
 Improve network performance by rescheduling collided packets, initiated by the receiver. Each sender picks a random, self-independent correlatable sequence of samples. If a collision is detected by the receiver, it broadcasts a request for these sequences. It then decodes those in parallel using cross-correlation and broadcasts a scheduling packet to all identified senders at once. The senders are assigned a slot and can then resend their packet in a well-defined queue, not wasting airtime by unused slots, as would occur with the binary backoff algorithm of CSMA/CA.
 
 
-%% ---------------------------------------------------------------------------------------------------------------------
+%% -----------------------------------------------------------------------------
 
-\section{magistretti2012}
+\section*{magistretti2012}
 
 802.11ec: collision avoidance without control messages \cite{magistretti2012}.\\
 
 
 
 
-%% ---------------------------------------------------------------------------------------------------------------------
-%% ---------------------------------------------------------------------------------------------------------------------
-%% ---------------------------------------------------------------------------------------------------------------------
-%% ---------------------------------------------------------------------------------------------------------------------
-%% ---------------------------------------------------------------------------------------------------------------------
+%% -----------------------------------------------------------------------------
+%% -----------------------------------------------------------------------------
+%% -----------------------------------------------------------------------------
+%% -----------------------------------------------------------------------------
+%% -----------------------------------------------------------------------------
 
 
-\section{Notes}
+\section*{Notes}
 
 Scrambler: since 7 bits in SRV field are initialized to zero, after scrambling they resemble the first 7 output bits of the scrambler LFSR. This is because XOR 0 is a no-op. The receiver can directly insert these bits in its LFSR and from there on start iterating.

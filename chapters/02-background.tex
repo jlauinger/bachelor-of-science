@@ -110,13 +110,19 @@ The cross-correlation is a function of two continuous or discrete series that me
 
 With IEEE 802.11, cross-correlation applied to find the beginning of packets by correlating a known symbol of the short or long training field with a sample stream as captured by a receiver. However, in this thesis I will use it to also correlate the time-domain representation of MAC addresses.\\
 
-Since wireless transmission samples are discrete values, I disregard the continuous form of cross-correlation here. The discrete variant for series f and g is calculated as follows:
+Since wireless transmission samples are discrete values, I disregard the continuous form of cross-correlation here. The discrete variant for series of samples f and g is calculated as follows:
 
 $$ (f \star g)(n) = \sum_{m=-\infty}^{\infty} f^{\ast}(m) g(m+n) $$\\
 
-Bla bla bla.
+This formula is related to the convolution of the values, but it features the complex conjugate of the first function for the sum of products. A graphic analogy for cross-correlation would be sliding the functions against each other, where for each point all function values are multiplied individually and then added up.
+
+In general, higher values of cross-correlations mean that the functions are more similar. It is worth noting that periodic functions have periodic cross-correlations, and that the IEEE 802.11 Long Training Field is designed specifically in such a way that correlation is many orders of magnitude higher if the samples of two copies overlap exactly, than it is for any other alignment \cite{perahia2013}.
 
 
 %% -----------------------------------------------------------------------------
 
 \section{Multi-Path Interference}
+
+In an ideal scenario, a transmitted signal would travel on a direct line of sight from sender to receiver. However, electromagnetic waves spread in a spherical shape. In a real-world situation, signals can therefore reach the receiver on multiple paths, each affected by different delay, attenuation, reflection, or other interference.
+
+When two senders transmit at the same time, in theory the signals should simply add up. Since both transmission are affected by multi-path interference, the factors added together are all subject to different channel effects. This has to be taken into account when trying to decode collisions, or detect the corresponding senders.

@@ -125,4 +125,6 @@ In general, higher values of cross-correlations mean that the functions are more
 
 In an ideal scenario, a transmitted signal would travel on a direct line of sight from sender to receiver. However, electromagnetic waves spread in a spherical shape. In a real-world situation, signals can therefore reach the receiver on multiple paths, each affected by different delay, attenuation, reflection, or other interference.
 
-When two senders transmit at the same time, in theory the signals should simply add up. Since both transmission are affected by multi-path interference, the factors added together are all subject to different channel effects. This has to be taken into account when trying to decode collisions, or detect the corresponding senders.
+A common multi-path effect are echoes, which are caused by signals being reflected on walls, furniture, or similar obstacles. When an echo occurs, an attenuated copy of the signal with a delay is received.\\
+
+When trying to decode collisions, or detect affected senders, it is therefore important to take multi-path interference into account. Especially devastating is the fact that the signals add up at the receiving antenna. This means that the training fields in the preamble are affected by different paths and can hardly be used to calculate the inverted channel matrix. Chapter 5 provides more details on this problem.

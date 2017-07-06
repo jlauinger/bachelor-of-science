@@ -41,24 +41,40 @@ The modulation process comprises the following steps:
 
 For correlation in the frequency-domain, I omit step 5. The received collision signal has to be applied to the fourier transform in this case. I have done experiments with frequency-domain detection and show the results of these in section \ref{sec:freqd-correlation}.\\
 
-When the receiver senses a transmission, I determine whether it is a collision using the IEEE 802.11 Long Training Field. Section \ref{preamble-corr} gives details about this process. This also yields a possible delay between the two frames.
+When the receiver senses a transmission, I determine whether it is a collision using the IEEE 802.11 Long Training Field. Section \ref{sec:preamble-corr} gives details about this process. This also measures a possible delay between the two frames.
 
-Upon noticing a collision, all reference samples are correlated with the signal under test. The correlations are then sorted descending by correlation magnitue.
+Upon noticing a collision, all reference samples are correlated with the signal under test. The correlations are then sorted descending by correlation magnitude. The highest correlations make up for the best guess which senders are subject to the collision.\\
 
-\begin{itemize}
-	\item There should be four peaks, indicating sender and receiver of both packets
-	\item symbol modulation -> do 6 bytes of address data provide enough samples to correlate to? With 64-QAM?
-	\item convolutional encoding, puncturing, and interleaving deterministic?
-\end{itemize}
+It is worth noting that the output of this algorithm is always a probabilistic result. The technique will never detect senders with full confidence, but rather return a distribution of likelihood over the cache of reasonable MAC addresses.
+
 
 %% -----------------------------------------------------------------------------
 
 \section{Detecting Frames and Collisions}\label{sec:preamble-corr}
 
+A receiver antenna captures a continuous stream of samples. It is necessary to employ some mechanism to detect the start of a transmission. IEEE 802.11 receivers in regular operation use the known preamble for this by correlating the Long Training Field to the incoming data in a sliding window approach \cite{NEEDED}.
+
+This can be extended to recognizing collisions. Since the Long Training Field is designed in such a way that it hardly correlates with itself \cite{NEEDED}, there will be twice as many correlation peaks in a collision of two frames. The distance between the two LTF pattern can even be used to calculate a possible delay between the two transmissions. An example of such correlation peaks in the case of a collision is shown in figure \ref{fig:preamble-corr}. Each frame causes two large spikes, and 1 spike with smaller magnitude. This is caused by the composition of the LTF with two repetitions of a symbol, and a cyclic prefix of half the symbol size.\\
+
+Knowing when the frames start is important for sender detection. Since the MAC address is represented by only a small number of time-domain samples (see section \ref{sec:mac-periods}), it is vital to correlate the correct region of the signal.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\textwidth]{gfx/images/preamble-correlation}
+	\caption{Cross Correlation of Collision Samples with Long Training Field}
+	\label{fig:preamble-corr}
+\end{figure}
+
+Figure \ref{fig:preamble-corr} offers additional markers for the different signal fields as described in section \ref{sec:mac-and-phy}. Here, the symbols containing the MAC address of the first frame begin after 1120 samples. The second MAC address follows with an offset of about 40 samples.
+
+When trying to decode these MAC addresses, the correlations with the reference pool signals obviously have to be applied to the combined region of the first and second MAC addresses. In this examples, that would be all of the colored samples.
+
 
 %% -----------------------------------------------------------------------------
 
 \section{Periods containing MAC Addresses}\label{sec:mac-periods}
+
+Depending on the Modulation and Coding Scheme, the samples affected by different MAC addresses start at different positions. While the byte offset within the MAC layer header remains the same, the amount of OFDM symbols that need to be skipped before the beginning, and the symbol count that has to be included to cover everything change depending on the bit density.
 
 
 %% -----------------------------------------------------------------------------

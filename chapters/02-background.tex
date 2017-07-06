@@ -8,7 +8,7 @@ This chapter provides an introduction to the overall structure of the IEEE 802.1
 
 %% -----------------------------------------------------------------------------
 
-\section{IEEE 802.11 MAC and PHY}
+\section{IEEE 802.11 MAC and PHY} \label{sec:mac-and-phy}
 
 The IEEE 802.11 standards family describes wireless local area networks as supported by all current major operating platforms. IEEE 802.11 networks inherit the reference structure of their parent standard, IEEE 802. In particular, the 6 byte device addresses used to identify a physical network interface, which is called MAC address.
 
@@ -71,7 +71,7 @@ The Long Training Field (LTF) is used for channel estimation, more precise frequ
 \end{figure}
 
 
-\subsection{Medium Access Control Layer Specification}
+\subsection{Medium Access Control Layer Specification} \label{sec:mac-format}
 
 The medium access control layer (MAC) controls which station may transmit at a given time. The IEEE 802.11 MAC layer uses carrier sense multiple access with collision avoidance (CSMA/CA). With this algorithm, every station listens to the medium before any a transmission. Collisions are prevented if possible, and detected through the lack of an acknowledgement packet. In contrast, Ethernet uses CSMA/CD (collision detection), where a transmitting station can directly sense a collision \cite{NEEDED}.\\
 

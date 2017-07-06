@@ -76,7 +76,36 @@ When trying to decode these MAC addresses, the correlations with the reference p
 
 Depending on the Modulation and Coding Scheme, the samples affected by different MAC addresses start at different positions. While the byte offset within the MAC layer header remains the same, the amount of OFDM symbols that need to be skipped before the beginning, and the symbol count that has to be included to cover everything change depending on the bit density.
 
+Table \ref{tbl:sample-offsets} provides a summary of the various samples offsets for different Modulation and Coding schemes. These values are calculated assuming of a sampling rate of 20 MHz. Since IEEE 802.11 a/g channels have a bandwidth of 20 MHz, this is the minimum required sampling rate \cite{ieee2012}. However, some radios like the WARP boards use a higher sampling rate of 40 MHz. In this case, all indices have to be doubled.\\
+
+All frames begin with the preamble, specifically the Short and Long Training Fields and the Signal Field. Both the STF and LTF have a duration of 8 $\mu$s. For the STF, this is 10 repetitions of a 0.8 $\mu$s symbol, for the LTF there are two repetitions of a 3.2 $\mu$s symbol, and the 1.6 $\mu$s cyclic prefix. The Signal Field consists of one standard OFDM symbol with cyclic prefix. That is 4 $\mu$s in the case of IEEE 802.11.
+
+In total, this means the preamble takes 20 $\mu$s. At 20 MHz sampling rate, that is $ 20 \cdot 10^{-6} \cdot 20 \cdot 10^6 = 400 $ samples. The Data field thus start at sample index 401. Within that, the Service Field as well as the Frame Control and Duration MAC header fields preceed the MAC addresses.\\
+
+\begin{table}[ht]
+	\begin{center}
+		\begin{tabular}{|p{2.5cm}|p{4.5cm}|p{4.5cm}|}
+			\hline
+			\textbf{MCS} & \textbf{Address 1 (Destination)} & \textbf{Address 2 (Sender)} \\ \hline
+			0 & 561 - 720 & 721 - 880 \\ \hline
+			1 & 481 - 640 & 561 - 720 \\ \hline
+			2 & 481 - 560 & 561 - 640 \\ \hline
+			3 & 401 - 560 & 481 - 560 \\ \hline
+			4 & 401 - 480 & 481 - 560 \\ \hline
+			5 & 401 - 480 & 401 - 480 \\ \hline
+			6 & 401 - 480 & 401 - 480 \\ \hline
+			7 & 401 - 480 & 401 - 480 \\ \hline
+		\end{tabular}
+	\end{center}
+	\caption{Sample Offsets of MAC Address Fields at different MCS}
+	\label{tbl:sample-offsets}
+\end{table}
+
+Modulation and Coding Schemes 0 and 2 have an important advantage. Only with these schemes does the above described region contain only the specific MAC address. All other schemes contain additional data, either before the address, behind it, or in both positions.
+
 
 %% -----------------------------------------------------------------------------
 
 \section{Matlab Implementation}
+
+I implemented a proof of concept of the presented technique in Matlab.

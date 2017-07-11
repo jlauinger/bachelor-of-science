@@ -130,7 +130,7 @@ Incorporating these optimizations reduced the runtime of the experiment varying 
 
 To simulate channel effects, different models from both the WLAN System Toolbox and the Communications System Toolbox \cite{commtoolbox} were used. The exact functions are described in the corresponding sections in chapter \ref{ch:evaluation}.\\
 
-As addressed in section \ref{sec:preamble-corr}, it is necessary to detect the offset between two frames in a collision. This is done using the \texttt{meshgrid} Matlab function. Listing \ref{lst:meshgrid} shows an example of calculating the field indices of both collided frames.
+As addressed in section \ref{sec:preamble-corr}, it is necessary to detect the offset between two frames in a collision. This is done using the \texttt{meshgrid} Matlab function. Listing \ref{lst:meshgrid} shows an example of calculating the field indices of both collided frames. The code compares the signal-to-training symbol correlation with a defined threshold and finds peaks in the data. These are then grouped into 4 clusters. This effectively removes noise and measuring inaccuracies causing a spike to last for more than one sample. Assuming that exactly two frames collided, the expected amount of peaks is 4.
 
 \begin{lstlisting}[captionpos=b,caption={Collision Offset Detection using meshgrid},label=lst:meshgrid]
 % Find peaks above a parametrized threshold
@@ -158,3 +158,7 @@ ind1.ltf = ind1.sig - 320;
 ind1.stf = ind1.ltf - 320;
 ind1.payload = ind1.sig + 160;
 \end{lstlisting}
+
+The \texttt{meshgrid} function then calculates a two-dimensional table of all possible offsets between every two peaks. Using a find function, I look for offsets that equal the length of one training symbol with a 20 percent margin.  The offset between the collided frames is the delay between such symbol matches.
+
+Lastly, the signal field sample indicies are calculated as the last symbol correlation plus the lenght of that symbol. Start indices of the \gls{LTF}, \gls{STF}, and Data field are deduced accordingly.

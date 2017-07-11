@@ -128,4 +128,33 @@ Second, I store the reference signals in a cache that is reused in as many conse
 
 Incorporating these optimizations reduced the runtime of the experiment varying the scrambler initialization, which is presented in section \ref{sec:ex-scrambler}, from an extrapolated 300 days to about 15 minutes on a consumer laptop. This not only allowed me to run the experiments at all, but also increase the number of repetitions, therefore largely enhancing the sample size.\\
 
-To simulate channel effects, different models from both the WLAN System Toolbox and the Communications System Toolbox \cite{commtoolbox}. The exact functions are described in the corresponding sections in chapter \ref{ch:evaluation}.
+To simulate channel effects, different models from both the WLAN System Toolbox and the Communications System Toolbox \cite{commtoolbox} were used. The exact functions are described in the corresponding sections in chapter \ref{ch:evaluation}.\\
+
+As addressed in section \ref{sec:preamble-corr}, it is necessary to detect the offset between two frames in a collision. This is done using the \texttt{meshgrid} Matlab function. Listing \ref{lst:meshgrid} shows an example of calculating the field indices of both collided frames.
+
+\begin{lstlisting}[captionpos=b,caption={Collision Offset Detection using meshgrid},label=lst:meshgrid]
+% Find peaks above a parametrized threshold
+lts_peaks = find(abs(correlation) > LTS_CORR_THRESHOLD*max(abs(correlation)));
+
+% Assuming two frames, there will be 4 high peaks
+[~, C] = kmeans(lts_peaks', 4);
+uniq_lts_peaks = sort(floor(C))';
+
+% Select the best candidate correlation peak at LTS-payload boundary
+[LTS1, LTS2] = meshgrid(uniq_lts_peaks, uniq_lts_peaks);
+[lts_second_peak_index, y] = find(iswithin( ...
+    LTS2-LTS1, ...
+    length(lts_t)/1.2, ...
+    length(lts_t)*1.2 ...
+));
+
+% Add 128 samples for the symbol itself
+ind2.sig = uniq_lts_peaks(max(lts_second_peak_index)) + 128;
+ind2.ltf = ind2.sig - 320; % subtract LTF length
+ind2.stf = ind2.ltf - 320; % subtract STF length
+ind2.payload = ind2.sig + 160; % add 4us SIG field
+ind1.sig = uniq_lts_peaks(min(lts_second_peak_index)) + 128;
+ind1.ltf = ind1.sig - 320;
+ind1.stf = ind1.ltf - 320;
+ind1.payload = ind1.sig + 160;
+\end{lstlisting}

@@ -1,4 +1,4 @@
-% **************************************************************************************************************
+% ******************************************************************************
 % A Classic Thesis Style
 % An Homage to The Elements of Typographic Style
 %
@@ -25,21 +25,21 @@
 % the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 % Boston, MA 02111-1307, USA.
 %
-% **************************************************************************************************************
+% ******************************************************************************
 
 \RequirePackage{fix-cm} % fix some latex issues see: http://texdoc.net/texmf-dist/doc/latex/base/fixltx2e.pdf
 
-\documentclass[ twoside,openright,titlepage,numbers=noenddot,headinclude,%1headlines,% letterpaper a4paper
-                footinclude=true,cleardoublepage=empty,abstractoff, % <--- obsolete, remove (todo)
-                BCOR=5mm,paper=a4,fontsize=11pt,%11pt,a4paper,%
-                ngerman,american,%
+\documentclass[ twoside,openright,titlepage,numbers=noenddot,headinclude,
+                footinclude=true,cleardoublepage=empty,abstractoff,
+                BCOR=5mm,paper=a4,fontsize=11pt,
+                ngerman,american,
                 ]{scrreprt}
 
 \usepackage[utf8]{inputenc}
 \usepackage{etoolbox}
 
 
-%% ---------------------------------------------------------------------------------------------------------------------
+%% -----------------------------------------------------------------------------
 
 \newcommand{\myTitle}{Collide, Collate, Collect: Decoding Wireless Collisions\xspace}
 \newcommand{\myDegree}{Bachelor Thesis\xspace}
@@ -65,13 +65,10 @@
 \input{config/additional-packages}
 \input{config/hyphenation}
 
-% Disable paragraph indents
-\setlength\parindent{0pt}
-
 \addbibresource{config/bibliography.bib}
 
 
-%% ---------------------------------------------------------------------------------------------------------------------
+%% -----------------------------------------------------------------------------
 
 \begin{document}
 
@@ -80,9 +77,10 @@
 \selectlanguage{american}
 \pagenumbering{roman}
 \pagestyle{plain}
+\setlength\parindent{0pt}
 
 
-%% ---------------------------------------------------------------------------------------------------------------------
+%% -----------------------------------------------------------------------------
 
 \include{frontback/titlepage}
 \include{frontback/titleback}
@@ -92,9 +90,10 @@
 \cleardoublepage\include{frontback/contents}
 
 \pagenumbering{arabic}
+\setcounter{table}{0}
 
 
-%% ---------------------------------------------------------------------------------------------------------------------
+%% -----------------------------------------------------------------------------
 
 \include{chapters/01-introduction}
 \include{chapters/02-background}
@@ -105,13 +104,13 @@
 \include{chapters/07-conclusion}
 
 
-%% ---------------------------------------------------------------------------------------------------------------------
+%% -----------------------------------------------------------------------------
 
 %\appendix
 %\include{chapters/A-appendix}
 
 
-%% ---------------------------------------------------------------------------------------------------------------------
+%% -----------------------------------------------------------------------------
 
 \cleardoublepage\include{frontback/bibliography}
 \cleardoublepage\include{frontback/declaration}

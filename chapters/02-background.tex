@@ -39,22 +39,20 @@ After that, convolutional encoding is applied to the bits. The standard allows t
 The available constellations are described by the modulation and coding scheme. Table \ref{tbl:mcs} shows all available MCS for IEEE 802.11 a/g. Finally, pilot signals are added, the signal is transformed into the time-domain using the inverse fast fourier transform, a cyclic prefix is added, and the signal is further processed and sent.
 
 \begin{table}[ht]
-	\begin{center}
-		\begin{tabular}{|p{2.5cm}|p{2.5cm}|p{2.5cm}|p{2.5cm}|p{2.5cm}|}
-			\hline
-			\textbf{MCS} & \textbf{Modulation} & \textbf{Coding Rate} & \textbf{Coded bits per symbol} & \textbf{Data bits per symbol} \\ \hline
-			0 & BPSK & 1/2 & 48 & 24 \\ \hline
-			1 & BPSK & 3/4 & 48 & 36 \\ \hline
-			2 & QPSK & 1/2 & 96 & 48 \\ \hline
-			3 & QPSK & 3/4 & 96 & 72 \\ \hline
-			4 & 16QAM & 1/2 & 192 & 96 \\ \hline
-			5 & 16QAM & 3/4 & 192 & 144 \\ \hline
-			6 & 64QAM & 2/3 & 288 & 192 \\ \hline
-			7 & 64QAM & 3/4 & 288 & 216 \\ \hline
-		\end{tabular}
-	\end{center}
-	\caption[IEEE 802.11 a/g Modulation and Coding Schemes]{IEEE 802.11 a/g Modulation and Coding Schemes (MCS) \cite{NEEDED}}
-	\label{tbl:mcs}
+	\centering
+	\begin{tabular}{|p{2.5cm}|p{2.5cm}|p{2.5cm}|p{2.5cm}|p{2.5cm}|}
+		\hline
+		\textbf{MCS} & \textbf{Modulation} & \textbf{Coding Rate} & \textbf{Coded bits per symbol} & \textbf{Data bits per symbol} \\ \hline
+		0 & BPSK & 1/2 & 48 & 24 \\ \hline
+		1 & BPSK & 3/4 & 48 & 36 \\ \hline
+		2 & QPSK & 1/2 & 96 & 48 \\ \hline
+		3 & QPSK & 3/4 & 96 & 72 \\ \hline
+		4 & 16QAM & 1/2 & 192 & 96 \\ \hline
+		5 & 16QAM & 3/4 & 192 & 144 \\ \hline
+		6 & 64QAM & 2/3 & 288 & 192 \\ \hline
+		7 & 64QAM & 3/4 & 288 & 216 \\ \hline
+	\end{tabular}
+	\caption[IEEE 802.11 a/g Modulation and Coding Schemes]{IEEE 802.11 a/g Modulation and Coding Schemes (MCS) \cite{NEEDED} \label{tbl:mcs}}
 \end{table}
 
 The signal field (SIG), which is transmitted before the data field, contains the MCS used for the frame, and its length in octets. The signal field is always modulated with binary phase shift keying (BPSK) and rate $\frac{1}{2}$ binary convolution code (BCC). Nearby stations will also decode the SIG to defer their transmissions for an appropriate time. The signal field has a duration of 4 $\mu$s.\\
@@ -121,7 +119,7 @@ In general, higher values of cross-correlations mean that the functions are more
 
 %% -----------------------------------------------------------------------------
 
-\section{Multi-Path Interference}
+\section{Multi-Path Interference}\label{sec:multipath}
 
 In an ideal scenario, a transmitted signal would travel on a direct line of sight from sender to receiver. However, electromagnetic waves spread in a spherical shape. In a real-world situation, signals can therefore reach the receiver on multiple paths, each affected by different delay, attenuation, reflection, or other interference.
 

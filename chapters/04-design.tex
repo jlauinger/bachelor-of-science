@@ -83,20 +83,19 @@ All frames begin with the preamble, specifically the Short and Long Training Fie
 In total, this means the preamble takes 20 $\mu$s. At 20 MHz sampling rate, that is $ 20 \cdot 10^{-6} \cdot 20 \cdot 10^6 = 400 $ samples. The Data field thus start at sample index 401. Within that, the Service Field as well as the Frame Control and Duration MAC header fields preceed the MAC addresses.\\
 
 \begin{table}[ht]
-	\begin{center}
-		\begin{tabular}{|p{2.5cm}|p{4.5cm}|p{4.5cm}|}
-			\hline
-			\textbf{MCS} & \textbf{Address 1 (Destination)} & \textbf{Address 2 (Sender)} \\ \hline
-			0 & 561 - 720 & 721 - 880 \\ \hline
-			1 & 481 - 640 & 561 - 720 \\ \hline
-			2 & 481 - 560 & 561 - 640 \\ \hline
-			3 & 401 - 560 & 481 - 560 \\ \hline
-			4 & 401 - 480 & 481 - 560 \\ \hline
-			5 & 401 - 480 & 401 - 480 \\ \hline
-			6 & 401 - 480 & 401 - 480 \\ \hline
-			7 & 401 - 480 & 401 - 480 \\ \hline
-		\end{tabular}
-	\end{center}
+	\centering
+	\begin{tabular}{|p{2.5cm}|p{4.5cm}|p{4.5cm}|}
+		\hline
+		\textbf{MCS} & \textbf{Address 1 (Destination)} & \textbf{Address 2 (Sender)} \\ \hline
+		0 & 561 - 720 & 721 - 880 \\ \hline
+		1 & 481 - 640 & 561 - 720 \\ \hline
+		2 & 481 - 560 & 561 - 640 \\ \hline
+		3 & 401 - 560 & 481 - 560 \\ \hline
+		4 & 401 - 480 & 481 - 560 \\ \hline
+		5 & 401 - 480 & 401 - 480 \\ \hline
+		6 & 401 - 480 & 401 - 480 \\ \hline
+		7 & 401 - 480 & 401 - 480 \\ \hline
+	\end{tabular}
 	\caption{Sample Offsets of MAC Address Fields at different MCS}
 	\label{tbl:sample-offsets}
 \end{table}
@@ -161,4 +160,4 @@ ind1.payload = ind1.sig + 160;
 
 The \texttt{meshgrid} function then calculates a two-dimensional table of all possible offsets between every two peaks. Using a find function, I look for offsets that equal the length of one training symbol with a 20 percent margin.  The offset between the collided frames is the delay between such symbol matches.
 
-Lastly, the signal field sample indicies are calculated as the last symbol correlation plus the lenght of that symbol. Start indices of the \gls{LTF}, \gls{STF}, and Data field are deduced accordingly.
+Lastly, the signal field sample indicies are calculated as the last symbol correlation plus the lenght of that symbol. Start indices of the \gls{LTF}, \gls{STF}, and Data Field are deduced accordingly.

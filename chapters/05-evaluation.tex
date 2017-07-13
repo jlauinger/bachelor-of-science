@@ -29,7 +29,7 @@ This leads to a received constellation similar to that shown in figure \ref{fig:
 
 \begin{figure}[ht]
 	\centering
-	\includegraphics[width=9cm]{gfx/images/freqd-correlation}
+	\includegraphics[width=8cm]{gfx/images/freqd-correlation}
 	\caption{Cross Correlation of Frequency-Domain Symbols after Channel}
 	\label{fig:freqd-corr}
 \end{figure}
@@ -45,17 +45,51 @@ As expected, experiments with cross-correlation in the frequency-domain without 
 
 \section{Time-Domain Correlation}
 
+The experiments I did using time-domain cross-correlation are devided in two groups. First, I used Matlab to simulate different field variations and channel effects. Second, I used WARP boards to try the approach in a real-world scenario. The results of these experiments are summarized in the following sections.
+
+When correlating time-domain samples, I always pre-generated reference samples and calculated the correlation only for the subset of samples that contains the MAC address. Section \ref{sec:mac-periods} describes which period of the signal this is.\\
+
+Reference signals are modulated until just after the Fourier transform and adding of cyclic prefix. For the simulations, I used a sampling rate of 20 MHz, which is the default output of the Matlab WLAN System Toolbox. The WARP boards use a sampling frequency of 40 MHz however, so for these experiments I used interpolation to double the rate.
+
+All experiments used realistic real-world MAC addresses, as described in section \ref{sec:real-world-macs}.
+
 
 %% -----------------------------------------------------------------------------
 
 \section{Real-World MAC Addresses}\label{sec:real-world-macs}
 
-Note: NIC promiscuitive, otherwise only own and router's MAC will be in the ARP cache!
+MAC addresses are 6 byte numbers, where the first 3 bytes are a vendor prefix, identifying the company that built the network interface. The remaining 3 bytes are a unique identifier for the specific hardware.
+
+After initial tries with some artificial MAC addresses in the form of AB:CD:EF:12:34:56, I switched to using a sample set of real-world MAC addresses. This allowed for a closer simulation of an actual use-case for sender detection.\\
+
+I collected 64 MAC addresses from devices that were connected to the wireless university eduroam network. The gathering was done in the afternoon on a weekday. I used airodump from the \texttt{aircrack-ng} software suite to dump all MAC addresses on the network into a file. The actual command looked like this:
+
+\begin{lstlisting}[captionpos=b,caption={Capture Real-World MAC Addresses},label=lst:airodump]
+airmon-ng start wlp0s20u1
+airodump-ng --essid eduroam -a -o csv -w mac-addresses-eduroam.csv wlp0s20u1mon
+\end{lstlisting}
+
+It is important to have the wireless network interface set to promiscuitive mode. This mode instructs the driver to hand all received frames to the kernel. Otherwise, only frames that are addressed to or coming from the local station are gathered, while the rest is filtered. This would mean that only the router's and the station's own MAC address would be cached.
+
+In a possible real-time usage scenario of the sender detection algorithm, it would also be important to use promiscuous mode in order to collect all MAC addresses. These are the addresses for which reference signals need to be modulated and cached.
 
 
 %% -----------------------------------------------------------------------------
 
 \section{Modulation and Coding Schemes}
+
+Intuitively, the overall sender detection accuracy should decrease for higher \glspl{MCS}. Firstly,
+
+\begin{figure}[H]
+	\centering
+	\setlength\figureheight{5cm}
+	\setlength\figurewidth{0.9\textwidth}
+	% uncomment the following line to recompile the figure when it changes otherwise a cached version is used
+	%\tikzset{external/remake next}
+	\input{gfx/matlab/tikz/vary_mcs-20170608-1859-num_correct-64_addresses-1000_experiments.tikz}
+	\caption{Varying MCS for 1000 experiments}
+	\label{fig:vary_mcs}
+\end{figure}
 
 
 %% -----------------------------------------------------------------------------
@@ -76,23 +110,59 @@ Note: apparently scrambler init is commonly not chosen at random \cite{NEEDED}
 
 Use channel models B, D, and E (most common).
 
+\begin{figure}[p]
+	\centering
+	\setlength\figureheight{3cm}
+	\setlength\figurewidth{0.40\textwidth}
+	\begin{tabular}{cc}
+		% uncomment the following line to recompile the figure when it changes otherwise a cached version is used
+		%\tikzset{external/remake next}
+		\subfloat[MCS 0]{\input{gfx/matlab/tikz/vary_tgn-20170609-0142-num_correct-64_addresses-100_experiments-mcs_0.tikz}} &
+		\subfloat[MCS 1]{\input{gfx/matlab/tikz/vary_tgn-20170609-0142-num_correct-64_addresses-100_experiments-mcs_1.tikz}} \\
+		\subfloat[MCS 2]{\input{gfx/matlab/tikz/vary_tgn-20170609-0143-num_correct-64_addresses-100_experiments-mcs_2.tikz}} &
+		\subfloat[MCS 3]{\input{gfx/matlab/tikz/vary_tgn-20170609-0143-num_correct-64_addresses-100_experiments-mcs_3.tikz}} \\
+		\subfloat[MCS 4]{\input{gfx/matlab/tikz/vary_tgn-20170609-0143-num_correct-64_addresses-100_experiments-mcs_4.tikz}} &
+		\subfloat[MCS 5]{\input{gfx/matlab/tikz/vary_tgn-20170609-0143-num_correct-64_addresses-100_experiments-mcs_5.tikz}} \\
+		\subfloat[MCS 6]{\input{gfx/matlab/tikz/vary_tgn-20170609-0143-num_correct-64_addresses-100_experiments-mcs_6.tikz}} &
+		\subfloat[MCS 7]{\input{gfx/matlab/tikz/vary_tgn-20170609-0143-num_correct-64_addresses-100_experiments-mcs_7.tikz}} \\
+	\end{tabular}
+	\caption{Varying TGn Channel for 100 Experiments}
+	\label{fig:vary_tng}
+\end{figure}
+
+\begin{figure}[p]
+	\centering
+	\setlength\figureheight{3cm}
+	\setlength\figurewidth{0.40\textwidth}
+	\begin{tabular}{cc}
+		% uncomment the following line to recompile the figure when it changes otherwise a cached version is used
+		%\tikzset{external/remake next}
+		\subfloat[MCS 0]{\input{gfx/matlab/tikz/vary_trms-20170609-0248-num_correct-64_addresses-10_experiments-mcs_0.tikz}} &
+		\subfloat[MCS 1]{\input{gfx/matlab/tikz/vary_trms-20170609-0248-num_correct-64_addresses-10_experiments-mcs_1.tikz}} \\
+		\subfloat[MCS 2]{\input{gfx/matlab/tikz/vary_trms-20170609-0248-num_correct-64_addresses-10_experiments-mcs_2.tikz}} &
+		\subfloat[MCS 3]{\input{gfx/matlab/tikz/vary_trms-20170609-0248-num_correct-64_addresses-10_experiments-mcs_3.tikz}} \\
+		\subfloat[MCS 4]{\input{gfx/matlab/tikz/vary_trms-20170609-0248-num_correct-64_addresses-10_experiments-mcs_4.tikz}} &
+		\subfloat[MCS 5]{\input{gfx/matlab/tikz/vary_trms-20170609-0248-num_correct-64_addresses-10_experiments-mcs_5.tikz}} \\
+		\subfloat[MCS 6]{\input{gfx/matlab/tikz/vary_trms-20170609-0248-num_correct-64_addresses-10_experiments-mcs_6.tikz}} &
+		\subfloat[MCS 7]{\input{gfx/matlab/tikz/vary_trms-20170609-0248-num_correct-64_addresses-10_experiments-mcs_7.tikz}} \\
+	\end{tabular}
+	\caption{Varying $t_{RMS}$ in a Standard Channel for 100 Experiments}
+	\label{fig:vary_trms}
+\end{figure}
+
+
 
 %% -----------------------------------------------------------------------------
 
 \section{WARP Experiments}
 
-
-%% -----------------------------------------------------------------------------
-
-This is primarily just an example figure to test the matlab2tikz script at this point.\\
-
 \begin{figure}[H]
 	\centering
 	\setlength\figureheight{5cm}
-	\setlength\figurewidth{0.86\textwidth}
+	\setlength\figurewidth{0.9\textwidth}
 	% uncomment the following line to recompile the figure when it changes otherwise a cached version is used
 	%\tikzset{external/remake next}
-	\input{gfx/matlab/tikz/vary_mcs-timing-5_addresses.tikz}
-	\caption[vary\_mcs-timing-5\_addresses]{Vary MCS: Timing (5 addresses)}
-	\label{fig:vary_mcs-timing-5_addresses}
+	\input{gfx/matlab/tikz/capture_collision-20170622-1533-ltf_correlation.tikz}
+	\caption{Preamble Correlation in WARP Experiment}
+	\label{fig:warp_preamble_corr}
 \end{figure}

@@ -144,27 +144,43 @@ It turns out that unlike the scrambler initialization, preceeding payload data d
 
 \section{Channel Models}
 
-Use channel models B, D, and E (most common).
+So far, all experiments were done in simulations with an ideal channel, meaning there were no path effects such as multi-path fading or attenuation. As this is not very realistic, I will evaluate performance under various channel models in this section.\\
 
-\begin{figure}[p]
-	\centering
-	\setlength\figureheight{3cm}
-	\setlength\figurewidth{0.40\textwidth}
-	\begin{tabular}{cc}
-		% uncomment the following line to recompile the figure when it changes otherwise a cached version is used
-		%\tikzset{external/remake next}
-		\subfloat[MCS 0]{\input{gfx/matlab/tikz/vary_tgn-20170609-0142-num_correct-64_addresses-100_experiments-mcs_0.tikz}} &
-		\subfloat[MCS 1]{\input{gfx/matlab/tikz/vary_tgn-20170609-0142-num_correct-64_addresses-100_experiments-mcs_1.tikz}} \\
-		\subfloat[MCS 2]{\input{gfx/matlab/tikz/vary_tgn-20170609-0143-num_correct-64_addresses-100_experiments-mcs_2.tikz}} &
-		\subfloat[MCS 3]{\input{gfx/matlab/tikz/vary_tgn-20170609-0143-num_correct-64_addresses-100_experiments-mcs_3.tikz}} \\
-		\subfloat[MCS 4]{\input{gfx/matlab/tikz/vary_tgn-20170609-0143-num_correct-64_addresses-100_experiments-mcs_4.tikz}} &
-		\subfloat[MCS 5]{\input{gfx/matlab/tikz/vary_tgn-20170609-0143-num_correct-64_addresses-100_experiments-mcs_5.tikz}} \\
-		\subfloat[MCS 6]{\input{gfx/matlab/tikz/vary_tgn-20170609-0143-num_correct-64_addresses-100_experiments-mcs_6.tikz}} &
-		\subfloat[MCS 7]{\input{gfx/matlab/tikz/vary_tgn-20170609-0143-num_correct-64_addresses-100_experiments-mcs_7.tikz}} \\
-	\end{tabular}
-	\caption{Varying TGn Channel for 100 Experiments}
-	\label{fig:vary_tng}
-\end{figure}
+Using Matlab, there are different models available that could be applied. On the one hand, the Communications System Toolbox comes with \texttt{stdchan}, which supports the \texttt{802.11g} and \texttt{802.11g} channel types. These are suited quite well for this scenario. The channel models requires some parameters, including the sampling frequency, doppler spread, and \gls{RMS} delay spread $ t_{RMS} $. The delay spread was varied from 100 ns to 500 ns in steps of 50 ns. The usage of the stdchan filter is illustrated by listing \ref{lst:stdchan}:
+
+\begin{lstlisting}[captionpos=b,caption={Matlab stdchan Channel Model},label=lst:stdchan]
+tmrs = ...;
+fs = 20e6; % Hz Sampling Frequency
+fd = 10; % Hz Doppler spread
+chan = stdchan(1/fs, fd, '802.11g', trms);
+rx = filter(chan, tx);
+\end{lstlisting}
+
+The results of this experiment are shown in figure \ref{fig:vary_trms}. For every trms value, 1000 experiments were conducted. The process was repeated for all eight \glspl{MCS}.
+
+On the other hand, the WLAN Systems Toolbox comes with a number of specifically drafted IEEE 802.11 channel models. These are designed according to the IEEE 802.11 standard models described in the specification \cite{ieee2012}. There are 6 models (A to F), of which I used the following three:
+
+\begin{itemize}
+	\item \textit{Model B}: typical large open space and office environments, no line-of-sight, 100 ns RMS delay spread
+	\item \textit{Model D}: large open space (indoor and outdoor), line-of-sight conditions, 140 ns RMS delay spread
+	\item \textit{Model E}: typical large open space (indoor and outdoor), no line-of-sight, 250 ns RMS delay spread
+\end{itemize}
+
+I use the \texttt{wlanTGnChannel} class. Technically, this channel is designed to be used with IEEE 802.11 n high-troughput networks. However, the class supports configuration of MIMO streams. I set those to 1 antenna for transmission and reception, respectively. This should provide appropriate conditions for SISO 802.11 a/g networks.
+
+The channel is used with Matlab code similar to listing \ref{lst:tgn}. As for the \texttt{stdchan} invocation, the sampling rate must be passed to the function. I use pathloss and shadowing for fading, and configure SISO.
+
+\begin{lstlisting}[captionpos=b,caption={Matlab wlanTGnChannel Simulation},label=lst:tgn]
+model = ...; % 'Model-B', 'Model-D', etc.
+tgnchan = wlanTGnChannel( ...
+        'SampleRate', 20e6, ... % Hz
+        'LargeScaleFadingEffect', 'Pathloss and shadowing', ...
+        'NumTransmitAntennas', 1, 'NumReceiveAntennas', 1, ... % SISO
+        'DelayProfile', model);
+rx = tgnchan(tx);
+\end{lstlisting}
+
+The results of the experiments are shown in figure \ref{fig:vary_tgn}. For each of the three channel models, 1000 experiments were conducted at each \gls{MCS}.
 
 \begin{figure}[p]
 	\centering
@@ -186,10 +202,32 @@ Use channel models B, D, and E (most common).
 	\label{fig:vary_trms}
 \end{figure}
 
+\begin{figure}[p]
+	\centering
+	\setlength\figureheight{3cm}
+	\setlength\figurewidth{0.40\textwidth}
+	\begin{tabular}{cc}
+		% uncomment the following line to recompile the figure when it changes otherwise a cached version is used
+		%\tikzset{external/remake next}
+		\subfloat[MCS 0]{\input{gfx/matlab/tikz/vary_tgn-20170609-0142-num_correct-64_addresses-100_experiments-mcs_0.tikz}} &
+		\subfloat[MCS 1]{\input{gfx/matlab/tikz/vary_tgn-20170609-0142-num_correct-64_addresses-100_experiments-mcs_1.tikz}} \\
+		\subfloat[MCS 2]{\input{gfx/matlab/tikz/vary_tgn-20170609-0143-num_correct-64_addresses-100_experiments-mcs_2.tikz}} &
+		\subfloat[MCS 3]{\input{gfx/matlab/tikz/vary_tgn-20170609-0143-num_correct-64_addresses-100_experiments-mcs_3.tikz}} \\
+		\subfloat[MCS 4]{\input{gfx/matlab/tikz/vary_tgn-20170609-0143-num_correct-64_addresses-100_experiments-mcs_4.tikz}} &
+		\subfloat[MCS 5]{\input{gfx/matlab/tikz/vary_tgn-20170609-0143-num_correct-64_addresses-100_experiments-mcs_5.tikz}} \\
+		\subfloat[MCS 6]{\input{gfx/matlab/tikz/vary_tgn-20170609-0143-num_correct-64_addresses-100_experiments-mcs_6.tikz}} &
+		\subfloat[MCS 7]{\input{gfx/matlab/tikz/vary_tgn-20170609-0143-num_correct-64_addresses-100_experiments-mcs_7.tikz}} \\
+	\end{tabular}
+	\caption{Varying TGn Channel for 100 Experiments}
+	\label{fig:vary_tgn}
+\end{figure}
+
 
 %% -----------------------------------------------------------------------------
 
 \section{WARP Experiments}
+
+Lastly, I used \glspl{SDR} instead of pure software simulations to evaluate the sender detection performance with real-world channel effects.
 
 \begin{figure}[H]
 	\centering

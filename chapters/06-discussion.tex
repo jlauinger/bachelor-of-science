@@ -88,3 +88,19 @@ On the other hand, using multiple streams implies the possibility that the sende
 %% -----------------------------------------------------------------------------
 
 \section{Future Work}
+
+The preceeding discussion reveals some serious problems with the proposed algorithm for sender MAC address detection. The fundamental principles however do not seem completey hopeless. There are remaining questions that should be addressed in further research.\\
+
+\textit{Quantitative Noise Evaluation with SDRs}\\
+
+As mentioned in section \ref{sec:detection-quality}, noise from other stations in the network could cause the correlation of MAC addresses to degrade. Whether this is the case, and to which extent it influences detection performance, could be evaluated in a quantitive analysis. As a first step, the experiments with \gls{WARP} \glspl{SDR} should be reproduced in a radiation-free environment, such as a Faraday cage. If the technique performs well in that case, additional IEEE 802.11 devices could be added one at a time, continuously measuring the algorithm's accuracy.\\
+
+\textit{MIMO and IEEE 802.11 n/ac/ax}\\
+
+In a next step, the technique could be adapted to current IEE 802.11 standards, such as 802.11 n/ac. This involves finding a solution to the problems with \gls{MIMO}, as described in section \ref{sec:mimo}, especially the fragmentation of MAC address bits onto different spatial transmission streams.\\
+
+\textit{Implementation on Mobile Operating Systems}\\
+
+In order to be used with possible new \glspl{DCF}, it is interesting how the sender detection algorithm performs on mobile operating systems, Android and Apple iOS in perticular. Since almost everybody has a smartphone these days, those operating systems power a significant fraction of stations in IEEE 802.11 networks. While desktop operating systems are also very important, mobile platforms face the additional issue that due to limited battery power, calculations are inherently more expensive.
+
+Future work could implement sender detection on collisions as a kernel module for mobile platforms and evaluate its performance and accuracy. A special focus should be set to complexity, power usage, and overall implications on device usability and responsiveness.

@@ -115,7 +115,7 @@ The results show that indeed the scrambler initialization is very important for 
 	% uncomment the following line to recompile the figure when it changes otherwise a cached version is used
 	%\tikzset{external/remake next}
 	\includegraphics[width=0.9\textwidth,height=5cm]{gfx/images/stock-clouds}
-	\caption{Results: Varying Scrambler Initialization for 1000 experiments at MCS 0}
+	\caption[Results: Varying Scrambler Initialization for 1000 experiments]{Results: Varying Scrambler Initialization for 1000 experiments at MCS 0}
 	\label{fig:vary_scrambler}
 \end{figure}
 
@@ -124,16 +124,20 @@ The results show that indeed the scrambler initialization is very important for 
 
 \section{Preceeding Data Variations}
 
-Similarly to the scrambler initialization, the MAC header field preceeding the sender MAC address could also influence detection quality. This is due to the convolutional encoder as described in section \ref{sec:mac-phy}.
+Similarly to the scrambler initialization, the MAC header field preceeding the sender MAC address could also influence detection quality. This is due to the convolutional encoder as described in section \ref{sec:mac-and-phy}. The field before the sender MAC address in a data frame is the destination MAC address. In the following experiment, I measured to which extent the value of the destination address affects the accuracy of my detection technique.\\
+
+Figure \ref{fig:vary_dest} shows the results in the same way as for the previous figures. Since the convolutional encoder uses a 7 bit state, only the last 7 bits of the destination MAC address matter. After these last 7 bits, the register is synchronized to the same state, regardless of the preceeding first 41 bits of the address. This makes up for a total of 128 different values that are evaluated with 1000 experiments each. As for the scrambler initialitation, the experiments are done at \gls{MCS} 0.
 
 \begin{figure}[H]
 	\centering
 	% uncomment the following line to recompile the figure when it changes otherwise a cached version is used
 	%\tikzset{external/remake next}
 	\includegraphics[width=0.9\textwidth,height=5cm]{gfx/images/stock-clouds}
-	\caption{Results: Varying Destination MAC Address for 1000 experiments}
+	\caption[Results: Varying Destination MAC Address for 1000 experiments]{Results: Varying Destination MAC Address for 1000 experiments at MCS 0}
 	\label{fig:vary_dest}
 \end{figure}
+
+It turns out that unlike the scrambler initialization, preceeding payload data does not really have a measurable effect. Detection quality is comparable regardless of the trailing bits of the MAC address. I discuss possible reasons for this in section \ref{sec:detection-quality}. An important implication of this result is that it is not necessary to check all 128 possible encoder states for every collision in real-time, which would be another linear scaling factor for the computational complexity of the algorithm.
 
 
 %% -----------------------------------------------------------------------------

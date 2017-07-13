@@ -11,6 +11,8 @@ I evaluated the performance and accuracy of this algorithm using simulations. Ev
 
 Experiments with real hardware, \gls{WARP} \glspl{SDR} in particular, unveiled serious problems with the proposed algorithm. While receiving a collision, correlating the frame preambles, and measuring a delay between two collided frames worked well and as expected, detecting sender MAC addresses did not function at all.\\
 
+The proposed algorithm is not directly applicable to current versions of the IEEE 802.11 standard using \gls{MIMO}. This is due to possible spatial fractioning of the time-domain samples containing the sender MAC address, rendering naive cross-correlation useless.\\
+
 Future work could quantise channel effects on real hardware, and adapt the detection technique to modern IEEE 802.11 n/ac/ax standards and \gls{MIMO} transmissions.
 
 In summary, sender detection by using cross-correlation in the time-domain worked reasonably well despite some problems and should be explored in more detail.

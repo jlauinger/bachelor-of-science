@@ -78,7 +78,13 @@ In a possible real-time usage scenario of the sender detection algorithm, it wou
 
 \section{Modulation and Coding Schemes}
 
-Intuitively, the overall sender detection accuracy should decrease for higher \glspl{MCS}. Firstly,
+Intuitively, the overall sender detection accuracy should decrease for higher \glspl{MCS}. Firstly, with a higher \gls{MCS} there are more payload bits encoded in every \gls{OFDM} symbol, as described in table \ref{tbl:mcs}. This means that when applying cross-correlation, the \gls{OFDM} symbol contains random data from the MAC header before and after the sender MAC address. Due to the nature of \gls{OFDM}, it is not possible to limit correlation to only a fraction of the symbol in the time-domain.
+
+Secondly, the higher constellation itself, which comes with higher \gls{MCS}, means that payload data gets mapped to complex points in the constellation plane that are less distinct from each other. Therefore, different data can seem more similar under cross-correlation, making it harder to detect senders in the time-domain.\\
+
+To evaluate the detection algorithm's performance, I measured the correctness of detected MAC addresses for each of the 8 available \glspl{MCS}. For every \gls{MCS}, 1000 experiments were conducted. The results are the stacked sums of times where a completely correct pair of senders were guessed, times where only one of the senders was correct, and the amount of failures, in the sense of both addresses being incorrect.
+
+Figure \ref{fig:vary_mcs} is the resulting plot. Different \glspl{MCS} are spread out on the x axis. The stacked bars show the amount of experiments for each result category as described above. As expected, the detection accuracy decreases for higher \glspl{MCS}. It is worth mentioning that for low \glspl{MCS}, the performance is very good, better than I expected. Furthermore, it seems to decrease exponentionally, but to justify this more data would be needed.
 
 \begin{figure}[H]
 	\centering
@@ -96,14 +102,20 @@ Intuitively, the overall sender detection accuracy should decrease for higher \g
 
 \section{Scrambler initialization}\label{sec:ex-scrambler}
 
-Note: apparently scrambler init is commonly not chosen at random \cite{NEEDED}
+As described in section \ref{sec:mac-and-phy}, the MAC layer payload data is scrambled before any modulation on the physical layer is applied. The scrambling uses a 7 bit state register, where 0 is no valid state. Therefore, 127 unique scrambler initialization values are possible.
+
+If the scrambler initialization is important for the sender detection technique, specifically if the modulated reference signals must use the same initialization as the received frames, the amount of possible values linearly scales the algorithm's complexity. That is, for every cached MAC address, \gls{MCS} et cetera all scrambler initializations must be modulated and correlated. It is therefore very interesting to know whether that is the case, or whether the scrambler alternatively does not affect detection quality.\\
+
+Figure \ref{fig:vary_scrambler} shows the detection performance for different scrambler initializations over 1000 experiments. The data is presented the same way as in the previous section as stacked bar plots denoting the amount of runs with 0, 1, and 2 corrects guesses. For all experiments, the \gls{MCS} 0 was used. While the simulated received frame was modulated with scrambler initialization 1, correlation was calculated against 127 reference signals with different scrambler values.
+
+The results show that indeed the scrambler initialization is very important for detection quality. While the performance is very good for the correct initialization value 1, for all other values the accuracy is low. However, related research mentions that some network interfaces seem to not choose the scrambler initialization at random \cite{NEEDED}, contradictory to the IEEE 802.11 standard. These devices use a static initialization for every frame, or increment the value after every transmission. This could be exploited by limiting the reference signals to such that are expected in the current network, therefore avoiding time spent on correlations that are unpromising. Since the MAC addresses of stations in the network are cached, the interface types and vendors are known. This could lead to some interesting future work.
 
 \begin{figure}[H]
 	\centering
 	% uncomment the following line to recompile the figure when it changes otherwise a cached version is used
 	%\tikzset{external/remake next}
 	\includegraphics[width=0.9\textwidth,height=5cm]{gfx/images/stock-clouds}
-	\caption{Results: Varying Scrambler Initialization for 1000 experiments}
+	\caption{Results: Varying Scrambler Initialization for 1000 experiments at MCS 0}
 	\label{fig:vary_scrambler}
 \end{figure}
 
@@ -111,6 +123,8 @@ Note: apparently scrambler init is commonly not chosen at random \cite{NEEDED}
 %% -----------------------------------------------------------------------------
 
 \section{Preceeding Data Variations}
+
+Similarly to the scrambler initialization, the MAC header field preceeding the sender MAC address could also influence detection quality. This is due to the convolutional encoder as described in section \ref{sec:mac-phy}.
 
 \begin{figure}[H]
 	\centering
@@ -167,7 +181,6 @@ Use channel models B, D, and E (most common).
 	\caption{Varying $t_{RMS}$ in a Standard Channel for 100 Experiments}
 	\label{fig:vary_trms}
 \end{figure}
-
 
 
 %% -----------------------------------------------------------------------------

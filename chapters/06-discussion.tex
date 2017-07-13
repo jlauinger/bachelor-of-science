@@ -8,7 +8,7 @@ This chapter discusses the results of the evaluation, and their implications. Th
 
 %% -----------------------------------------------------------------------------
 
-\section{Computational Complexity}
+\section{Computational Complexity}\label{sec:complexity}
 
 In order to use the proposed sender detection algorithm, it must be feasible to do all necessary calculations in real-time. In this section, I present an analysis of the computational complexity of the different components.
 
@@ -52,7 +52,7 @@ This data suggests that the real-time part of the algorithm, which is limited to
 
 The calculating of CRC checksums is time-consuming, however not needed for the algorithm. Instead, dummy checksums can be used as descibed in section \ref{sec:matlab-impl}. Therefore, modulation of reference signals scales with the performance of the \texttt{wlanNonHTData} function.
 
-Since the modulation of reference signals can be done ahead of time, the only important case is that of a newly connected client. In this case, 1016 new signals must be created for this new MAC address, which takes about 5 minutes without any parallelization. With more cores however, this seems manageable.
+Since the modulation of reference signals can be done ahead of time, the only important case is that of a newly connected client. In this case, 1016 new signals must be created for this new MAC address, which takes about 5 minutes without any parallelization. With more CPU cores however, this seems manageable.
 
 
 %% -----------------------------------------------------------------------------
@@ -62,7 +62,15 @@ Since the modulation of reference signals can be done ahead of time, the only im
 
 %% -----------------------------------------------------------------------------
 
-\section{IEEE 802.11 n/ac/ax networks}
+\section{IEEE 802.11 n/ac/ax networks}\label{sec:mimo}
+
+This thesis only covered sender detection for IEEE 802.11 a/g networks. However, such networks are rarely used nowadays due to their low throughput. Modern standards such as IEEE 802.11 n/ac, and the upcoming 802.11 ax are much more relevant.
+
+There are many improvements and differences introduced with the 802.11 n standard. One of the most important with respect to time-domain sample cross-correlation is the adoption of \gls{MIMO} transmission. With this technique, every sender and receiver uses multiple antennas, instead of just one as with 802.11 a/g. This allows for a much higher spectral efficiency, meaning that more bits can be transmitted per used bandwidth \cite{NEEDED}. However, the overall system complexity and multi-path effects in particular make it much more difficult to apply naive time-domain correlation.\\
+
+It would be interesting whether the proposed sender detection algorithm can be adapted to work in a \gls{MIMO} environment. In the current form, this is unfortunately quite unlikely. On the one hand, collision detection and especially the determination of relevant sample periods containing the sender MAC addresses must be adjusted to the physical layer high-throughput frame format used by modern standards \cite{ieee2012}.
+
+On the other hand, using multiple streams implies the possibility that the sender MAC address gets fragmented. While some bits could be transmitted in the first stream, the remaining bits could be sent in various other streams. This renders simple cross-correlation with \texttt{xcorr} directly on the received sample vector useless.
 
 
 %% -----------------------------------------------------------------------------

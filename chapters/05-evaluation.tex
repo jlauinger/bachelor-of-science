@@ -16,12 +16,12 @@ During the implementation of the MAC address detection technique, I tried using 
 
 It turns out to be at least very difficult, if not impossible, to detect senders in case of a collision with frequency-domain correlation. The reason for that is phase shift due to path delays. When a signal is received with an offset in the time-domain, the constellation is changed in the frequency-domain. This can be shown using the Fourier transform equation:
 
-$$ F(f) = \int_{-\infty}^{\infty} s(t) \cdot e^{-2 \pi i f t} dt $$
+$$ F(f) = \int_{-\infty}^{\infty} s(t) \cdot e^{-2 \pi i f t} dt $$\vspace{0cm}
 
 Here, $ i $ is the imaginary unit, $ F(f) $ is the Fourier transform at frequency $ f $, and $ s(t) $ is the time-domain signal depending on $ t $. A time offset can now be expressed as $ t + \Delta $. Standard power laws then show that this offset introduces a constant multiplication factor on $ F(f) $, depending on $ \Delta $.
 
 $$ F(f) = \int_{-\infty}^{\infty} s(t + \Delta) \cdot e^{-2 \pi i f \cdot (t + \Delta)} dt = \int_{-\infty}^{\infty} s(t + \Delta) \cdot e^{-2 \pi i f t} \cdot e^{-2 \pi i f \Delta} dt = $$
-$$ = e^{-2 \pi i f \Delta} \cdot \int_{-\infty}^{\infty} s(t + \Delta) \cdot e^{-2 \pi i f t} dt $$
+$$ = e^{-2 \pi i f \Delta} \cdot \int_{-\infty}^{\infty} s(t + \Delta) \cdot e^{-2 \pi i f t} dt $$\vspace{0cm}
 
 Since both $ s(t) $ and $ F(f) $ are complex functions, this multiplication is a rotation, or phase shift, in the complex constellation plane. Furthermore, the rotation is different for different frequencies $ f $.
 
@@ -122,7 +122,7 @@ The results show that indeed the scrambler initialization is very important for 
 
 %% -----------------------------------------------------------------------------
 
-\section{Preceeding Data Variations}
+\section{Preceeding Data Variations}\label{sec:ex-destination}
 
 Similarly to the scrambler initialization, the MAC header field preceeding the sender MAC address could also influence detection quality. This is due to the convolutional encoder as described in section \ref{sec:mac-and-phy}. The field before the sender MAC address in a data frame is the destination MAC address. In the following experiment, I measured to which extent the value of the destination address affects the accuracy of my detection technique.\\
 
@@ -198,7 +198,7 @@ The results of the experiments are shown in figure \ref{fig:vary_tgn}. For each 
 		\subfloat[MCS 6]{\input{gfx/matlab/tikz/vary_trms-20170609-0248-num_correct-64_addresses-10_experiments-mcs_6.tikz}} &
 		\subfloat[MCS 7]{\input{gfx/matlab/tikz/vary_trms-20170609-0248-num_correct-64_addresses-10_experiments-mcs_7.tikz}} \\
 	\end{tabular}
-	\caption{Varying $t_{RMS}$ in a Standard Channel for 1000 Experiments}
+	\caption{Results: Varying $t_{RMS}$ in a Standard Channel for 1000 Experiments}
 	\label{fig:vary_trms}
 \end{figure}
 
@@ -218,7 +218,7 @@ The results of the experiments are shown in figure \ref{fig:vary_tgn}. For each 
 		\subfloat[MCS 6]{\input{gfx/matlab/tikz/vary_tgn-20170609-0143-num_correct-64_addresses-100_experiments-mcs_6.tikz}} &
 		\subfloat[MCS 7]{\input{gfx/matlab/tikz/vary_tgn-20170609-0143-num_correct-64_addresses-100_experiments-mcs_7.tikz}} \\
 	\end{tabular}
-	\caption{Varying TGn Channel for 1000 Experiments}
+	\caption{Results: Varying TGn Channel for 1000 Experiments}
 	\label{fig:vary_tgn}
 \end{figure}
 

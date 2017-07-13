@@ -198,7 +198,7 @@ The results of the experiments are shown in figure \ref{fig:vary_tgn}. For each 
 		\subfloat[MCS 6]{\input{gfx/matlab/tikz/vary_trms-20170609-0248-num_correct-64_addresses-10_experiments-mcs_6.tikz}} &
 		\subfloat[MCS 7]{\input{gfx/matlab/tikz/vary_trms-20170609-0248-num_correct-64_addresses-10_experiments-mcs_7.tikz}} \\
 	\end{tabular}
-	\caption{Varying $t_{RMS}$ in a Standard Channel for 100 Experiments}
+	\caption{Varying $t_{RMS}$ in a Standard Channel for 1000 Experiments}
 	\label{fig:vary_trms}
 \end{figure}
 
@@ -218,7 +218,7 @@ The results of the experiments are shown in figure \ref{fig:vary_tgn}. For each 
 		\subfloat[MCS 6]{\input{gfx/matlab/tikz/vary_tgn-20170609-0143-num_correct-64_addresses-100_experiments-mcs_6.tikz}} &
 		\subfloat[MCS 7]{\input{gfx/matlab/tikz/vary_tgn-20170609-0143-num_correct-64_addresses-100_experiments-mcs_7.tikz}} \\
 	\end{tabular}
-	\caption{Varying TGn Channel for 100 Experiments}
+	\caption{Varying TGn Channel for 1000 Experiments}
 	\label{fig:vary_tgn}
 \end{figure}
 
@@ -227,7 +227,33 @@ The results of the experiments are shown in figure \ref{fig:vary_tgn}. For each 
 
 \section{WARP Experiments}
 
-Lastly, I used \glspl{SDR} instead of pure software simulations to evaluate the sender detection performance with real-world channel effects.
+Lastly, I used \glspl{SDR} instead of pure software simulations to evaluate the sender detection performance with real-world channel effects. The experiments were conducted using three \gls{WARP} boards. I flashed all of them with the WARPLab reference design, version 7.5.1. Two \glspl{SDR} were used as senders, the remaining one was the receiver. The \glspl{SDR} are connected to a controlling workstation using a gigabit ethernet switch. The overall hardware layout is illustrated in figure \ref{fig:warp-layout}.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\textwidth]{gfx/images/warp-layout}
+	\caption{WARP SDR Experiments Hardware Layout}
+	\label{fig:warp-layout}
+\end{figure}
+
+The experiments were carried out in a typical office building. This means that there were multiple IEEE 802.11 networks with several dozens of connected clients. I used a standard WLAN channel and no electomagnetic shielding.\\
+
+Since the \gls{WARP} boards use a sampling frequency of 40 MHz, but the Matlab WLAN Systems Toolbox creates time-domain samples with a 20 MHz sampling rate, I used interpolation to adapt frequencies. This is done with the built-in \texttt{interp} Matlab function. Listing \ref{lst:interp} illustrates the process.
+
+\begin{lstlisting}[captionpos=b,caption={Interpolate Sampling Rate},label=lst:interp]
+% Interpolate to get from 20 to 40 MHz sampling rate
+tx1 = interp(tx1, 2);
+\end{lstlisting}
+
+For the real-world experiments, I collided packets with the same scrambler initialization and destination MAC addresses, and used \gls{MCS} 0. This means that in principal everything was the same as for the most basic simulation experiments.
+
+Unfortunately, the sender detection did not work at all with \gls{WARP} \glspl{SDR}. Over quite a long period of experimentation time, sender guesses were not more correct than what would be expected from a random distribution.\\
+
+While trying to find hints on why the technique seemed broken, I wondered if maybe the capture effect as described in section \ref{} affected the received samples in such a way that detection was impossible.
+
+I applied cross-correlation to a \gls{LTF} symbol instead of the MAC addresses and plotted the results. They can be seen in figure \ref{fig:warp_preamble_corr}. The collided frames were aligned with some offset for this experiment.
+
+While one group of spikes is a bit lower than the other, it is still easily possible to detect that there is a collision due to the 4 higher and 2 lower spikes caused by the two \glspl{LTF}. The higher level of noise in the begining of the signal are caused by \gls{AGC} in the receiving \gls{SDR}. Since the MAC addresses are located further into the signal, and only that part is correlated for sender detection, this noise should be no problem.
 
 \begin{figure}[H]
 	\centering
@@ -239,3 +265,5 @@ Lastly, I used \glspl{SDR} instead of pure software simulations to evaluate the 
 	\caption{Preamble Correlation in WARP Experiment}
 	\label{fig:warp_preamble_corr}
 \end{figure}
+
+The results of the preamble correlation are promising and burdernsome at the same time. While they show that indeed a collision of two frames is captured by the receiving \gls{SDR}, and that cross-correlation in the time-domain can in fact tell apart both \glspl{LTF}, they also suggest that there is no fundamental implementation error in the code, but rather that MAC address detection in the form of the presented technique does not work with real-world channel effects.

@@ -25,9 +25,11 @@ Instead, I make use of the operating system's ARP stack. During normal network o
 
 Next, I modulate IEEE 802.11 data frames for every cached MAC address. These are used as reference signals for correlation with incoming collisions. Only a small part of the reference frames contains the MAC address bits and is important for sender detection. I describe this region in detail in section \ref{sec:mac-periods}.
 
-As mentioned in section \ref{sec:mac-and-phy}, there are different possibilities for frame modulation, namely the \gls{MCS}, the scrambler initialization, and the error-correcting convolutional encoding. Since the encoder uses a 7 bit state, only the MAC header field directly preceeding the sender MAC address is relevant here. That field is the destination MAC address. In theory, all possible combinations could be modulated for the refernce signals cache, however this would mean a total amount of  more than 130 thousand candidates for every MAC address in the ARP pool. In chapter \ref{ch:evaluation} I evaluate which fields matter to which extent.
+As mentioned in section \ref{sec:mac-and-phy}, there are different possibilities for frame encoding, namely the \gls{MCS}, the scrambler initialization, and the error-correcting convolutional encoding. Since the convolutional encoder uses a 7 bit state, only the MAC header field directly preceding the sender MAC address is relevant here. That field is the destination MAC address. In theory, all possible combinations could be modulated for the refernce signals cache, however this would mean a total amount of  more than 130 thousand candidates for every MAC address in the ARP pool. In chapter \ref{ch:evaluation} I evaluate which fields matter to which extent.
 
-$$ N_{MCS} \cdot N_{Scrambler} \cdot N_{Dest} = 8 \cdot 127 \cdot 128 = 130 048 $$\vspace{0cm}
+The amount of 130 thousand candidates, as mentioned above, is the product of three values: $ N_{\text{MCS}} $ denotes the possible Modulation and Coding Schemes, which are 8. $ N_{\text{Scrambler}} $ describes the available scrambler initialization values. For a 7 bit state and 0 being invalid \cite{ieee2012}, these are $ 2^7 - 1 = 127 $. $ N_{\text{Dest}} $ is the amount of possible states of the convolutional encoder, which are $ 2^7 = 128 $.
+
+$$ N_{\text{MCS}} \cdot N_{\text{Scrambler}} \cdot N_{\text{Dest}} = 8 \cdot 127 \cdot 128 = 130 048 $$\vspace{0cm}
 
 The modulation process comprises the following steps:
 
@@ -72,7 +74,7 @@ When trying to decode these MAC addresses, the correlations with the reference p
 
 %% -----------------------------------------------------------------------------
 
-\section{Periods containing MAC Addresses}\label{sec:mac-periods}
+\section{Periods Containing MAC Addresses}\label{sec:mac-periods}
 
 Depending on the \gls{MCS}, the samples affected by different MAC addresses start at different positions. While the byte offset within the MAC layer header remains the same, the amount of OFDM symbols that need to be skipped before the beginning, and the symbol count that has to be included to cover everything change depending on the bit density.
 
@@ -96,11 +98,11 @@ In total, this means the preamble takes 20 $\mu$s. At 20 MHz sampling rate, that
 		6 & 401 - 480 & 401 - 480 \\ \hline
 		7 & 401 - 480 & 401 - 480 \\ \hline
 	\end{tabular}
-	\caption{Sample Offsets of MAC Address Fields at different MCS}
+	\caption{Sample Offsets of MAC Address Fields at Different MCS}
 	\label{tbl:sample-offsets}
 \end{table}
 
-\glspl{MCS} 0 and 2 have an important advantage. Only with these schemes does the above described region contain only the specific MAC address. All other schemes contain additional data, either before the address, behind it, or in both positions.
+\glspl{MCS} 0 and 2 have an important advantage. Only with these schemes does the above described region contain only the specific MAC address, since the encoded bits per OFDM symbol (24 for MCS 0, and 48 for MCS 1) are integer multiples of the 48 bits MAC address length. All other schemes contain additional data, either before the address, behind it, or in both positions.
 
 
 %% -----------------------------------------------------------------------------
@@ -111,19 +113,19 @@ I built a proof of concept implementation of the presented technique in Matlab. 
 
 The Matlab code is structured in different sections. First, utility functions implement the generation of MAC headers, modulating IEEE 802.11 data frames in the time-domain, and choosing sender MAC addresses randomly from a list. There are two different libraries used for modulation: MathWorks' WLAN System Toolbox \cite{wlantoolbox} as well as a custom IEEE 802.11 implementation developed at the \gls{SEEMOO} group at TU Darmstadt.
 
-A number of simulation scripts measure the detection algorithm's performance under synthetic channel effects. The results of these are presented in chapter \ref{ch:evaluation}. A WARPLab script effectively does the same thing, but using three \gls{WARP} \glspl{SDR}. Finally, there are scripts than run a series of experiments varying different parameters, save the data, and generate figures to allow evaluation.\\
+A number of simulation scripts measure the detection algorithm's performance under synthetic channel effects. The results of these are presented in chapter \ref{ch:evaluation}. A WARPLab script effectively does the same thing, but using three \gls{WARP} \glspl{SDR}. Finally, there are scripts that run a series of experiments varying different parameters, save the data, and generate figures to allow evaluation.\\
 
 The core of the Matlab implementation is cross-correlation. Using the Signal Processing Toolbox \cite{signaltoolbox}, this can be done easily using the \texttt{xcorr} function. This function expects two complex sample series and returns a complex correlation vector and a real vector of offsets. The offsets range from the negative feature length till the positive length. This is because the data series can be slided against each other in both directions. Using this function is similar to this example for a Long Training Field symbol:\\
 
-\begin{lstlisting}[captionpos=b,caption={Cross-Correlation of LTF symbol},label=lst:xcorr]
+\begin{lstlisting}[captionpos=b,caption={Cross-Correlation of LTF Symbol},label=lst:xcorr]
 [correlation, offset] = xcorr(rx, lts_t);
 \end{lstlisting}
 
 Analysing the performance of my implementation revealed that most time was not spent on cross-correlation, but on the generation of the reference signal pool. I improved this code by applying the following optimizations.
 
-First, since the sender detection only relies on correlating the samples that contain the MAC address, as described in section \ref{sec:mac-periods}, most of the generated signal is discarded anyways. This means that it is unnecessary to spend valuable time on calculating the MAC layer checksum, which is stored after the payload data. I simple use a placeholder value of 0x42424242 for the checksum. Furthermore, I do not generate the preamble, namely the Training and Signal Fields. This can be done by using the \texttt{wlanNonHTData} function from the WLAN System Toolbox. This function merely modulates the Data Field, in constrast to the \texttt{wlanWaveformGenerator} function.
+First, since the sender detection only relies on correlating the samples that contain the MAC address, as described in section \ref{sec:mac-periods}, most of the generated signal is discarded anyways. This means that it is unnecessary to spend valuable time on calculating the MAC layer checksum, which is stored after the payload data. I simple use a placeholder value of 0x42424242 for the checksum. Furthermore, I do not generate the preamble, namely the Training and Signal Fields. This can be done by using the \texttt{wlanNonHTData} function from the WLAN System Toolbox. This function merely modulates the Data Field, in contrast to the \texttt{wlanWaveformGenerator} function.
 
-Second, I store the reference signals in a cache that is reused in as many consecutive experiments as possible. All experiments were repeated for at least 100 iterations. Since the reference pool remains the same for all repetitions, using a shared variable for the entire set almost cuts the cost of a higher sample size to zero. This is because in relation to modulating a signal, calculating cross-correlations consumes several orders of magnitude less time (about 0.2 ms compared to 250 ms). This is especially good news because in a real-world application scenario, the generation of reference signals can be done ahead of time, and signals under test do not have to modulated since they are received already in the correct format.
+Second, I store the reference signals in a cache that is reused in as many consecutive experiments as possible. All experiments were repeated for at least 100 iterations. Since the reference pool remains the same for all repetitions, using a shared variable for the entire set almost cuts the cost of a higher sample size to zero. This is because in relation to modulating a signal, calculating cross-correlations consumes several orders of magnitude less time (about 0.2 ms compared to 250 ms). This is especially good news because in a real-world application scenario, the generation of reference signals can be done ahead of time, and signals under test do not have to be modulated since they are received already in the correct format.
 
 Incorporating these optimizations reduced the runtime of the experiment varying the scrambler initialization, which is presented in section \ref{sec:ex-scrambler}, from an extrapolated 300 days to about 15 minutes on a consumer laptop. This not only allowed me to run the experiments at all, but also increase the number of repetitions, therefore largely enhancing the sample size.\\
 
@@ -131,7 +133,7 @@ To simulate channel effects, different models from both the WLAN System Toolbox 
 
 As addressed in section \ref{sec:preamble-corr}, it is necessary to detect the offset between two frames in a collision. This is done using the \texttt{meshgrid} Matlab function. Listing \ref{lst:meshgrid} shows an example of calculating the field indices of both collided frames. The code compares the signal-to-training symbol correlation with a defined threshold and finds peaks in the data. These are then grouped into 4 clusters. This effectively removes noise and measuring inaccuracies causing a spike to last for more than one sample. Assuming that exactly two frames collided, the expected amount of peaks is 4.
 
-\begin{lstlisting}[captionpos=b,caption={Collision Offset Detection using meshgrid},label=lst:meshgrid]
+\begin{lstlisting}[captionpos=b,caption={Collision Offset Detection using Meshgrid},label=lst:meshgrid]
 % Find peaks above a parametrized threshold
 lts_peaks = find(abs(correlation) > LTS_CORR_THRESHOLD*max(abs(correlation)));
 

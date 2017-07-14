@@ -36,7 +36,7 @@ This leads to a received constellation similar to that shown in figure \ref{fig:
 
 This kind of path effects is not at all unusual in a IEEE 802.11 transmission. Under normal circumstances, the known preamble is used to calculate the inverted channel matrix of the path effects, as mentioned in section \ref{sec:multipath}.
 
-When receiving a collision, there is however not only one preamble. Instead, the preambles of two different frames, which experienced different path effects, are added together. Since the preambles itself are designed to have a low autocorrelation \cite{NEEDED}, it is not easily possible to separate the two channel effects from each other. Therefore, I can not reverse the phase shift introduced on the OFDM symbols containing the MAC address.
+When receiving a collision, there is however not only one preamble. Instead, the preambles of two different frames, which experienced different path effects, are added together. Since the preambles themselves are designed to have a low off-peak autocorrelation \cite{NEEDED}, it is not easily possible to separate the two channel effects from each other. Therefore, I can not reverse the phase shift introduced on the OFDM symbols containing the MAC address.
 
 As expected, experiments with cross-correlation in the frequency-domain without channel equalization were unsuccessful. I therefore disregarded this approach.
 
@@ -69,7 +69,7 @@ airmon-ng start wlp0s20u1
 airodump-ng --essid eduroam -a -o csv -w mac-addresses-eduroam.csv wlp0s20u1mon
 \end{lstlisting}
 
-It is important to have the wireless network interface set to promiscuitive mode. This mode instructs the driver to hand all received frames to the kernel. Otherwise, only frames that are addressed to or coming from the local station are gathered, while the rest is filtered. This would mean that only the router's and the station's own MAC address would be cached.
+It is important to have the wireless network interface set to promiscuous mode. This mode instructs the driver to hand all received frames to the kernel. Otherwise, only frames that are addressed to or coming from the local station are gathered, while the rest is filtered. This would mean that only the router's and the station's own MAC address would be cached.
 
 In a possible real-time usage scenario of the sender detection algorithm, it would also be important to use promiscuous mode in order to collect all MAC addresses. These are the addresses for which reference signals need to be modulated and cached.
 
@@ -80,9 +80,9 @@ In a possible real-time usage scenario of the sender detection algorithm, it wou
 
 Intuitively, the overall sender detection accuracy should decrease for higher \glspl{MCS}. Firstly, with a higher \gls{MCS} there are more payload bits encoded in every \gls{OFDM} symbol, as described in table \ref{tbl:mcs}. This means that when applying cross-correlation, the \gls{OFDM} symbol contains random data from the MAC header before and after the sender MAC address. Due to the nature of \gls{OFDM}, it is not possible to limit correlation to only a fraction of the symbol in the time-domain.
 
-Secondly, the higher constellation itself, which comes with higher \gls{MCS}, means that payload data gets mapped to complex points in the constellation plane that are less distinct from each other. Therefore, different data can seem more similar under cross-correlation, making it harder to detect senders in the time-domain.\\
+Secondly, the higher constellation itself, which comes with higher \gls{MCS}, means that payload data gets mapped to complex points in the constellation plane that are less distinct from each other. Therefore, different data can be more similar under cross-correlation, making it harder to detect senders in the time-domain.\\
 
-To evaluate the detection algorithm's performance, I measured the correctness of detected MAC addresses for each of the 8 available \glspl{MCS}. For every \gls{MCS}, 1000 experiments were conducted. The results are the stacked sums of times where a completely correct pair of senders were guessed, times where only one of the senders was correct, and the amount of failures, in the sense of both addresses being incorrect.
+To evaluate the detection algorithm's performance, I measured the correctness of detected MAC addresses for each of the 8 available \glspl{MCS}. For every \gls{MCS}, 1000 runs were performed. The results are the stacked sums of times where a completely correct pair of senders were guessed, times where only one of the senders was correct, and the amount of failures, in the sense of both addresses being incorrect.
 
 Figure \ref{fig:vary_mcs} is the resulting plot. Different \glspl{MCS} are spread out on the x axis. The stacked bars show the amount of experiments for each result category as described above. As expected, the detection accuracy decreases for higher \glspl{MCS}. It is worth mentioning that for low \glspl{MCS}, the performance is very good, better than I expected. Furthermore, it seems to decrease exponentionally, but to justify this more data would be needed.
 
@@ -93,14 +93,14 @@ Figure \ref{fig:vary_mcs} is the resulting plot. Different \glspl{MCS} are sprea
 	% uncomment the following line to recompile the figure when it changes otherwise a cached version is used
 	%\tikzset{external/remake next}
 	\input{gfx/matlab/tikz/vary_mcs-20170608-1859-num_correct-64_addresses-1000_experiments.tikz}
-	\caption{Results: Varying MCS for 1000 experiments}
+	\caption{Results: Varying MCS for 1000 Experiments}
 	\label{fig:vary_mcs}
 \end{figure}
 
 
 %% -----------------------------------------------------------------------------
 
-\section{Scrambler initialization}\label{sec:ex-scrambler}
+\section{Scrambler Initialization}\label{sec:ex-scrambler}
 
 As described in section \ref{sec:mac-and-phy}, the MAC layer payload data is scrambled before any modulation on the physical layer is applied. The scrambling uses a 7 bit state register, where 0 is no valid state. Therefore, 127 unique scrambler initialization values are possible.
 
@@ -115,29 +115,29 @@ The results show that indeed the scrambler initialization is very important for 
 	% uncomment the following line to recompile the figure when it changes otherwise a cached version is used
 	%\tikzset{external/remake next}
 	\includegraphics[width=0.9\textwidth,height=5cm]{gfx/images/stock-clouds}
-	\caption[Results: Varying Scrambler Initialization for 1000 experiments]{Results: Varying Scrambler Initialization for 1000 experiments at MCS 0}
+	\caption[Results: Varying Scrambler Initialization for 1000 Experiments]{Results: Varying Scrambler Initialization for 1000 Experiments at MCS 0}
 	\label{fig:vary_scrambler}
 \end{figure}
 
 
 %% -----------------------------------------------------------------------------
 
-\section{Preceeding Data Variations}\label{sec:ex-destination}
+\section{Preceding Data Variations}\label{sec:ex-destination}
 
-Similarly to the scrambler initialization, the MAC header field preceeding the sender MAC address could also influence detection quality. This is due to the convolutional encoder as described in section \ref{sec:mac-and-phy}. The field before the sender MAC address in a data frame is the destination MAC address. In the following experiment, I measured to which extent the value of the destination address affects the accuracy of my detection technique.\\
+Similar to the scrambler initialization, the MAC header field preceding the sender MAC address could also influence detection quality. This is due to the convolutional encoder as described in section \ref{sec:mac-and-phy}. The field before the sender MAC address in a data frame is the destination MAC address. In the following experiment, I measured to which extent the value of the destination address affects the accuracy of my detection technique.\\
 
-Figure \ref{fig:vary_dest} shows the results in the same way as for the previous figures. Since the convolutional encoder uses a 7 bit state, only the last 7 bits of the destination MAC address matter. After these last 7 bits, the register is synchronized to the same state, regardless of the preceeding first 41 bits of the address. This makes up for a total of 128 different values that are evaluated with 1000 experiments each. As for the scrambler initialitation, the experiments are done at \gls{MCS} 0.
+Figure \ref{fig:vary_dest} shows the results in the same way as for the previous figures. Since the convolutional encoder uses a 7 bit state, only the last 7 bits of the destination MAC address matter. After these last 7 bits, the register is synchronized to the same state, regardless of the preceding first 41 bits of the address. This makes up for a total of 128 different values that are evaluated with 1000 experiments each. As for the scrambler initialitation, the experiments are done at \gls{MCS} 0.
 
 \begin{figure}[H]
 	\centering
 	% uncomment the following line to recompile the figure when it changes otherwise a cached version is used
 	%\tikzset{external/remake next}
 	\includegraphics[width=0.9\textwidth,height=5cm]{gfx/images/stock-clouds}
-	\caption[Results: Varying Destination MAC Address for 1000 experiments]{Results: Varying Destination MAC Address for 1000 experiments at MCS 0}
+	\caption[Results: Varying Destination MAC Address for 1000 Experiments]{Results: Varying Destination MAC Address for 1000 Experiments at MCS 0}
 	\label{fig:vary_dest}
 \end{figure}
 
-It turns out that unlike the scrambler initialization, preceeding payload data does not really have a measurable effect. Detection quality is comparable regardless of the trailing bits of the MAC address. I discuss possible reasons for this in section \ref{sec:detection-quality}. An important implication of this result is that it is not necessary to check all 128 possible encoder states for every collision in real-time, which would be another linear scaling factor for the computational complexity of the algorithm.
+It turns out that unlike the scrambler initialization, preceding payload data does not really have a measurable effect. Detection quality is comparable regardless of the trailing bits of the MAC address. I discuss possible reasons for this in section \ref{sec:detection-quality}. An important implication of this result is that it is not necessary to check all 128 possible encoder states for every collision in real-time, which would be another linear scaling factor for the computational complexity of the algorithm.
 
 
 %% -----------------------------------------------------------------------------
@@ -156,7 +156,7 @@ chan = stdchan(1/fs, fd, '802.11g', trms);
 rx = filter(chan, tx);
 \end{lstlisting}
 
-The results of this experiment are shown in figure \ref{fig:vary_trms}. For every trms value, 1000 experiments were conducted. The process was repeated for all eight \glspl{MCS}.
+The results of this experiment are shown in figure \ref{fig:vary_trms}. For every trms value, 1000 runs were performed. The process was repeated for all eight \glspl{MCS}.
 
 On the other hand, the WLAN Systems Toolbox comes with a number of specifically drafted IEEE 802.11 channel models. These are designed according to the IEEE 802.11 standard models described in the specification \cite{ieee2012}. There are 6 models (A to F), of which I used the following three:
 
@@ -180,7 +180,7 @@ tgnchan = wlanTGnChannel( ...
 rx = tgnchan(tx);
 \end{lstlisting}
 
-The results of the experiments are shown in figure \ref{fig:vary_tgn}. For each of the three channel models, 1000 experiments were conducted at each \gls{MCS}.
+The results of the experiments are shown in figure \ref{fig:vary_tgn}. For each of the three channel models, 1000 runs were performed at each \gls{MCS}.
 
 \begin{figure}[p]
 	\centering
@@ -245,7 +245,7 @@ Since the \gls{WARP} boards use a sampling frequency of 40 MHz, but the Matlab W
 tx1 = interp(tx1, 2);
 \end{lstlisting}
 
-For the real-world experiments, I collided packets with the same scrambler initialization and destination MAC addresses, and used \gls{MCS} 0. This means that in principal everything was the same as for the most basic simulation experiments.
+For the real-world experiments, I deliberately caused frame collisions with the same scrambler initialization and destination MAC addresses, and used \gls{MCS} 0. This means that in principal everything was the same as for the most basic simulation experiments.
 
 Unfortunately, the sender detection did not work at all with \gls{WARP} \glspl{SDR}. Over quite a long period of experimentation time, sender guesses were not more correct than what would be expected from a random distribution.\\
 

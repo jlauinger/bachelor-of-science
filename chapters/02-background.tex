@@ -10,7 +10,7 @@ This chapter provides an introduction to the overall structure of the IEEE 802.1
 
 \section{IEEE 802.11 MAC and PHY} \label{sec:mac-and-phy}
 
-The IEEE 802.11 standards family describes wireless local area networks as supported by all current major operating platforms. IEEE 802.11 networks inherit the reference structure of their parent standard, IEEE 802. In particular, the 6 byte device addresses used to identify a physical network interface, which is called MAC address.
+The IEEE 802.11 standards family describes wireless local area networks as supported by all current major operating platforms. IEEE 802.11 networks inherit the reference structure of their parent standard, IEEE 802. Specifically, the share the 6 byte device addresses used to identify a physical network interface, which is called MAC address.
 
 The standard is devided in the physical (PHY), and the medium access control (MAC) layer specifications. Logical link control (LLC) as described by the IEEE 802.2 standard is shared with euqivalent wired networks.
 
@@ -19,7 +19,7 @@ The standard is devided in the physical (PHY), and the medium access control (MA
 
 There are a number of different physical layer specifications available for use in IEEE 802.11 networks, which define various parameters such as the frequency used for transmissions.
 
-In this work, I restrain usage to the IEEE 802.11 a/g standards. These use orthogonal frequency division multiplexing (ODFM) to distribute bits over a channel spectrum. The maximum achievable data rate is 54 megabits per second (Mbps) \cite{ieee2012}. The only difference between the two is that 802.11a uses a carrier frequency of 5 GHz, whereas 802.11g transmits on 2.4 GHz. Around the carrier frequency, multiple channels of 20 MHz bandwidth are available. These PHY standards are extremely widely supported but were superceeded some time ago by the 802.11n specification.
+In this work, I restrain usage to the IEEE 802.11 a/g standards. These use orthogonal frequency division multiplexing (ODFM) to distribute bits over a channel spectrum. The maximum achievable data rate is 54 megabits per second (Mbps) \cite{ieee2012}. The most significant difference between the two is that 802.11a uses a carrier frequency of 5 GHz, whereas 802.11g transmits on 2.4 GHz. Around the carrier frequency, multiple channels of 20 MHz bandwidth are available. These PHY standards are extremely widely supported but were superseded by the 802.11n specification some time ago.
 
 With 802.11n, being the first high-throughput standard, channels with more bandwidth and multiple spatial streams (MIMO) were introduced, providing a much higher data rate. 802.11ac and the currently in-development 802.11ax improve even further on that. However, due to their higher complexity, I leave adaption of my sender detection evaluation for future work.\\
 
@@ -57,7 +57,7 @@ The available constellations are described by the modulation and coding scheme. 
 
 The signal field (SIG), which is transmitted before the data field, contains the MCS used for the frame, and its length in octets. The signal field is always modulated with binary phase shift keying (BPSK) and rate $\frac{1}{2}$ binary convolution code (BCC). Nearby stations will also decode the SIG to defer their transmissions for an appropriate time. The signal field has a duration of 4 $\mu$s.\\
 
-In order to allow the receiver to calculate path effects of the channel, and to equalize received data, training fields are used in the beginning of the frame. The Short Training Field (STF) is used for start-of-packet detection and automatic gain control (AGC). It includes 10 repetitions of a 0.8 $\mu$s symbol, resulting in a duration of 8 $\mu$s. The sequence is chosen to have good correlation properties and a low peak-to-average power, meaning its properties are preserved after clipping \cite{perahia2013}.
+In order to allow the receiver to calculate path effects of the channel, and to equalize received data, training fields are used in the beginning of the frame. The Short Training Field (STF) is used for start-of-frame detection and automatic gain control (AGC). It includes 10 repetitions of a 0.8 $\mu$s symbol, resulting in a duration of 8 $\mu$s. The sequence is chosen to have good correlation properties and a low peak-to-average power, meaning its properties are preserved after clipping \cite{perahia2013}.
 
 The Long Training Field (LTF) is used for channel estimation, more precise frequency offset estimation, and time synchronization. It comprises 2 repetitions of a 3.2 $\mu$s training symbol, and 1.6 $\mu$s cyclic prefix, therefore the LTF also spans 8 $\mu$s. Both training fields and the signal field form the preamble. Figure \ref{fig:preamble} shows detailed timing information for that.
 
@@ -71,16 +71,16 @@ The Long Training Field (LTF) is used for channel estimation, more precise frequ
 
 \subsection{Medium Access Control Layer Specification} \label{sec:mac-format}
 
-The medium access control layer (MAC) controls which station may transmit at a given time. The IEEE 802.11 MAC layer uses carrier sense multiple access with collision avoidance (CSMA/CA). With this algorithm, every station listens to the medium before any a transmission. Collisions are prevented if possible, and detected through the lack of an acknowledgement packet. In contrast, Ethernet uses CSMA/CD (collision detection), where a transmitting station can directly sense a collision \cite{NEEDED}.\\
+The medium access control layer (MAC) controls which station may transmit at a given time. The IEEE 802.11 MAC layer uses carrier sense multiple access with collision avoidance (CSMA/CA). With this algorithm, every station listens to the medium before a transmission. Collisions are prevented if possible, and detected through the lack of an acknowledgement packet. In contrast, Ethernet uses CSMA/CD (collision detection), where a transmitting station can directly sense a collision \cite{NEEDED}.\\
 
 A MAC frame includes a MAC header, a variable-length body, and a frame check sequence (FCS) containing a cyclic redundancy check code (CRC).
 
-The MAC header consists of 2 byte frame control, 2 byte frame duration in microseconds, 18 bytes Address 1, 2 and 3, as well some others depending on the frame control field. In a data frame, the address fields contain the receive address (RA), transmit address (TA), and the BSSID. The frame structure is illustrated in figure \ref{fig:mac-format}.
+The MAC header consists of 2 byte frame control, 2 byte frame duration in microseconds, 18 bytes address 1, 2 and 3, as well some others depending on the frame control field. In a data frame, the address fields contain the receive address (RA), transmit address (TA), and the BSSID. The frame structure is illustrated in figure \ref{fig:mac-format}.
 
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=\textwidth]{gfx/images/mac-format}
-	\caption[IEEE 802.11 MAC layer frame structure]{IEEE 802.11 MAC layer frame structure \cite{ieee2012}}
+	\caption[IEEE 802.11 MAC Layer Frame Structure]{IEEE 802.11 MAC Layer Frame Structure \cite{ieee2012}}
 	\label{fig:mac-format}
 \end{figure}
 
@@ -93,9 +93,9 @@ The Distributed Coordination Function (DCF) describes precisely when sending sta
 
 After sensing the medium idle for a DIFS, a station must wait a random backoff time before transmitting. This helps reduce collisions caused by multiple stations waiting to transmit. The backoff time is pseudo-randomly chosen out of the interval $[0..CW]$, where CW is the so-called contention window. On each unsuccessful transmit, CW is doubled. It is reset to its initial value as specified by the standard after a successful transmission.\\
 
-The IEEE 802.11 MAC uses positive frame acknowledgements by layer 2 ACK frames. Without an ACK the sender retransmits the frame. To further reduce collision impact, large payloads are fragmented into multiple PSDUs, which are acknowledges individually. Data frames include a retry bit in the sequence number field to detect duplicate frames \cite{NEEDED}.\\
+The IEEE 802.11 MAC uses positive frame acknowledgements by layer 2 ACK frames. Without an ACK the sender retransmits the frame. To further reduce collision impact, large payloads are fragmented into multiple PSDUs, which are acknowledged individually. Data frames include a retry bit in the sequence number field to detect duplicate frames \cite{NEEDED}.\\
 
-The hidden node problem can occur when a station sees the access point (AP), but not a third station that is currently transmitting to the AP. The medium is busy, but the first station senses it as idle and begins a transmission. Therefore, the transmission to the AP is suspect to a collision. One approach to mitigate this is using an additional handshake mechanism before transmitting:
+The hidden node problem can occur when a station sees the access point (AP), but not a third station that is currently transmitting to the AP. The medium is busy, but the first station senses it as idle and begins a transmission. Therefore, the transmission to the AP is subject to a collision. One approach to mitigate this is using an additional handshake mechanism before transmitting:
 
 Before sending the data packet, a station transmits a request to send frame (RTS) containing the desired sending duration. The access point will reply with a clear to send frame (CTS), and third stations update a network allocation vector (NAV) to remember the busy medium. In the hidden node scenario, the offending station would be able to receive the CTS frame from the AP, therefore knowing of the ongoing transmission. On top of that, RTS frames are much shorter than data frames, meaning a collision is less harmful to the medium because less airtime is wasted.
 
@@ -119,9 +119,9 @@ In general, higher values of cross-correlations mean that the functions are more
 
 %% -----------------------------------------------------------------------------
 
-\section{Multi-Path Interference}\label{sec:multipath}
+\section{Multi-Path Channel Effects}\label{sec:multipath}
 
-In an ideal scenario, a transmitted signal would travel on a direct line of sight from sender to receiver. However, electromagnetic waves spread in a spherical shape. In a real-world situation, signals can therefore reach the receiver on multiple paths, each affected by different delay, attenuation, reflection, or other interference.
+In an ideal scenario, a transmitted signal would travel on a direct line of sight from sender to receiver. However, electromagnetic waves spread in a spherical shape. In a real-world situation, signals can therefore reach the receiver on multiple paths, each affected by different delay, attenuation, reflection, or other effects.
 
 A common multi-path effect are echoes, which are caused by signals being reflected on walls, furniture, or similar obstacles. When an echo occurs, an attenuated copy of the signal with a delay is received.\\
 

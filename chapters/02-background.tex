@@ -34,7 +34,7 @@ The data field is modulated with the following process: First, the bits are scra
 	\label{fig:phy-format}
 \end{figure}
 
-After that, convolutional encoding is applied to the bits. The standard allows the encoder to use different code rates as specified by the modulation and coding schemes (MCS). The encoder also uses a 7 bit state. Next, bits are grouped into symbols and rearranged using a deterministic permutation function \cite{perahia2013}. This is called interleaving. Following this, the symbols are modulated using quadrature amplitude modulation (QAM)	with different possible bit rates.\\
+After that, convolutional encoding is applied to the bits. The standard allows the encoder to use different code rates as specified by the modulation and coding schemes (MCS). The encoder also uses a 7 bit state \cite{park2009}. Next, bits are grouped into symbols and rearranged using a deterministic permutation function \cite{perahia2013}. This is called interleaving. Following this, the symbols are modulated using quadrature amplitude modulation (QAM)	with different possible bit rates.\\
 
 The available constellations are described by the modulation and coding scheme. Table \ref{tbl:mcs} shows all available MCS for IEEE 802.11 a/g. Finally, pilot signals are added, the signal is transformed into the time-domain using the inverse fast fourier transform, a cyclic prefix is added, and the signal is further processed and sent.
 

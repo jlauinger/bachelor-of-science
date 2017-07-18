@@ -27,11 +27,11 @@ While the ReCoder algorithm provides sender detection, it requires a change to t
 
 \section{Hidden Terminals}
 
-Interference Cancellation: Better Receivers for a New Wireless MAC \cite{halperin2007}.\\
+Hidden Terminals are situations where the \gls{CSMA/CA} employed by the IEEE 802.11 MAC layer can not correctly detect an ongoing transmission. This can happen when a receiver is in range of two stations, but these stations can not reach each other \cite{perahia2013}.
 
-CSMA/CA is often over-protective. A better approach is looking at receiver conditions and allowing multiple transmissions at the same time for the right sender and receiver pairs. Interference with other packets is currently treated as noise, although it is highly structured data.
+In this case, it is possible that one sender does not recognize a transmission of the other sender. It begins sending and disturbs communications between the other sender and the receiver. This effectively renders both transmissions lost as the frames can not be decoded any more be the receiver.\\
 
-Constellation of a received collision signal is a combined mn-constellation consisting of the pairwise sums of the points in the individual constellations. Decoding can be done by mapping a sample to a pair of symbols corresponding to the closest of the mn joint constellation points.
+\gls{CSMA/CA} is often over-protective, meaning there is some air-time which is not used for transmissions. This is due to the fact that carrier sensing is done at the sender. A better approach could be looking at current conditions at the receiver side \cite{halperin2007}. If two stations are hidden from each other, multiple transmissions could be conducted at the same time for the right sender and receiver pairs.\\
 
 Packet-Level Failure Classification by Characterizing Failure Patterns in Wireless Sensor Networks \cite{zhu2016}.\\
 

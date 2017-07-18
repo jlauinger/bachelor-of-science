@@ -3,47 +3,24 @@
 \chapter{Related Work}\label{ch:relatedwork}
 \glsresetall % Resets all acronyms to not used
 
-In this chapter I present related research and relevant previous work. The proposed technique of recognizing senders in a collision by correlating their MAC addresses in the time-domain has not been described in the literature yet. However, there have been experiments that point in this direction. This chapter is organized in sections dealing with the coordination function, hidden terminals, collision handling, the capture effect, and consequences of the scrambling process.
+In this chapter I present related research and relevant previous work. The proposed technique of recognizing senders in a collision by correlating their MAC addresses in the time-domain has not been described in the literature yet. However, there have been experiments that point in this direction. This chapter is organized in sections dealing with the coordination function, hidden terminals, collision handling, and consequences of the capture effect.
 
 
 %% -----------------------------------------------------------------------------
 
 \section{Distributed Coordination Function}
 
-Performance Analysis of the IEEE 802.11 Distributed Coordination Function \cite{bianchi2000}.\\
+As described in section \ref{sec:dcf}, the Coordination Function defines the rules of communication in an IEEE 802.11 network. There are measures to reduce the impact of a collision, such as the two-way handshake using \gls{RTS} and \gls{CTS} frames. This procedure allows stations in the network to request transmission for a specific time. Other stations can overhear this \gls{RTS} and update their \gls{NAV} tables accordingly. If a collision occurs, it will do so on the \gls{RTS} frame. Since this is much shorter than a data frame, the amount of unusable air-time is smaller, as less data has to be discarded.
 
-\textbf{Distribution Coordination Function:}
+Giuseppe Bianchi contributed a performance analysis of the Distributed Coordination Function \cite{bianchi2000}. The maximum load that the system can carry in stable conditions is called saturation throughput. The author develops a Markov model to derive throughput estimations and verifies them against simulations. A result is that using the two-way handshake is not useful in practice, as throughput did not increase in experiments comparable to a  typical wireless application. Therefore, \gls{RTS} and \gls{CTS} frames are not used in most network configurations nowadays \cite{bianchi2000, gollakota2008}.\\
 
-Random access scheme for 802.11 MAC, based on CSMA/CA with retransmission scheduling based on binary exponential backoff rules. Positive acknowledgement of transmission using ACK frames. RTC/CTS: send short frame prior to data transmission, blocking the channel. Therefore if a collision occurs, a smaller amount of time is wasted.
+ReCoder \cite{meng2015} is a new algorithm for neighbor discovery in 802.11 networks that does not use beacon frames. Instead, a new frame format that only needs to be correlated, not decoded, is introduced. The technique saves energy and is more resilient to situations, such as collisions, where decoding the packet is not possible.
 
-Point Coordination Function: alternative mode of operation, the AP controls who can transmit. Not commonly used.
+The alternative frames start with a fixed, independent training sequence called RCover. This sequence is used to identify a neighbor discovery message, similar to frame detection using the Short Training Field. After that, a two-stage identification pattern is applied. The first stage is a fixed Gold-code signal with low auto-correlation, shifted by a unique amount of samples randomly chosen by the sending station. In the event that two stations choose the same offset, they are distinguished by the second stage, which a hash of the MAC address. This stage is not as distinguishable and therefore only acts as tie-beaker for identical first stages.
 
-Problem of hidden terminals: some pairs of stations can not hear each other, therefore they can not always sense a busy medium.
+Receivers are triggered by the RCover sequence and correlate the first identity stage to the list of known stations. If a match is found, the second stage is checked to eliminate possible duplicate shift-amounts. If no match could be found, the reference table is adjusted so that the new identity is included.\\
 
-A station transmits after the medium is sensed idle for a distributed inter-frame space (DIFS). If it is sensed busy, the station waits until a DIFS idle. Before transmitting, the station then also waits for a random backoff time to allow other stations to kick in. The backoff time is measured in slots, where one slot is the time needed to detect another transmit (Rx Tx turnaround time, MAC processing).
-
-The backoff time is chosen out of the interval (0, w-1) where w is the contention window. Starting at CW\_MIN, w is doubled on each unsuccessful transmission, until CW\_MAX. Upon successful transmission, w is reset. The backoff timer is randomly chosen out of the contention window. When the medium is detected busy, the selected backoff timer is frozen. ACKs are transmitted after a short inter-frame space (SIFS).\\
-
-\textbf{Saturation Throughput / Performace:}
-
-Maximum load that the system can carry in stable conditions. Can be used for a long time, unlike the Maximum Throughput which tends to lead to rapid performance decrease.
-
-\cite{bianchi2000} develops a Markov model to derive throughput estimations and verifies them against simulations. The paper contains a lot of figures and tables with the results, but these are not really relevant for me.
-
-On robust neighbor discovery in mobile wireless networks \cite{meng2015}.\\
-
-New algorithm for neighbor discovery in 802.11 networks that does not use Beacon frames that are decoded, but instead uses a new frame format that only needs to be correlated. Therefore, it saves energy and is more resilient to situations where decoding the packet is not possible.
-
-The frames start with a fixed, independent training sequence called RCover to identify a neighbor discovery message, similar to packet detection using the Short Training Field. After that, a two-stage identification pattern follows. The first stage is a fixed independent Gold-code signal, shifted by a unique amount of samples, randomly chosen by the sending station. Should two stations choose the same offset, are they distinguished by the second stage, a hash of the MAC address. The second stage is not quite as independent and distinguishable and therefore only acts as tie-beaker for identical first stages.
-
-Receivers are triggered by the RCover and correlate the first identity stage to the list of known identities. After a match is found, the second stage is compared. If both stations mismatch, the station is introduced into the list as new transmitter. If a match occurs, the list is updated to include the version with higher SINR.
-
-The detection of sequences is done by cross-correlation at the receiver. The SINR is estimated by self-correlation. If a match is detected at sampling point k, the following holds:
-
-\begin{align}
-	C(s,y,\Delta) = \sum_{i=1}^L (s_i^* \cdot y_{i+\Delta}) \approx \sum_{i=1}^L (h_{i+\Delta} \cdot \|s_i\|^2)
-	\label{eqn:correlation}
-\end{align}
+While the ReCoder algorithm provides sender detection, it requires a change to the standard IEEE 802.11 MAC layer, adding new frame types. Therefore, the technique must be implemented in all devices in order to benefit from it. This is often hard to do, or may even be impossible. This thesis tries to detect senders in a collision without any changes to the MAC layer and is therefore different.
 
 
 %% -----------------------------------------------------------------------------

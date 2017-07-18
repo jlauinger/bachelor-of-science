@@ -87,7 +87,7 @@ The MAC header consists of 2 byte frame control, 2 byte frame duration in micros
 
 %% -----------------------------------------------------------------------------
 
-\section{Distributed Coordination Function}
+\section{Distributed Coordination Function}\label{sec:dcf}
 
 The Distributed Coordination Function (DCF) describes precisely when sending stations may transmit. It logically belongs to the MAC layer. A station may send after sensing the medium idle for at least one DIFS (DCF inter-frame space) \cite{bianchi2000}. While a sender has access to the medium, it separates frames by a SIFS (short inter-frame space), and other stations will not capture the medium because they must wait for a longer DIFS.
 

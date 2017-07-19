@@ -24,8 +24,8 @@ RATE                    = 0;           % MCS
 MAX_TX_LEN              = 2^20;        % 2^20 =  1048576 --> Soft max TX / RX length for WARP v3 Java Transport (WARPLab 7.5.x)
 
 LTF_CORR_THRESHOLD      = 0.8;         % threshold to detect LTF correlation peaks
-PACKET_DELAY            = 0;           % hardware tx delay
-CUTAWAY_LENGTH          = 0;         % for LTF correlation, cut away some noisy samples in the beginning
+PACKET_DELAY            = 50;           % software tx delay
+CUTAWAY_LENGTH          = 50;         % for LTF correlation, cut away some noisy samples in the beginning
 
 file = fopen(filename_macs);
 out = textscan(file, "%s");
@@ -34,8 +34,8 @@ macs = macs(:, [1:2 4:5 7:8 10:11 13:14 16:17]);
 macs = macs(1:NUM_ADDRESSES_TO_USE, :);
 
 destination             = macs(1,:);
-sender1                 = macs(4,:);
-sender2                 = macs(5,:);
+sender1                 = macs(6,:);
+sender2                 = macs(7,:);
 
 fprintf(1, "==> Using senders: %s and %s\n", sender1, sender2);
 
@@ -103,15 +103,12 @@ tx2_struct = generate_signal(SIGNAL, destination, sender2, 'EFEFEFEFEF44', 'ffff
 tx2_signal = tx2_struct.samples;
 
 % interpolate to get from 20 to 40 MHz sampling rate
-%tx1_signal = resample(tx1_signal, 40, 20);
-%tx2_signal = resample(tx2_signal, 40, 20);
+tx1_signal = resample(tx1_signal, 40, 20);
+tx2_signal = resample(tx2_signal, 40, 20);
 
 % Scale the Tx vector to +/- 1
-%tx1_vec_air = tx1_signal ./ max(abs(tx1_signal));
-%tx2_vec_air = tx2_signal ./ max(abs(tx2_signal));
-
-tx1_vec_air = tx1_signal;
-tx2_vec_air = tx2_signal;
+tx1_vec_air = tx1_signal ./ max(abs(tx1_signal));
+tx2_vec_air = tx2_signal ./ max(abs(tx2_signal));
 
 % Prepend some zeros to delay one of the transmissions
 tx1_vec_air = [tx1_vec_air; zeros(PACKET_DELAY, 1)];
@@ -150,15 +147,11 @@ pause(1.2 * txLength * Ts);
 
 % Retrieve the received waveform from the Rx node
 rx_vec_air = wl_basebandCmd(node_tx1, RFC, 'read_IQ', 0, RX_NUM_SAMPS);
-
 rx_vec_air = rx_vec_air(:).';
 
 % Disable the buffers and RF interfaces for TX / RX
 wl_basebandCmd(nodes, 'RF_ALL', 'tx_rx_buff_dis');
 wl_interfaceCmd(nodes, 'RF_ALL', 'tx_rx_dis');
-
-figure(2);
-plot(real(rx_vec_air));
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -178,11 +171,11 @@ fprintf(1, "==> Wrote tx1, tx2, and rx samples to disk.\n");
 rx_vec_air = rx_vec_air(CUTAWAY_LENGTH+1:end);
 
 % =========== skip WARP entirely!!
-rx_vec_air = tx1_vec_air + tx2_vec_air;
-rx_vec_air = rx_vec_air(:).';
+% rx_vec_air = tx1_vec_air + tx2_vec_air;
+% rx_vec_air = rx_vec_air(:).';
 % ===========
 
-%rx_vec_air = resample(rx_vec_air, 20, 40);
+rx_vec_air = resample(rx_vec_air, 20, 40);
 
 % create a reference preamble
 ieeeenc = ieee_80211_encoder();
@@ -193,7 +186,6 @@ ltf_format = 'LTF'; % NonHT
 
 % cut one individual symbol out of the sequences
 ltf_symbol_t = ltf_t_pre(193:320);
-
 ltf_symbol_t = resample(ltf_symbol_t, 20, 40);
 
 % correlate samples to find the LTF
@@ -209,7 +201,7 @@ ltf_peaks = find(abs(ltf_corr) > LTF_CORR_THRESHOLD*max(abs(ltf_corr)));
 
 % As I trust here that there are exactly two packets, I cluster the peaks
 % into 4 means to get rid of very close values
-if (length(ltf_peaks) > 2)
+if (length(ltf_peaks) > 4)
     [~, C] = kmeans(ltf_peaks', 4);
     uniq_ltf_peaks = sort(floor(C))';
 else
@@ -223,11 +215,11 @@ end
 % calculate estimated indices
 % Note: using max and min only works because, here, I trust that there
 % are exactly two packets involved in the collision.
-ind2.sig = uniq_ltf_peaks(max(ltf_second_peak_index)) + 64; % add 128 samples for the symbol itself
+ind2.sig = uniq_ltf_peaks(max(ltf_second_peak_index)) + 64; % add 64 samples for the symbol itself
 ind2.ltf = ind2.sig - 160; % subtract LTF length
 ind2.stf = ind2.ltf - 160; % subtract STF length
 ind2.payload = ind2.sig + 80; % add 4us SIG field
-ind1.sig = uniq_ltf_peaks(min(ltf_second_peak_index)) + 64; % add 128 samples for the symbol itself
+ind1.sig = uniq_ltf_peaks(min(ltf_second_peak_index)) + 64; % add 64 samples for the symbol itself
 ind1.ltf = ind1.sig - 160; % subtract LTF length
 ind1.stf = ind1.ltf - 160; % subtract STF length
 ind1.payload = ind1.sig + 80; % add 4us SIG field
@@ -243,16 +235,16 @@ line([ind1.stf ind1.stf], [0 myYlim(2)], 'LineStyle', '--', 'Color', 'r', 'LineW
 line([ind1.ltf ind1.ltf], [0 myYlim(2)], 'LineStyle', '--', 'Color', 'r', 'LineWidth', 2);
 line([ind1.sig ind1.sig], [0 myYlim(2)], 'LineStyle', '--', 'Color', 'r', 'LineWidth', 2);
 line([ind1.payload ind1.payload], [0 myYlim(2)], 'LineStyle', '--', 'Color', 'r', 'LineWidth', 2);
-p=patch(ind1.payload+[320 640 640 320], [0 0 myYlim(2) myYlim(2)], 'r');
+p=patch(ind1.payload+[160 320 320 160], [0 0 myYlim(2) myYlim(2)], 'r');
 set(p,'FaceAlpha',0.2);
 line([ind2.stf ind2.stf], [0 myYlim(2)], 'LineStyle', '--', 'Color', 'g', 'LineWidth', 2);
 line([ind2.ltf ind2.ltf], [0 myYlim(2)], 'LineStyle', '--', 'Color', 'g', 'LineWidth', 2);
 line([ind2.sig ind2.sig], [0 myYlim(2)], 'LineStyle', '--', 'Color', 'g', 'LineWidth', 2);
 line([ind2.payload ind2.payload], [0 myYlim(2)], 'LineStyle', '--', 'Color', 'g', 'LineWidth', 2);
-p=patch(ind2.payload+[640 960 960 640], [0 0 myYlim(2) myYlim(2)], 'g');
+p=patch(ind2.payload+[320 480 480 320], [0 0 myYlim(2) myYlim(2)], 'g');
 set(p,'FaceAlpha',0.2);
 myAxis = axis();
-axis([-10, ind2.payload+1200, myAxis(3), myAxis(4)])
+axis([-10, ind2.payload+600, myAxis(3), myAxis(4)])
 legend(["abs(xcorr(.,.))", "LTF correlation threshold", ...
     "1. Packet/STF start", "1. LTF start", "1. SIG start", "1. DATA start", "1. MAC interval", ...
     "2. Packet/STF start", "2. LTF start", "2. SIG start", "2. DATA start", "2. MAC interval"]);
@@ -261,7 +253,7 @@ legend(["abs(xcorr(.,.))", "LTF correlation threshold", ...
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % try to correlate and guess MACs
 
-reference_signals = generate_signal_pool(macs, RATE, 'ABCDEF012345', 1, 20e6);
+reference_signals = generate_signal_pool(macs, RATE, macs(1,:), 1, 20e6);
 
 % cut out the part containing the MAC addresses of both samples
 rx_offset = ind1.stf + CUTAWAY_LENGTH - 1;
@@ -275,57 +267,14 @@ lag = zeros(size(macs,1), size(rx_to_corr,2)*2-1);
 for i = 1:size(macs,1)
     [corr(i,:), lag(i,:)] = xcorr(rx_to_corr, reference_signals(i,:));
 end
+corr = abs(corr);
 
-% compute reference correlation
-[reference_corr,~] = xcorr(rx_to_corr);
-c_ref = abs(reference_corr(ceil(length(reference_corr)/2)));
-fprintf(1, "==> Aligned reference correlation: %f\n", c_ref);
+[~,max_idx] = find(corr==max(corr(:)));
 
-% calculate correlations for first packet
-for i=1:size(macs,1)
-    c = abs(corr(i,ceil(size(corr,2)/2)));
-end
-
-% calculate correlations for second packet
-for i=1:size(macs,1)
-    c = abs(corr(i,ceil(size(corr,2)/2+(ind2.stf-ind1.stf))));
-end
-
-% calculate matching probabilities for first packet
-[mag1, mac1] = max(abs(corr(:,ceil(size(corr,2)/2))));
-probability1 = zeros(size(macs,1));
-for i=1:size(macs,1)
-    probability1(i) = 100*abs(corr(i,ceil(size(corr,2)/2)))/mag1;
-end
-[~, perm1] = sort(probability1);
-fprintf(1, "==> Matching probabilities for first packet (after %i samples)\n", ind1.stf-1);
-for i=1:size(macs,1)
-    fprintf(1, " * %s: %05.2f%%\n", macs(perm1(i),:), probability1(perm1(i)));
-end
-
-% calculate matching probabilities for second packet. f the offsets are
-% the same, we must use the second likeliest here
-[~,I] = sort(abs(corr(:,ceil(size(corr,2)/2+(ind2.stf-ind1.stf)))), 'descend');
-mac2_1 = I(1); mac2_2 = I(2);
-mag2_1 = abs(corr(mac2_1,ceil(size(corr,2)/2+(ind2.stf-ind1.stf)))); mag2_2 = abs(corr(mac2_2,ceil(size(corr,2)/2+(ind2.stf-ind1.stf))));
-probability2 = zeros(size(macs,1));
-for i=1:size(macs,1)
-    probability2(i) = 100*abs(corr(i,ceil(size(corr,2)/2+(ind2.stf-ind1.stf))))/mag2_1;
-end
-[~,perm2] = sort(probability2);
-fprintf(1, "==> Matching probabilities for second packet (after %i samples)\n", ind2.stf-1);
-for i=1:size(macs,1)
-    fprintf(1, " * %s: %05.2f%%\n", macs(perm2(i),:), probability2(perm2(i)));
-end
-
-% check if there is any offset and adjust accordingly
-if (iswithin(ind1.stf-ind2.stf, -10, 10))
-    fprintf(1, "==> NOTE: detected negligible delay, return two best correlations from first index\n");
-    mac2 = mac2_2;
-else
-    mac2 = mac2_1;
-end
+[~,I] = sort(corr(:,max_idx), 'descend');
+i1 = I(1); i2 = I(2);
+guesses = [macs(i1,:); macs(i2,:)];
     
-fprintf(1, "==> Guessed MAC addresses: %s and %s\n", macs(mac1,:), macs(mac2,:));
+fprintf(1, "==> Guessed MAC addresses: %s and %s\n", guesses(1,:), guesses(2,:));
 fprintf(1, "==> Senders were: %s and %s\n", sender1, sender2);
-fprintf(1, "==> Correct guesses: %d\n", helper_correct_guesses([macs(mac1,:); macs(mac2,:)], [sender1; sender2]));
+fprintf(1, "==> Correct guesses: %d\n", helper_correct_guesses(guesses, [sender1; sender2]));

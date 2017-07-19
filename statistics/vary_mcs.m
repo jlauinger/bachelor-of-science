@@ -17,7 +17,7 @@ filename_macs = "data/mac-addresses-eduroam-20170516.dat";
 NUM_ADDRESSES_TO_USE = 64;
 
 % number of experiments (choose sender randomly each time)
-NUM_EXPERIMENTS = 100;
+NUM_EXPERIMENTS = 1000;
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -30,7 +30,7 @@ macs = cell2mat(out{1});
 macs = macs(:, [1:2 4:5 7:8 10:11 13:14 16:17]);
 macs = macs(1:NUM_ADDRESSES_TO_USE, :);
 
-for rate = 0:3
+for rate = 0:7
     rate_time = tic;
     reference_signals = generate_signal_pool(macs, rate, macs(1,:), 1);
     for ex = 1:NUM_EXPERIMENTS

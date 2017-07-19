@@ -28,7 +28,7 @@ function SIGNAL = generate_signal(SIGNAL, addr1, addr2, addr3, duration, scrambl
     
     % modulate packet
     if (whole_packet)
-        SIGNAL.samples = wlanWaveformGenerator(tx_psdu, cfg);
+        SIGNAL.samples = wlanWaveformGenerator(tx_psdu, cfg, 'ScramblerInitialization', scrambler);
     else
         SIGNAL.samples = wlanNonHTData(tx_psdu, cfg, scrambler);
     end

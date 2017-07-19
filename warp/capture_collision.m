@@ -25,7 +25,7 @@ MAX_TX_LEN              = 2^20;        % 2^20 =  1048576 --> Soft max TX / RX le
 
 LTF_CORR_THRESHOLD      = 0.8;         % threshold to detect LTF correlation peaks
 PACKET_DELAY            = 0;           % hardware tx delay
-CUTAWAY_LENGTH          = 200;         % for LTF correlation, cut away some noisy samples in the beginning
+CUTAWAY_LENGTH          = 0;         % for LTF correlation, cut away some noisy samples in the beginning
 
 file = fopen(filename_macs);
 out = textscan(file, "%s");
@@ -34,8 +34,8 @@ macs = macs(:, [1:2 4:5 7:8 10:11 13:14 16:17]);
 macs = macs(1:NUM_ADDRESSES_TO_USE, :);
 
 destination             = macs(1,:);
-sender1                 = macs(2,:);
-sender2                 = macs(3,:);
+sender1                 = macs(4,:);
+sender2                 = macs(5,:);
 
 fprintf(1, "==> Using senders: %s and %s\n", sender1, sender2);
 
@@ -44,10 +44,10 @@ fprintf(1, "==> Using senders: %s and %s\n", sender1, sender2);
 % setup WARP nodes
 
 % Create a vector of node objects
-nodes   = wl_initNodes(3);
+nodes   = wl_initNodes(1);
 node_tx1 = nodes(1);
-node_tx2 = nodes(2);
-node_rx = nodes(3);
+%node_tx2 = nodes(2);
+%node_rx = nodes(3);
 
 % Create a UDP broadcast trigger and tell each node to be ready for it
 eth_trig = wl_trigger_eth_udp_broadcast;
@@ -65,10 +65,10 @@ nodes.wl_triggerManagerCmd('output_config_delay', T_OUT_BASEBAND, 0);
 nodes.wl_triggerManagerCmd('output_config_delay', T_OUT_AGC, 3000); % 3000 ns delay before starting the AGC
 
 % Get IDs for the interfaces on the boards. 
-[RFA,RFB] = wl_getInterfaceIDs(nodes(1));
+[RFA,RFB,RFC] = wl_getInterfaceIDs(nodes(1));
 
 % Set up the interface for the experiment
-wl_interfaceCmd(nodes, 'RF_ALL', 'tx_gains', 3, 30);
+wl_interfaceCmd(nodes, 'RF_ALL', 'tx_gains', 0, 2);
 wl_interfaceCmd(nodes, 'RF_ALL', 'channel', 2.4, 11);
 
 % AGC setup
@@ -97,18 +97,21 @@ SIGNAL = struct( ...
     'RATE',               RATE,  ...                % Modulation order (0-7)
     'PAYLOAD',            randi([0 255], 1, 1));    % Custom payload data (1 byte)
 
-tx1_struct = generate_signal(SIGNAL, destination, sender1, 'EFEFEFEFEF44', 'FF', 1, 1);
+tx1_struct = generate_signal(SIGNAL, destination, sender1, 'EFEFEFEFEF44', 'ffff', 1, 1);
 tx1_signal = tx1_struct.samples;
-tx2_struct = generate_signal(SIGNAL, destination, sender2, 'EFEFEFEFEF44', 'FF', 1, 1);
+tx2_struct = generate_signal(SIGNAL, destination, sender2, 'EFEFEFEFEF44', 'ffff', 1, 1);
 tx2_signal = tx2_struct.samples;
 
 % interpolate to get from 20 to 40 MHz sampling rate
-tx1_signal = interp(tx1_signal, 2);
-tx2_signal = interp(tx2_signal, 2);
+%tx1_signal = resample(tx1_signal, 40, 20);
+%tx2_signal = resample(tx2_signal, 40, 20);
 
 % Scale the Tx vector to +/- 1
-tx1_vec_air = tx1_signal ./ max(abs(tx1_signal));
-tx2_vec_air = tx2_signal ./ max(abs(tx2_signal));
+%tx1_vec_air = tx1_signal ./ max(abs(tx1_signal));
+%tx2_vec_air = tx2_signal ./ max(abs(tx2_signal));
+
+tx1_vec_air = tx1_signal;
+tx2_vec_air = tx2_signal;
 
 % Prepend some zeros to delay one of the transmissions
 tx1_vec_air = [tx1_vec_air; zeros(PACKET_DELAY, 1)];
@@ -127,17 +130,17 @@ wl_basebandCmd(nodes, 'rx_length', TX_NUM_SAMPS);   % Number of samples to recei
 
 % Write the Tx waveforms to the Tx nodes
 wl_basebandCmd(node_tx1, RFA, 'write_IQ', tx1_vec_air(:));
-wl_basebandCmd(node_tx2, RFA, 'write_IQ', tx2_vec_air(:));
+wl_basebandCmd(node_tx1, RFB, 'write_IQ', tx2_vec_air(:));
 
 % Enable the Tx and Rx radios
 wl_interfaceCmd(node_tx1, RFA, 'tx_en');
-wl_interfaceCmd(node_tx2, RFA, 'tx_en');
-wl_interfaceCmd(node_rx, RFA, 'rx_en');
+wl_interfaceCmd(node_tx1, RFB, 'tx_en');
+wl_interfaceCmd(node_tx1, RFC, 'rx_en');
 
 % Enable the Tx and Rx buffers
 wl_basebandCmd(node_tx1, RFA, 'tx_buff_en');
-wl_basebandCmd(node_tx2, RFA, 'tx_buff_en');
-wl_basebandCmd(node_rx, RFA, 'rx_buff_en');
+wl_basebandCmd(node_tx1, RFB, 'tx_buff_en');
+wl_basebandCmd(node_tx1, RFC, 'rx_buff_en');
 
 % Trigger the Tx/Rx cycle at all nodes
 eth_trig.send();
@@ -146,13 +149,16 @@ eth_trig.send();
 pause(1.2 * txLength * Ts);
 
 % Retrieve the received waveform from the Rx node
-rx_vec_air = wl_basebandCmd(node_rx, RFA, 'read_IQ', 0, RX_NUM_SAMPS);
+rx_vec_air = wl_basebandCmd(node_tx1, RFC, 'read_IQ', 0, RX_NUM_SAMPS);
 
 rx_vec_air = rx_vec_air(:).';
 
 % Disable the buffers and RF interfaces for TX / RX
 wl_basebandCmd(nodes, 'RF_ALL', 'tx_rx_buff_dis');
 wl_interfaceCmd(nodes, 'RF_ALL', 'tx_rx_dis');
+
+figure(2);
+plot(real(rx_vec_air));
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -171,6 +177,13 @@ fprintf(1, "==> Wrote tx1, tx2, and rx samples to disk.\n");
 % remove first samples (too much noise)
 rx_vec_air = rx_vec_air(CUTAWAY_LENGTH+1:end);
 
+% =========== skip WARP entirely!!
+rx_vec_air = tx1_vec_air + tx2_vec_air;
+rx_vec_air = rx_vec_air(:).';
+% ===========
+
+%rx_vec_air = resample(rx_vec_air, 20, 40);
+
 % create a reference preamble
 ieeeenc = ieee_80211_encoder();
 stf_phase_shift = 0;
@@ -180,6 +193,8 @@ ltf_format = 'LTF'; % NonHT
 
 % cut one individual symbol out of the sequences
 ltf_symbol_t = ltf_t_pre(193:320);
+
+ltf_symbol_t = resample(ltf_symbol_t, 20, 40);
 
 % correlate samples to find the LTF
 [full_ltf_corr, full_ltf_lag] = xcorr(rx_vec_air, ltf_symbol_t);
@@ -194,8 +209,12 @@ ltf_peaks = find(abs(ltf_corr) > LTF_CORR_THRESHOLD*max(abs(ltf_corr)));
 
 % As I trust here that there are exactly two packets, I cluster the peaks
 % into 4 means to get rid of very close values
-[~, C] = kmeans(ltf_peaks', 4);
-uniq_ltf_peaks = sort(floor(C))';
+if (length(ltf_peaks) > 2)
+    [~, C] = kmeans(ltf_peaks', 4);
+    uniq_ltf_peaks = sort(floor(C))';
+else
+    uniq_ltf_peaks = ltf_peaks;
+end
 
 % Select best candidate correlation peak as LTS-payload boundary
 [LTF1, LTF2] = meshgrid(uniq_ltf_peaks, uniq_ltf_peaks);
@@ -204,14 +223,14 @@ uniq_ltf_peaks = sort(floor(C))';
 % calculate estimated indices
 % Note: using max and min only works because, here, I trust that there
 % are exactly two packets involved in the collision.
-ind2.sig = uniq_ltf_peaks(max(ltf_second_peak_index)) + 128; % add 128 samples for the symbol itself
-ind2.ltf = ind2.sig - 320; % subtract LTF length
-ind2.stf = ind2.ltf - 320; % subtract STF length
-ind2.payload = ind2.sig + 160; % add 4us SIG field
-ind1.sig = uniq_ltf_peaks(min(ltf_second_peak_index)) + 128; % add 128 samples for the symbol itself
-ind1.ltf = ind1.sig - 320; % subtract LTF length
-ind1.stf = ind1.ltf - 320; % subtract STF length
-ind1.payload = ind1.sig + 160; % add 4us SIG field
+ind2.sig = uniq_ltf_peaks(max(ltf_second_peak_index)) + 64; % add 128 samples for the symbol itself
+ind2.ltf = ind2.sig - 160; % subtract LTF length
+ind2.stf = ind2.ltf - 160; % subtract STF length
+ind2.payload = ind2.sig + 80; % add 4us SIG field
+ind1.sig = uniq_ltf_peaks(min(ltf_second_peak_index)) + 64; % add 128 samples for the symbol itself
+ind1.ltf = ind1.sig - 160; % subtract LTF length
+ind1.stf = ind1.ltf - 160; % subtract STF length
+ind1.payload = ind1.sig + 80; % add 4us SIG field
 
 % plot LTF correlation
 figure(1); clf; hold on;
@@ -242,12 +261,12 @@ legend(["abs(xcorr(.,.))", "LTF correlation threshold", ...
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % try to correlate and guess MACs
 
-reference_signals = generate_signal_pool(macs, RATE, 'ABCDEF012345', 1, 40e6);
+reference_signals = generate_signal_pool(macs, RATE, 'ABCDEF012345', 1, 20e6);
 
 % cut out the part containing the MAC addresses of both samples
-rx_offset = ind1.stf + CUTAWAY_LENGTH;
-indices = helper_mac_sample_indices(RATE, 40e6);
-start = ind1.payload+indices(1)+rx_offset; stop = ind2.payload+indices(end)+rx_offset;
+rx_offset = ind1.stf + CUTAWAY_LENGTH - 1;
+indices = helper_mac_sample_indices(RATE, 20e6);
+start = ind1.payload+indices(1)+rx_offset-1; stop = ind2.payload+indices(end)+rx_offset-1;
 rx_to_corr = rx_vec_air(start:stop);
 
 % correlate samples to find the addresses

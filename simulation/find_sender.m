@@ -33,9 +33,9 @@ referenceDestination = macs(1,:);
 
 % create signal
 tx1_struct = generate_signal(SIGNAL, referenceDestination, p1.sender, 'EFEFEFEFEF44', p1.duration, p1.scrambler);
-tx1_signal = tx1_struct.samples';
+tx1_signal = tx1_struct.samples.';
 tx2_struct = generate_signal(SIGNAL, referenceDestination, p2.sender, 'EFEFEFEFEF44', p2.duration, p2.scrambler);
-tx2_signal = tx2_struct.samples';
+tx2_signal = tx2_struct.samples.';
 
 % cut the part containing MACs
 tx1_mac_t = tx1_signal(helper_mac_sample_indices(rate));

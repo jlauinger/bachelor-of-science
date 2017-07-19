@@ -34,9 +34,9 @@ SIGNAL = struct( ...
 
 % create signal
 tx1_struct = seemoo_generate_signal(SIGNAL, referenceSender1, referenceDestination, 'EFEFEFEFEF44', 'ff');
-tx1_signal = tx1_struct.samples';
+tx1_signal = tx1_struct.samples.';
 tx2_struct = seemoo_generate_signal(SIGNAL, referenceSender2, referenceDestination, 'EFEFEFEFEF44', 'ff');
-tx2_signal = tx2_struct.samples';
+tx2_signal = tx2_struct.samples.';
 
 % Configure a Rician channel object
 ricChan = comm.RicianChannel( ...
@@ -171,7 +171,7 @@ tx = tx1_mac_t + tx2_mac_t;
 mac_reference_corr = zeros(size(macs,1), 320);
 for i = 1:size(macs,1)
     corr_struct = seemoo_generate_signal(SIGNAL, macs(i,:), '000000000000', '000000000000', 'ff');
-    samples = corr_struct.samples';
+    samples = corr_struct.samples.';
     mac_reference_corr(i,:) = samples(1121:1440);
 end
 

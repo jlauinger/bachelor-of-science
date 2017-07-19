@@ -27,7 +27,7 @@ function reference = generate_signal_pool(macs, rate, destination, scrambler, fs
     reference = zeros(size(macs,1), length(indices));
     for i = 1:size(macs,1)
         signal_struct = generate_signal(SIGNAL, destination, macs(i,:), '000000000000', 'FFFF', scrambler, 0);
-        samples = signal_struct.samples';
+        samples = signal_struct.samples.';
         
         % interpolate the signal to increase the sampling rate if necessary
         %samples = resample(samples, fs / 20e6, 1);

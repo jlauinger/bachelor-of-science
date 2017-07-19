@@ -15,9 +15,9 @@ SIGNAL = struct( ...
 tx_struct = seemoo_generate_signal(SIGNAL, referenceMac, 'CDCDCDCDCD43', 'EFEFEFEFEF44', 'ff');
 corr1_struct = seemoo_generate_signal(SIGNAL, referenceMac, 'CDCDCDCDCD43', 'EFEFEFEFEF44', 'ff');
 corr2_struct = seemoo_generate_signal(SIGNAL, candidateMac, 'CDCDCDCDCD43', 'EFEFEFEFEF44', 'ff');
-tx_signal = tx_struct.samples';
-corr1_signal = corr1_struct.samples';
-corr2_signal = corr2_struct.samples';
+tx_signal = tx_struct.samples.';
+corr1_signal = corr1_struct.samples.';
+corr2_signal = corr2_struct.samples.';
 
 % Data Field starts after STF (8 us) + LTF (8 us) + SIG (4 us) = 
 % 20 us @ 40 MHz = 800 samples

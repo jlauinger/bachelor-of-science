@@ -28,14 +28,14 @@ SIGNAL = struct( ...
 
 % create signal
 tx_struct = seemoo_generate_signal(SIGNAL, referenceSender, 'CDCDCDCDCD43', 'EFEFEFEFEF44', 'ff');
-tx_signal = tx_struct.samples';
+tx_signal = tx_struct.samples.';
 tx = tx_signal(1121:1440);
 
 % create modulations of all known MAC addresses
 corr = zeros(size(macs,1), length(tx));
 for i = 1:size(macs,1)
     corr_struct = seemoo_generate_signal(SIGNAL, macs(i,:), '000000000000', '000000000000', 'ff');
-    samples = corr_struct.samples';
+    samples = corr_struct.samples.';
     corr(i,:) = samples(1121:1440);
 end
 

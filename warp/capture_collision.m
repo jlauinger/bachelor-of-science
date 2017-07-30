@@ -18,14 +18,14 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 filename_macs = "data/mac-addresses-eduroam-20170516.dat";
-NUM_ADDRESSES_TO_USE    = 64;          % limit simulation time
+NUM_ADDRESSES_TO_USE    = 30;          % limit simulation time
 
 RATE                    = 0;           % MCS
 MAX_TX_LEN              = 2^20;        % 2^20 =  1048576 --> Soft max TX / RX length for WARP v3 Java Transport (WARPLab 7.5.x)
 
 LTF_CORR_THRESHOLD      = 0.8;         % threshold to detect LTF correlation peaks
-PACKET_DELAY            = 50;           % software tx delay
-CUTAWAY_LENGTH          = 50;         % for LTF correlation, cut away some noisy samples in the beginning
+PACKET_DELAY            = 0;           % software tx delay
+CUTAWAY_LENGTH          = 150;         % for LTF correlation, cut away some noisy samples in the beginning
 
 file = fopen(filename_macs);
 out = textscan(file, "%s");
@@ -34,8 +34,8 @@ macs = macs(:, [1:2 4:5 7:8 10:11 13:14 16:17]);
 macs = macs(1:NUM_ADDRESSES_TO_USE, :);
 
 destination             = macs(1,:);
-sender1                 = macs(6,:);
-sender2                 = macs(7,:);
+sender1                 = macs(4,:);
+sender2                 = macs(5,:);
 
 fprintf(1, "==> Using senders: %s and %s\n", sender1, sender2);
 
@@ -44,10 +44,10 @@ fprintf(1, "==> Using senders: %s and %s\n", sender1, sender2);
 % setup WARP nodes
 
 % Create a vector of node objects
-nodes   = wl_initNodes(1);
+nodes   = wl_initNodes(3);
 node_tx1 = nodes(1);
-%node_tx2 = nodes(2);
-%node_rx = nodes(3);
+node_tx2 = nodes(2);
+node_rx = nodes(3);
 
 % Create a UDP broadcast trigger and tell each node to be ready for it
 eth_trig = wl_trigger_eth_udp_broadcast;
@@ -69,6 +69,7 @@ nodes.wl_triggerManagerCmd('output_config_delay', T_OUT_AGC, 3000); % 3000 ns de
 
 % Set up the interface for the experiment
 wl_interfaceCmd(nodes, 'RF_ALL', 'tx_gains', 0, 2);
+wl_interfaceCmd(node_tx1, RFA, 'tx_gains', 3, 30);
 wl_interfaceCmd(nodes, 'RF_ALL', 'channel', 2.4, 11);
 
 % AGC setup
@@ -127,17 +128,17 @@ wl_basebandCmd(nodes, 'rx_length', TX_NUM_SAMPS);   % Number of samples to recei
 
 % Write the Tx waveforms to the Tx nodes
 wl_basebandCmd(node_tx1, RFA, 'write_IQ', tx1_vec_air(:));
-wl_basebandCmd(node_tx1, RFB, 'write_IQ', tx2_vec_air(:));
+wl_basebandCmd(node_tx2, RFA, 'write_IQ', tx2_vec_air(:));
 
 % Enable the Tx and Rx radios
 wl_interfaceCmd(node_tx1, RFA, 'tx_en');
-wl_interfaceCmd(node_tx1, RFB, 'tx_en');
-wl_interfaceCmd(node_tx1, RFC, 'rx_en');
+wl_interfaceCmd(node_tx2, RFA, 'tx_en');
+wl_interfaceCmd(node_rx, RFA, 'rx_en');
 
 % Enable the Tx and Rx buffers
 wl_basebandCmd(node_tx1, RFA, 'tx_buff_en');
-wl_basebandCmd(node_tx1, RFB, 'tx_buff_en');
-wl_basebandCmd(node_tx1, RFC, 'rx_buff_en');
+wl_basebandCmd(node_tx2, RFA, 'tx_buff_en');
+wl_basebandCmd(node_rx, RFA, 'rx_buff_en');
 
 % Trigger the Tx/Rx cycle at all nodes
 eth_trig.send();
@@ -146,7 +147,7 @@ eth_trig.send();
 pause(1.2 * txLength * Ts);
 
 % Retrieve the received waveform from the Rx node
-rx_vec_air = wl_basebandCmd(node_tx1, RFC, 'read_IQ', 0, RX_NUM_SAMPS);
+rx_vec_air = wl_basebandCmd(node_rx, RFA, 'read_IQ', 0, RX_NUM_SAMPS);
 rx_vec_air = rx_vec_air(:).';
 
 % Disable the buffers and RF interfaces for TX / RX
@@ -274,7 +275,7 @@ corr = abs(corr);
 [~,I] = sort(corr(:,max_idx), 'descend');
 i1 = I(1); i2 = I(2);
 guesses = [macs(i1,:); macs(i2,:)];
-    
+
 fprintf(1, "==> Guessed MAC addresses: %s and %s\n", guesses(1,:), guesses(2,:));
 fprintf(1, "==> Senders were: %s and %s\n", sender1, sender2);
 fprintf(1, "==> Correct guesses: %d\n", helper_correct_guesses(guesses, [sender1; sender2]));

@@ -52,7 +52,7 @@ The available constellations are described by the modulation and coding scheme. 
 		6 & 64QAM & 2/3 & 288 & 192 \\ \hline
 		7 & 64QAM & 3/4 & 288 & 216 \\ \hline
 	\end{tabular}
-	\caption[IEEE 802.11 a/g Modulation and Coding Schemes]{IEEE 802.11 a/g Modulation and Coding Schemes (MCS) \cite{NEEDED} \label{tbl:mcs}}
+	\caption[IEEE 802.11 a/g Modulation and Coding Schemes]{IEEE 802.11 a/g Modulation and Coding Schemes (MCS) \cite{ieee2012} \label{tbl:mcs}}
 \end{table}
 
 The signal field (SIG), which is transmitted before the data field, contains the MCS used for the frame, and its length in octets. The signal field is always modulated with binary phase shift keying (BPSK) and rate $\frac{1}{2}$ binary convolution code (BCC). Nearby stations will also decode the SIG to defer their transmissions for an appropriate time. The signal field has a duration of 4 $\mu$s.\\
@@ -71,7 +71,7 @@ The Long Training Field (LTF) is used for channel estimation, more precise frequ
 
 \subsection{Medium Access Control Layer Specification} \label{sec:mac-format}
 
-The medium access control layer (MAC) controls which station may transmit at a given time. The IEEE 802.11 MAC layer uses carrier sense multiple access with collision avoidance (CSMA/CA). With this algorithm, every station listens to the medium before a transmission. Collisions are prevented if possible, and detected through the lack of an acknowledgement packet. In contrast, Ethernet uses CSMA/CD (collision detection), where a transmitting station can directly sense a collision \cite{NEEDED}.\\
+The medium access control layer (MAC) controls which station may transmit at a given time. The IEEE 802.11 MAC layer uses carrier sense multiple access with collision avoidance (CSMA/CA). With this algorithm, every station listens to the medium before a transmission. Collisions are prevented if possible, and detected through the lack of an acknowledgement packet. In contrast, Ethernet uses CSMA/CD (collision detection), where a transmitting station can directly sense a collision \cite{ieee802-3}.\\
 
 A MAC frame includes a MAC header, a variable-length body, and a frame check sequence (FCS) containing a cyclic redundancy check code (CRC).
 
@@ -93,7 +93,7 @@ The Distributed Coordination Function (DCF) describes precisely when sending sta
 
 After sensing the medium idle for a DIFS, a station must wait a random backoff time before transmitting. This helps reduce collisions caused by multiple stations waiting to transmit. The backoff time is pseudo-randomly chosen out of the interval $[0..CW]$, where CW is the so-called contention window. On each unsuccessful transmit, CW is doubled. It is reset to its initial value as specified by the standard after a successful transmission.\\
 
-The IEEE 802.11 MAC uses positive frame acknowledgements by layer 2 ACK frames. Without an ACK the sender retransmits the frame. To further reduce collision impact, large payloads are fragmented into multiple PSDUs, which are acknowledged individually. Data frames include a retry bit in the sequence number field to detect duplicate frames \cite{NEEDED}.\\
+The IEEE 802.11 MAC uses positive frame acknowledgements by layer 2 ACK frames. Without an ACK the sender retransmits the frame. To further reduce collision impact, large payloads are fragmented into multiple PSDUs, which are acknowledged individually. Data frames include a retry bit in the sequence number field to detect duplicate frames \cite{perahia2013}.\\
 
 The hidden node problem can occur when a station sees the access point (AP), but not a third station that is currently transmitting to the AP. The medium is busy, but the first station senses it as idle and begins a transmission. Therefore, the transmission to the AP is subject to a collision. One approach to mitigate this is using an additional handshake mechanism before transmitting:
 
@@ -104,7 +104,7 @@ Before sending the data packet, a station transmits a request to send frame (RTS
 
 \section{Cross-Correlation}
 
-The cross-correlation is a function of two continuous or discrete series that measures their similarity \cite{NEEDED}. It is often used to compare different functions, or to search for a small feature in a larger stream of data.
+The cross-correlation is a function of two continuous or discrete series that measures their similarity \cite{rabiner1978}. It is often used to compare different functions, or to search for a small feature in a larger stream of data.
 
 With IEEE 802.11, cross-correlation applied to find the beginning of packets by correlating a known symbol of the short or long training field with a sample stream as captured by a receiver. However, in this thesis I will use it to also correlate the time-domain representation of MAC addresses.\\
 

@@ -14,27 +14,27 @@ In order to use the proposed sender detection algorithm, it must be feasible to 
 
 Two main categories of tasks can be identified. First, the generation of reference signals to use for cross-correlation. This can be pre-computed before any collisions are received and is therefore less time-critical. Second, correlating time-domain samples with the reference signals and sorting to work out a guess which senders participated. This needs to be done for every analysed collision.\\
 
-Based on the results from the experiments with scrambler initialization and the destination MAC address as described in sections \ref{sec:ex-scrambler} and \ref{sec:ex-destination}, the following factors scale up the amount of necessary reference signals:
+Based on the results from the experiments with scrambler initialization and the destination \gls{MAC} address as described in sections \ref{sec:ex-scrambler} and \ref{sec:ex-destination}, the following factors scale up the amount of necessary reference signals:
 
 \begin{itemize}
-  \item MAC addresses on the network
+  \item \gls{MAC} addresses on the network
   \item \glspl{MCS}
   \item Scrambler initizaliation values
 \end{itemize}
 
-The destination MAC address can be ignored. This means that the algorithm scales according to the following equation:
+The destination \gls{MAC} address can be ignored. This means that the algorithm scales according to the following equation:
 
 $$ N_{\text{RS}} = N_{\text{MAC}} \cdot N_{\text{MCS}} \cdot N_{\text{SI}} = N_{\text{MAC}} \cdot 8 \cdot 127 $$\vspace{0cm}
 
 Here, $ N_{\text{RS}} $ denotes the number of modulated reference signals, $ N_{\text{MCS}} $ is the number of available \glspl{MCS}, and $ N_{\text{SI}} $ describes the amount of possible scrambler initialization values.
 
-Let $ n = N_{\text{MAC}} $ be the number of cached MAC addresses on the network. The worst-case asymmetric complexity in this case is:
+Let $ n = N_{\text{MAC}} $ be the number of cached \gls{MAC} addresses on the network. The worst-case asymmetric complexity in this case is:
 
 $$ O(\text{"Sender ~Detection"}) = O(n \cdot 8 \cdot 127) = O(1016 n) = O(n) $$\vspace{0cm}
 
 The algorithm scales linearly with the amount of stations on the IEEE 802.11 network. This is optimal since every station is a possible sender which has to be considered when decoding a collision. It is however debatable whether the linear factor of 1016 is feasible on commodity computing hardware. That would be necessary to enable broad usage of the detection technique across many different devices as mentioned in chapter \ref{ch:introduction}. A quantitative analysis is therefore desirable.\\
 
-I used the Matlab profiler to gather data on the execution speeds of different parts of the algorithm. These measurements were done on a consumer laptop, featuring 2-core 3rd-generation Intel processor with Hyper-Threading at 1.9 GHz. The results are summarized in table \ref{tbl:timing}.
+I used the Matlab profiler to gather data on the execution speeds of different parts of the algorithm. These measurements were done on a consumer laptop, featuring 2-core 3rd-generation Intel i3 processor with Hyper-Threading at 1.9 GHz. The results are summarized in table \ref{tbl:timing}.
 
 \begin{table}[ht]
 	\centering
@@ -50,9 +50,9 @@ I used the Matlab profiler to gather data on the execution speeds of different p
 
 This data suggests that the real-time part of the algorithm, which is limited to cross-correlation with \texttt{xcorr} is negligible when compared to the pre-modulation of reference signals. For small networks, the correlation time is probably fast enough. For high amount of stations however, the complexity gets out of hand quite quickly. For a network with 500 client for example, each collision requires a calculating of about 500 seconds. However, it is easily possible to parallelize this workload, or even use specialized hardware such as \glspl{FPGA}. In the extreme case, where every correlation is done at the same time, only 1 ms is needed for decoding the collision.
 
-The calculating of CRC checksums is time-consuming, however not needed for the algorithm. Instead, dummy checksums can be used as described in section \ref{sec:matlab-impl}. Therefore, modulation of reference signals scales with the performance of the \texttt{wlanNonHTData} function.
+The calculating of \gls{CRC} checksums is time-consuming, however not needed for the algorithm. Instead, dummy checksums can be used as described in section \ref{sec:matlab-impl}. Therefore, modulation of reference signals scales with the performance of the \texttt{wlanNonHTData} function.
 
-Since the modulation of reference signals can be done ahead of time, the only important case is that of a newly connected client. In this case, 1016 new signals must be created for this new MAC address, which takes about 5 minutes without any parallelization. With more CPU cores however, this seems manageable.
+Since the modulation of reference signals can be done ahead of time, the only important case is that of a newly connected client. In this case, 1016 new signals must be created for this new \gls{MAC} address, which takes about 5 minutes without any parallelization. With more CPU cores however, this seems manageable.
 
 
 %% -----------------------------------------------------------------------------
@@ -61,11 +61,11 @@ Since the modulation of reference signals can be done ahead of time, the only im
 
 The results of my simulations were very promising. While admittedly only IEEE 802.11 a/g networks were evaluated, as section \ref{sec:mimo} discusses further, detection accuracy was quite high even for higher \glspl{MCS}.\\
 
-In contrast to the scrambler initialization, the value of the preceding destination MAC address had hardly any effect on detection quality, as described in section \ref{sec:ex-destination}. Most likely this is because of the relatively small state of the convolutionary encoder compared to the size of a MAC address. While the encoder considers the last seen seven bits for its output, a MAC address comprises 48 bits of data.
+In contrast to the scrambler initialization, the value of the preceding destination \gls{MAC} address had hardly any effect on detection quality, as described in section \ref{sec:ex-destination}. Most likely this is because of the relatively small state of the convolutional encoder compared to the size of a \gls{MAC} address. While the encoder considers the last seen seven bits for its output, a \gls{MAC} address comprises 48 bits of data.
 
-Regardless of the preceding destination MAC address, the convolutional encoder state is synchronized after the first seven bits of the sender address. This is only a small fraction of only about 15 \%. In addition to that, the first seven bits are part of the vendor prefix, which is already to some extent likely to be the same across multiple stations on the network. Therefore, convolutional encoding poses no critical impact on sender detection performance.\\
+Regardless of the preceding destination \gls{MAC} address, the convolutional encoder state is synchronized after the first seven bits of the sender address. This is only a small fraction of only about 15 \%. In addition to that, the first seven bits are part of the vendor prefix, which is already to some extent likely to be the same across multiple stations on the network. Therefore, convolutional encoding poses no critical impact on sender detection performance.\\
 
-Using real-world \glspl{SDR}, the detection technique performed quite well. This is particularly nice because these experiments were conducted in an environment where production wireless traffic was present. Although there was some decrease in detection quality, this shows that the algorithm is capable of successfully recognizing sender MAC addresses even when a reasonably high network load is present.
+Using real-world \glspl{SDR}, the detection technique performed quite well. This is particularly nice because these experiments were conducted in an environment where production wireless traffic was present. Although there was some decrease in detection quality, this shows that the algorithm is capable of successfully recognizing sender \gls{MAC} addresses even when a reasonably high network load is present.
 
 
 %% -----------------------------------------------------------------------------
@@ -76,24 +76,24 @@ This thesis only covered sender detection for IEEE 802.11 a/g networks. However,
 
 There are many improvements and differences introduced with the 802.11 n standard. One of the most important with respect to time-domain sample cross-correlation is the adoption of \gls{MIMO} transmission. With this technique, every sender and receiver uses multiple antennas, instead of just one as with 802.11 a/g. This allows for a much higher spectral efficiency, meaning that more bits can be transmitted per used bandwidth \cite{ieee2012}. However, the overall system complexity and multi-path effects in particular make it much more difficult to apply naive time-domain correlation.\\
 
-It would be interesting whether the proposed sender detection algorithm can be adapted to work in a \gls{MIMO} environment. In the current form, this is unfortunately quite unlikely. On the one hand, collision detection and especially the determination of relevant sample periods containing the sender MAC addresses must be adjusted to the physical layer high-throughput frame format used by modern standards \cite{ieee2012}.
+It would be interesting whether the proposed sender detection algorithm can be adapted to work in a \gls{MIMO} environment. In the current form, this is unfortunately quite unlikely. On the one hand, collision detection and especially the determination of relevant sample periods containing the sender \gls{MAC} addresses must be adjusted to the physical layer high-throughput frame format used by modern standards \cite{ieee2012}.
 
-On the other hand, using multiple streams implies the possibility that the sender MAC address gets fragmented. While some bits could be transmitted in the first stream, the remaining bits could be sent in various other streams. This renders simple cross-correlation with \texttt{xcorr} directly on the received sample vector useless.
+On the other hand, using multiple streams implies the possibility that the sender \gls{MAC} address gets fragmented. While some bits could be transmitted in the first stream, the remaining bits could be sent in various other streams. This renders simple cross-correlation with \texttt{xcorr} directly on the received sample vector useless.
 
 
 %% -----------------------------------------------------------------------------
 
 \section{Future Work}
 
-The preceding discussion reveals some serious problems with the proposed algorithm for sender MAC address detection. The fundamental principles however do seem promising. There are remaining questions that should be addressed in further research.\\
+The preceding discussion reveals some serious problems with the proposed algorithm for sender \gls{MAC} address detection. The fundamental principles however do seem promising. There are remaining questions that should be addressed in further research.\\
 
 \textit{Quantitative Noise Evaluation with SDRs}\\
 
-As mentioned in section \ref{sec:detection-quality}, noise from other stations in the network could cause the correlation of MAC addresses to degrade. Whether this is the case, and to which extent it influences detection performance, could be evaluated in a quantitative analysis. As a first step, the experiments with \gls{WARP} \glspl{SDR} should be reproduced in a radiation-free environment, such as a Faraday cage. If the technique performs better in that case, additional IEEE 802.11 devices could be added one at a time, continuously measuring the algorithm's accuracy.\\
+As mentioned in section \ref{sec:detection-quality}, noise from other stations in the network could cause the correlation of \gls{MAC} addresses to degrade. Whether this is the case, and to which extent it influences detection performance, could be evaluated in a quantitative analysis. As a first step, the experiments with \gls{WARP} \glspl{SDR} should be reproduced in a radiation-free environment, such as a Faraday cage. If the technique performs better in that case, additional IEEE 802.11 devices could be added one at a time, continuously measuring the algorithm's accuracy.\\
 
 \textit{MIMO and IEEE 802.11 n/ac/ax}\\
 
-In a next step, the technique could be adapted to current IEE 802.11 standards, such as 802.11 n/ac. This involves finding a solution to the problems with \gls{MIMO}, as described in section \ref{sec:mimo}, especially the fragmentation of MAC address bits onto different spatial transmission streams.\\
+In a next step, the technique could be adapted to current IEE 802.11 standards, such as 802.11 n/ac. This involves finding a solution to the problems with \gls{MIMO}, as described in section \ref{sec:mimo}, especially the fragmentation of \gls{MAC} address bits onto different spatial transmission streams.\\
 
 \textit{Implementation on Mobile Operating Systems}\\
 

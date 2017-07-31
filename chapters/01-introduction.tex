@@ -9,11 +9,11 @@
 
 In today's modern society, fast mobile networking has become indispensable. A huge and ever growing amount of devices depends on, or at least supports, wireless local area networks. These almost follow a protocol from the IEEE 802.11 standards family. As technology improves, new standards are added and enhancements to the existing ones are proposed, making the network faster or more reliable. We have become accustomed to using such networks for a variety of activities, including mobile video streaming or wireless internet access on laptops.
 
-There are a number of problems with the IEEE 802.11 protocols. One of those is the possibility for data frames to collide due to the random access scheme \cite{bianchi2000}. Such a collision describes two stations transmitting at the same time, resulting in an illegible frame at the receiver. Although previous research has proposed some techniques to reduce or even decode collisions, as described in the related work section, the receiver often has to disregard the frame and wait for a re-transmission.\\
+There are a number of problems with the \gls{IEEE} 802.11 protocols. One of those is the possibility for data frames to collide due to the random access scheme \cite{bianchi2000}. Such a collision describes two stations transmitting at the same time, resulting in an illegible frame at the receiver. Although previous research has proposed some techniques to reduce or even decode collisions, as described in the related work section, the receiver often has to disregard the frame and wait for a re-transmission.\\
 
-While it is quite easy to merely detect the existence of a collision most of the time, detecting which exact stations were transmitting is considered hard \cite{choi2013,keene2010}. However, having this information could be beneficial for the operation of the network in different ways.
+While it is quite easy to merely detect the existence of a collision most of the time, detecting which exact stations were transmitting is considered hard \cite{choi2013, keene2010}. However, having this information could be beneficial for the operation of the network in different ways.
 
-First, new coordination functions could be proposed, which leverage the knowledge of colliding senders to determine which station should transmit next. This could for example mean that instead of re-transmitting when a frame is missing the acknowledgement from the receiver, a station would pause sending for some time. Every other station on the network could compute the next sender, potentially preventing a new collision to occur if the condition that led to the initial problem is somehow correlated to that sender.
+First, new coordination functions could be proposed, which leverage the knowledge of colliding senders to determine which station should transmit next. This could for example mean that instead of re-transmitting when a frame is missing the acknowledgment from the receiver, a station would pause sending for some time. Every other station on the network could compute the next sender, potentially preventing a new collision to occur if the condition that led to the initial problem is somehow correlated to that sender.
 
 Second, it could be used to create statistics about which senders participate in collisions more often than others, potentially relating that information with parameters like hardware vendor, operating system, physical location, or others. This could also be done in real-time, providing a means of network monitoring and allowing the administrator to automatically exclude stations that cause disturbances in the network.\\
 
@@ -31,15 +31,15 @@ The main contributions of this thesis are:
 \begin{enumerate}
 	\item \textit{Design and Implementation of a MAC Address Recognition Technique}
 
-				I describe a design for an algorithm that allows to detect of transmitting stations in a collisions at the receiver. The technique uses a cache of MAC addresses as seen in the network to pre-compute time-domain representations of packets. When a collision is received, complex samples are cross-correlated to the available signal pool to detect the most likely sender.
+				I describe a design for an algorithm that allows to detect of transmitting stations in a collisions at the receiver. The technique uses a cache of \gls{MAC} addresses as seen in the network to pre-compute time-domain representations of packets. When a collision is received, complex samples are cross-correlated to the available signal pool to detect the most likely sender.
 
 				The algorithm is implemented as a proof-of-concept in Matlab. All simulations are based on that code.
 
 	\item \textit{Evaluation through Simulation and WARP SDRs}
 
-				I measure the detection accuracy and performance in simulations that vary different parameters of the transmitted packets related to the MAC header field. Furthermore, several channel models are applied to evaluate the resilience to interference and attenuation.
+				I measure the detection accuracy and performance in simulations that vary different parameters of the transmitted packets related to the \gls{MAC} header field. Furthermore, several channel models are applied to evaluate the resilience to interference and attenuation.
 
-				Finally, I use WARP software-defined radios to find out how well the technique works in a real-world scenario.
+				Finally, I use \gls{WARP} \glspl{SDR} to find out how well the technique works in a real-world scenario.
 
 \end{enumerate}
 
@@ -48,4 +48,4 @@ The main contributions of this thesis are:
 
 \section{Outline}
 
-This thesis is structured as follows: Chapter 2 provides an introduction to important parts of the IEEE 802.11 standard, as well as background information on the relevant mathematical and physcial concepts. I give an overview and comparison on related work in Chapter 3. Chapter 4 covers the design and implementation of my proposed algorithm to recognize sender MAC addresses. This technique is evaluated and results are presented in Chapter 5. I discuss implications of the results, problems, and possible future work in Chapter 6. Finally, I conclude this work in Chapter 7.
+This thesis is structured as follows: Chapter 2 provides an introduction to important parts of the \gls{IEEE} 802.11 standard, as well as background information on the relevant mathematical and physical concepts. I give an overview and comparison on related work in Chapter 3. Chapter 4 covers the design and implementation of my proposed algorithm to recognize sender \gls{MAC} addresses. This technique is evaluated and results are presented in Chapter 5. I discuss implications of the results, problems, and possible future work in Chapter 6. Finally, I conclude this work in Chapter 7.

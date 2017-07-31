@@ -12,7 +12,7 @@ In this chapter I present related research and relevant previous work. The propo
 
 As described in section \ref{sec:dcf}, the Coordination Function defines the rules of communication in an IEEE 802.11 network. There are measures to reduce the impact of a collision, such as the two-way handshake using \gls{RTS} and \gls{CTS} frames. This procedure allows stations in the network to request transmission for a specific time. Other stations can overhear this \gls{RTS} and update their \gls{NAV} tables accordingly. If a collision occurs, it will do so on the \gls{RTS} frame. Since this is much shorter than a data frame, the amount of unusable air-time is smaller, as less data has to be discarded.
 
-Giuseppe Bianchi contributed a performance analysis of the Distributed Coordination Function \cite{bianchi2000}. The maximum load that the system can carry in stable conditions is called saturation throughput. The author develops a Markov model to derive throughput estimations and verifies them against simulations. A result is that using the two-way handshake is not useful in practice, as throughput did not increase in experiments comparable to a  typical wireless application. Therefore, \gls{RTS} and \gls{CTS} frames are not used in most network configurations nowadays \cite{bianchi2000, gollakota2008}.\\
+Giuseppe Bianchi contributed a performance analysis of the Distributed Coordination Function \cite{bianchi2000}. The maximum load that the system can carry in stable conditions is called saturation throughput. The author develops a Markov model to derive throughput estimations and verifies them against simulations. A result is that using the two-way handshake is not useful in practice, as throughput did not increase in experiments comparable to a  typical wireless application. Therefore, \gls{RTS} and \gls{CTS} frames are not used in most network configurations nowadays \cite{bianchi2000, gollakota2008, choi2013}.\\
 
 ReCoder \cite{meng2015} is a new algorithm for neighbor discovery in 802.11 networks that does not use beacon frames. Instead, a new frame format that only needs to be correlated, not decoded, is introduced. The technique saves energy and is more resilient to situations, such as collisions, where decoding the packet is not possible.
 
@@ -20,11 +20,15 @@ The alternative frames start with a fixed, independent training sequence called 
 
 Receivers are triggered by the RCover sequence and correlate the first identity stage to the list of known stations. If a match is found, the second stage is checked to eliminate possible duplicate shift-amounts. If however no match could be found, the reference table is adjusted so that the new identity is now included.\\
 
-As Zhu et al. pointed out, real-world packet loss can be caused by both a weak link or collisions, and these can switch very fast \cite{zhu2016}. Reasons for this include humans in the signal path, external interference, and unpredictable transmissions by other stations. Thus, failure classification must be done at the frame level to provide useful information. Both naive assumptions of only collisions, or weak links, cause a waste of resources, i.e. airtime or transmission power.
+As Zhu et al. pointed out, real-world packet loss can be caused by both a weak link or collisions, and these conditions can switch very fast \cite{zhu2016}. Reasons for this include humans in the signal path, external interference, and unpredictable transmissions by other stations. Thus, failure classification must be done at the frame level to provide useful information. Both naive assumptions of only collisions, or weak links, cause a waste of resources, i.e. air-time or transmission power.
 
-The authors present a new algorithm, \gls{PLFC} which collects a byte-level \gls{RSSI} and a packet-level \gls{LQI}. Using this information, the receiver provides the sender with an elaborated retransmission request. This includes whether there was a weak link or a collision. The sender can then for example increase transmission power to mitigate a weak link, or just retransmit of a collision occurred \cite{zhu2016}.\\
+The authors present a new algorithm, \gls{PLFC} which collects a byte-level \gls{RSSI} and a packet-level \gls{LQI}. Using this information, the receiver provides the sender with an elaborated retransmission request. This includes whether there was a weak link or a collision. The sender can then for example increase transmission power to mitigate a weak link, or just retransmit if a collision occurred \cite{zhu2016}.\\
 
-While the ReCoder algorithm provides sender detection, it requires a change to the standard IEEE 802.11 MAC layer, adding new frame types. This is a shared trait with \gls{PLFC}. Therefore, the technique must be implemented in all devices in order to benefit from it. This is often hard to do, or may even be impossible. This thesis tries to detect senders in a collision without any changes to the MAC layer and is therefore different.
+For continuous and fairly regular data streams from multiple clients, such as in an environment with several VoIP transmissions, the 802.11 MAC exponential backoff can lead to some clients experiencing lower throughput \cite{lin2009}. Lin et al. presented Lock Step, an algorithm introducing pro-active backoff times after successful transmissions. This allows other clients to step in and transmit their data. With Lock Step, clients extend the carrier sense mechanism by measuring the fraction of free air-time within 8 continuous slots, and adjusting their transmission behavior based on that fraction. After some collisions have occurred, all clients will eventually be transmitting one eighth of the time, thus providing a fairer distribution to all stations in the network.\\
+
+While the ReCoder algorithm provides sender detection, it requires a change to the standard IEEE 802.11 MAC layer, adding new frame types. This is a shared trait with \gls{PLFC} and Lock Step. Therefore, the technique must be implemented in all devices in order to benefit from it. This is often hard to do, or may even be impossible. This thesis tries to detect senders in a collision without any changes to the MAC layer and is therefore different.
+
+Similar to a possible usage scenario of this thesis, previous work has suggested assigning a priority list for retransmissions after a collision. \gls{CSMA/CR} \cite{choi2013} grants one station priority access to retransmit, so that there won't be a follow-up collision. \cite{zhao2015} proposed an algorithm that allows the receiver to reschedule all collided packets. Each sender picks a random sequence of samples. If a collision is detected by the receiver, it broadcasts a request for these sequences. It then decodes those in parallel using cross-correlation and broadcasts a scheduling packet to all identified senders at once. The senders are assigned a slot and can then resend their packet in a well-defined queue, not wasting air-time by unused slots, as would occur with the binary backoff algorithm of \gls{CSMA/CA}. Parallelism is possible by choosing sample sequences with low self-correlation properties.
 
 
 %% -----------------------------------------------------------------------------
@@ -44,79 +48,29 @@ A different approach is using full-duplex transmissions to continuously provide 
 
 \section{Collision Detection and Decoding}
 
-ZigZag Decoding: Combating Hidden Terminals in Wireless Networks \cite{gollakota2008}.\\
+When \gls{CSMA/CA} fails, such as with hidden terminals, it is possible that senders repeatedly collide, or one completely captures the medium. The \gls{RTS} / \gls{CTS} handshake mechanism is commonly not used as a counter measure due to its negative effects on throughput \cite{bianchi2000, gollakota2008, choi2013}. Gollakota et al. observed that senders tend to collide again on the exact same packets, and due to jitter collisions start with a random interval of delay. The authors proposed a new technique called ZigZag. With ZigZag, a station finds a part of the collided frame that is collision-free in one instance, and subtracts that from the collision in a second instance. This allows the receiver to decode a small part of the frame. This bit can then again be subtracted from the first collision, yielding more decoded parts. After a number of repetitions, the entire frame is decoded.
 
-When CSMA fails, such as with hidden terminals, the 802.11 MAC fails: sender repeatedly collide, or one captures the medium. RTS/CTS is not used as a counter measure due to its negative effects on throughput. Observations: senders tend to collide again on the exact same packets, and due to jittering collisions start with a random stretch of interval. With ZigZag, a station finds a part of the packet that is collision-free in one instance, and subtracts that from the collision in the second instance, hence decoding a bit. This bit can then again be subtracted from the first collision, and so on.
+Using ZigZag, senders do not need to make a trade-off between resilience to collisions and throughput, instead they transmit at the network's saturation rate. When no collisions occur, the frame demodulating process remains unchanged. However, in the presence of a collision ZigZag manages to decode it and therefore maintains a high information rate in the network. ZigZag is independent from the used \gls{MCS}, backwards-compatible to the standard IEEE 802.11 MAC layer, and even generalizable to a collision with more than two packets.\\
 
-With ZigZag, senders do not need to make a trade-off between resilience to collisions and throughput, instead they transmit at the saturation rate. Without a collisions, demodulating packets is unchanged with ZigZag. In the presence of a collision ZigZag achieves an information rate of R, which in theory is the maximum rate possible. ZigZag is modulation-independent, backwards-compatible, and generalizable to a collision with more than two packets.
+Detecting the start of frames in the collision is done by correlating the signal with the known 802.11 preamble. This correlation is done on a shifting start sample, such that the highest correlation value will indicate the sample at which the preamble starts. Correlation is almost zero except when the preamble is perfectly aligned because the preamble sequence is stochastically independent from itself \cite{ieee2012}. More than one spike in the correlation shows the presence of a collision, and also allows the receiver to detect the offset between the collided frames. I will use the same technique to detect collision within the proof-of-concept implementation for this thesis.\\
 
-Unlike Successive Interference Cancellation (SIC), ZigZag works when the channel uses a data rate close to the maximum possible at the given SNR.
+Stripping decoder (Strider) \cite{gudipati2011} is a rate-less code that can be used in the IEEE 802.11 MAC. Strider strives to be collision-resilient, meaning that senders do not need to care for collision as receivers will be able to decode packets even after suffering from a collision. For this, a minimum distance transformation (MDT) is used \cite{gudipati2011}. Modulated symbols are mapped to a larger symbol space, such as the minimum distance between symbols is larger than the required one to be able to decode signals. Hence, Strider automatically achieves the best code rate for a given channel.
 
-If two senders collide, their signals are added up. Problems with standard-decoding of received symbols: Frequence offset and phase tracking (estimate delta f and compensate), Sampling offset (sender and receiver cannot sample the interpolated continuous signal at the exact same sampling points), Inter-symbol interference (ISI, linear equalizer to mitigate effects of neighboring symbols). ZigTag receiver kicks in after receiving a packet failed (wroon checksum).  It will then look for a second packet to check whether there was a collision.
+AutoMAC \cite{gudipati2012} is such a modified MAC layer. It uses the Strider code, although other rate-less codes would be possible, and embraces collisions, as the lack of needing to avoid them allows for simpler MAC implementations.
 
-Detecting a packet start is done by correlating the signal with the known 802.11 preamble. Correlation is done on a shifting starting sample, such that the highest correlation value will indicate the sample at which the preamble starts. Correlation is almost zero except when the preamble is perfectly aligned because the preamble sequence is stochastically independent from itself. Two spikes indicate a collision and also show the delta in starting time. The AP maintains coarse estimates of frequency offset for each client.
+When compared to this thesis, this work is interesting, but not directly applicable. Strider would probably allow to decode colliding MAC addresses, but only if the senders are a-priori using the code. This thesis tries to achieve the goal without requiring any changes to the standard MAC layer.\\
 
-The AP stores the latest unmatched collisions to map them to possible future collision after retransmission. Collisions are aligned to the point where the second packet starts, and correlated to the stored data. If the packet is the same, correlation will spike.
+A different scenario where collisions can happen is broadcast frames that get relayed by intermediate stations. Decoding  such broadcast collisions would provide much better throughput. However, previously described collision recovery techniques can not be used here. ZigZag \cite{gollakota2008}, for example, requires that frames must be retransmitted at least once, which is not the case with non-acknowledged, only relayed, broadcast transmissions. \gls{SIC} \cite{patel1994} demands that one packet is known to the receiver, which is also not possible here.
 
-AP takes the first interference-free chunk of the packet, decodes it, re-encodes the symbol generating an image of the chunk, and subtracts that from the collision, thus deriving another interference-free chunk of the other packet. This process is repeated iteratively until all chunks are decoded.
+Onion Decoding \cite{wang2010} uses an iterative approach  comparable to ZigZag, where collisions are detected by correlating the preambles, the onion decoder needs an offset between the colliding frames, and the first (collision-free) chunk is subtracted from the collision to obtain a new collision-free chunk. However, Onion Decoding does not need a second collision of the same frame, because it is specifically designed for broadcast collisions, where multiple stations are forwarding the broadcast packet. Hence, both packets in the collision are the same.
 
-Compute the ZigZag system parameters using correlation, and inverse filters. Decoding errors propagate until the wrong symbol is by chance right. With BPSK, this has probability $\frac{1}{3}$, meaning errors die exponentially fast. Higher modulation schemes are more affected by errors. Better resilience by applying ZigZag forwards and backwards, picking the decoded symbol with higher confidence.
+Very similar to Onion Decoding is Chorus \cite{zhang2010}, which also uses iterative subtractions to decode collisions of the same frame.\\
 
-AP can decode collision packets fast enough to send ACK frame, inserts random padding transmission to prevent hidden terminal from sending while a third station is still transmitting. ZigZag can also decode collision involving any number of senders.
+\gls{ACR} \cite{wu2010} tries to make collisions occur in a so-called Long Short (LS) form, meaning a long frame is colliding with a short frame. This comes with some advantages. For example. receivers can still decode many chunks from the long frame, and \gls{ACR} can then employ \gls{FEC} to decode the entire frame. Collisions are detected by calculating a \gls{CRC} and assuming a collision on failure.
 
-Lock step: an algorithm to reduce Wi-Fi Jitter \cite{lin2009}.\\
+On the MAC layer, payload data from the network layer is actively shaped in long and short frames which are passed to the PHY layer for transmission. The MAC layer decides randomly whether to first send the short or long frame. Furthermore, the \gls{CSMA} algorithm is modified to increase the likelihood of LS collisions. This is achieved by a non-uniform distribution of contention slots and a transmission delay for short packets \cite{wu2010}.\\
 
-For continuous and fairly regular data streams from multiple clients, such as in an environment with several VoIP transmissions, the 802.11 MAC exponential backoff can lead to some clients experiencing lower throughput. Lock step is an algorithm introducing pro-active backoff times after successful transmissions, allowing other clients to kick in. With lock step, clients extend carrier sense to measuring the fraction of free slots within 8 continuous slots. After some collisions, all clients will eventually be transmitting one eighth of the time, thus giving a fairer share.
-
-AutoMAC: rateless wireless concurrent medium access \cite{gudipati2012}.\\
-
-Similar to ZigZag, AutoMAC provides a way to decode collisions. The paper embraces collisions, as the lack of needing to avoid them allows for simpler MAC implementations. The algorithm uses rateless codes (such as Strider) and can therefore deal with packets with different code rates. Changed 802.11 MAC.
-
-Strider: automatic rate adaptation and collision handling \cite{gudipati2011}.\\
-
-Stripping decoder (Strider) is a rate-less code used for e.g. AutoMAC. Strider strives to be collision-resilient, i.e. senders do not need to care for collision as receivers will be able to decode packets even after suffering a collision. For this, a minimum distance transformer (MDT) is used. Modulated symbols are mapped to a larger symbol space, such as the minimum distance between symbols is larger than the required one to be able to decode signals. Hence, Strider automatically achieves the best code rate for a given channel.
-
-Difference to this thesis: Strider would probably allow to decode colliding MAC addresses, but only if the senders are a-priori using the code. This thesis should focus on standard 802.11.
-
-Efficient wireless broadcasting using onion decoding \cite{wang2010}.\\
-
-Decoding collisions with broadcast transmission would provide much better throughput. However, this is complicated and past work does not apply, e.g. SIC (one packet must be known) or ZigZag \cite{gollakota2008} (packets must be retransmitted at least once, this is not the case with non-acked broadcasts). Onion decoding uses an iterative approach much like ZigZag, where collision are detected by correlating the preambles, the onion decoder needs an offset between the colliding packets, and the first (collision-free) chunk is subtracted from the collision to obtain a new collision-free chunk. Onion does not need a second collision of the same packets though, because it is specifically designed for broadcast collisions, where multiple stations are forwarding the broadcast packet. Hence, both packets in the collision are the same.
-
-Cost-effective broadcast scheduling (CBS): iterative algorithm to determine the next sender for a broadcast packet, non-conflicting and cost-efficient.
-
-This technique does not apply to this thesis, it is a notable work though.
-
-ACR: active collision recovery in dense wireless sensor networks \cite{wu2010}.\\
-
-Active collision recovery tries to make collisions occur in LS-Form, i.e. a long packet is colliding with a short packet. This gives some opportunities, e.g. the receiver can still decode many bits in the long packet, and the partial corrupt pattern (PCP) is predictable. ACR then employs forward error correction (FEC) to decode the packet.
-
-On layer 2, data from layer 3 is actively shaped in long and short packets which are passed to the MAC. The MAC decides randomly whether to first send the short or long packet. Short packets are added a CRC checksum to verify their integrity. Long packets get FEC and CRC.
-
-Modified CSMA to increase LS collision likelihood: non-uniform distribution of contention slots, transmission delay for short packets.
-
-Receiver checks CRC to detect a possible collision.
-
-Since ACR requires a non-standard MAC, it is not applicable to this bachelor thesis.
-
-Collision Localization for IEEE 802.11 Wireless LANs \cite{keene2010}.\\
-
-The paper presents an algorithm to locate the part of a packet that is not decodable due to a collision. While having some performance regressions to to ODFM, it works with 802.11a/g. The algorithm uses a likelihood ratio test to determine whether a symbol suffered from an error and then determines the packet area having the most errors using a sliding window approach. In some cases, the packet can be fully decoded by correcting the bit errors using an error resolving code.
-
-Problems with OFDM: when symbols are partially corrupted due to a narrow band interference, the timing correlation is lost and the collision can therefore not be exactly localized.
-
-Chorus: collision resolution for efficient wireless broadcast \cite{zhang2010}.\\
-
-Similar to Onion Decoding \cite{wang2010}. Chorus is an algorithm to decode collisions between multiple instances of the same packet, i.e. broadcasts. The broadcast packets will probably start with a slight offset. Chorus takes the first, collision-free chunk and then iteratively subtracts it from the collision to get another collision-free chunk. It is also comparable to ZigZag \cite{gollakota2008}.
-
-Carrier sensing multiple access with collision resolution (CSMA/CR) protocol for next-generation wireless LAN \cite{choi2013}.\\
-
-RTS/CTS is commonly not useful in modern real-world WLAN networks because hidden or exposed terminals do not typically exist. The network is shielded by walls and has relatively few stations. CSMA/CR is a proposed MAC change.
-
-If a collision is detected, one station is allowed priority access to retransmit, so that there won't be a follow-up-collision. Jamming signals.
-
-Collision tolerance: improving channel utilization with correlatable symbol sequences in wireless networks \cite{zhao2015}.\\
-
-Improve network performance by rescheduling collided packets, initiated by the receiver. Each sender picks a random, self-independent correlatable sequence of samples. If a collision is detected by the receiver, it broadcasts a request for these sequences. It then decodes those in parallel using cross-correlation and broadcasts a scheduling packet to all identified senders at once. The senders are assigned a slot and can then resend their packet in a well-defined queue, not wasting airtime by unused slots, as would occur with the binary backoff algorithm of CSMA/CA.
+Keene et al. \cite{keene2010} presented an algorithm to locate the part of a frame that is not decodable due to a collision. The algorithm uses a likelihood ratio test to determine whether a symbol suffered from an error and then determines the frame chunk having the most errors using a sliding window approach. In some cases, the packet can be fully decoded by correcting the bit errors using an error resolving code.
 
 
 %% -----------------------------------------------------------------------------
@@ -131,4 +85,4 @@ Similar to \cite{zhu2016}, \cite{chua2016} tries to decide whether a packet fail
 
 \cite{jibukumar2015} proposed a protocol called Receiver-Initiated Fast Sequential Collision Resolution (RFSR). It is somewhat similar to CSMA/CR \cite{choi2013} in that when a station detects a collision, it sends out a jamming signal to inform all transmitters that they need to stop transmitting. After a collision, the collided frame is assigned priority access for retransmission.\\
 
-As described in section \ref{sec:related-dcf}, these techniques have the disadvantage of requiring a change to the standard IEEE 802.11 MAC layer. On the other hand, this thesis tries to recognize colliding senders exclusively by changes to receiver implementations, not the coordination function itself.
+As described in section \ref{sec:related-dcf}, these techniques have the disadvantage of requiring a change to the standard IEEE 802.11 MAC layer. In contrast, this thesis tries to recognize colliding senders exclusively by changes to receiver implementations, not the coordination function itself.

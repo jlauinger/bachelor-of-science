@@ -97,7 +97,7 @@ The IEEE 802.11 MAC uses positive frame acknowledgements by layer 2 ACK frames. 
 
 The hidden node problem can occur when a station sees the access point (AP), but not a third station that is currently transmitting to the AP. The medium is busy, but the first station senses it as idle and begins a transmission. Therefore, the transmission to the AP is subject to a collision. One approach to mitigate this is using an additional handshake mechanism before transmitting:
 
-Before sending the data packet, a station transmits a request to send frame (RTS) containing the desired sending duration. The access point will reply with a clear to send frame (CTS), and third stations update a network allocation vector (NAV) to remember the busy medium. In the hidden node scenario, the offending station would be able to receive the CTS frame from the AP, therefore knowing of the ongoing transmission. On top of that, RTS frames are much shorter than data frames, meaning a collision is less harmful to the medium because less airtime is wasted.
+Before sending the data packet, a station transmits a request to send frame (RTS) containing the desired sending duration. The access point will reply with a clear to send frame (CTS), and third stations update a network allocation vector (NAV) to remember the busy medium. In the hidden node scenario, the offending station would be able to receive the CTS frame from the AP, therefore knowing of the ongoing transmission. On top of that, RTS frames are much shorter than data frames, meaning a collision is less harmful to the medium because less air-time is wasted.
 
 
 %% -----------------------------------------------------------------------------

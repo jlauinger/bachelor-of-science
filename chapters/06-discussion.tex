@@ -48,9 +48,9 @@ I used the Matlab profiler to gather data on the execution speeds of different p
 	\caption{Timing Analysis of the Detecting Algorithm \label{tbl:timing}}
 \end{table}
 
-This data suggests that the real-time part of the algorithm, which is limited to cross-correlation with \texttt{xcorr} is negligable when compared to the pre-modulation of reference signals. For small networks, the correlation time is probably fast enough. For high amount of stations however, the complexity gets out of hand quite quickly. For a network with 500 client for example, each collision requires a calculating of about 500 seconds. However, it is easily possible to parallelize this workload, or even use specialized hardware such as \glspl{FPGA}. In the extreme case, where every correlation is done at the same time, only 1 ms is needed for decoding the collision.
+This data suggests that the real-time part of the algorithm, which is limited to cross-correlation with \texttt{xcorr} is negligible when compared to the pre-modulation of reference signals. For small networks, the correlation time is probably fast enough. For high amount of stations however, the complexity gets out of hand quite quickly. For a network with 500 client for example, each collision requires a calculating of about 500 seconds. However, it is easily possible to parallelize this workload, or even use specialized hardware such as \glspl{FPGA}. In the extreme case, where every correlation is done at the same time, only 1 ms is needed for decoding the collision.
 
-The calculating of CRC checksums is time-consuming, however not needed for the algorithm. Instead, dummy checksums can be used as descibed in section \ref{sec:matlab-impl}. Therefore, modulation of reference signals scales with the performance of the \texttt{wlanNonHTData} function.
+The calculating of CRC checksums is time-consuming, however not needed for the algorithm. Instead, dummy checksums can be used as described in section \ref{sec:matlab-impl}. Therefore, modulation of reference signals scales with the performance of the \texttt{wlanNonHTData} function.
 
 Since the modulation of reference signals can be done ahead of time, the only important case is that of a newly connected client. In this case, 1016 new signals must be created for this new MAC address, which takes about 5 minutes without any parallelization. With more CPU cores however, this seems manageable.
 
@@ -61,7 +61,7 @@ Since the modulation of reference signals can be done ahead of time, the only im
 
 The results of my simulations were very promising. While admittedly only IEEE 802.11 a/g networks were evaluated, as section \ref{sec:mimo} discusses further, detection accuracy was quite high even for higher \glspl{MCS}.\\
 
-In contrast to the scrambler initialization, the value of the preceding destination MAC address had hardly any effect on detection quality, as described in section \ref{sec:ex-destination}. Most likely this is because of the relatively small state of the convolutionary encoder compared to the size of a MAC address. While the encoder consideres the last seen seven bits for its output, a MAC address comprises 48 bits of data.
+In contrast to the scrambler initialization, the value of the preceding destination MAC address had hardly any effect on detection quality, as described in section \ref{sec:ex-destination}. Most likely this is because of the relatively small state of the convolutionary encoder compared to the size of a MAC address. While the encoder considers the last seen seven bits for its output, a MAC address comprises 48 bits of data.
 
 Regardless of the preceding destination MAC address, the convolutional encoder state is synchronized after the first seven bits of the sender address. This is only a small fraction of only about 15 \%. In addition to that, the first seven bits are part of the vendor prefix, which is already to some extent likely to be the same across multiple stations on the network. Therefore, convolutional encoding poses no critical impact on sender detection performance.\\
 
@@ -97,6 +97,6 @@ In a next step, the technique could be adapted to current IEE 802.11 standards, 
 
 \textit{Implementation on Mobile Operating Systems}\\
 
-In order to be used with possible new \glspl{DCF}, it is interesting how the sender detection algorithm performs on mobile operating systems, Android and Apple iOS in perticular. Since almost everybody has a smartphone these days, those operating systems power a significant fraction of stations in IEEE 802.11 networks. While desktop operating systems are also very important, mobile platforms face the additional issue that due to limited battery power, calculations are inherently more expensive.
+In order to be used with possible new \glspl{DCF}, it is interesting how the sender detection algorithm performs on mobile operating systems, Android and Apple iOS in particular. Since almost everybody has a smartphone these days, those operating systems power a significant fraction of stations in IEEE 802.11 networks. While desktop operating systems are also very important, mobile platforms face the additional issue that due to limited battery power, calculations are inherently more expensive.
 
 Future work could implement sender detection on collisions as a kernel module for mobile platforms and evaluate its performance and accuracy. A special focus should be set to complexity, power usage, and overall implications on device usability and responsiveness.

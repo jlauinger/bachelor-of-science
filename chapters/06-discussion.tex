@@ -24,13 +24,13 @@ Based on the results from the experiments with scrambler initialization and the 
 
 The destination MAC address can be ignored. This means that the algorithm scales according to the following equation:
 
-$$ N_{RS} = N_{MAC} \cdot N_{MCS} \cdot N_{SI} = N_{MAC} \cdot 8 \cdot 127 $$\vspace{0cm}
+$$ N_{\text{RS}} = N_{\text{MAC}} \cdot N_{\text{MCS}} \cdot N_{\text{SI}} = N_{\text{MAC}} \cdot 8 \cdot 127 $$\vspace{0cm}
 
-Here, $ N_{RS} $ denotes the number of modulated reference signals, $ N_{MCS} $ is the number of available \glspl{MCS}, and $ N_{SI} $ describes the amount of possible scrambler initialization values.
+Here, $ N_{\text{RS}} $ denotes the number of modulated reference signals, $ N_{\text{MCS}} $ is the number of available \glspl{MCS}, and $ N_{\text{SI}} $ describes the amount of possible scrambler initialization values.
 
-Let $ n = N_{MAC} $ be the number of cached MAC addresses on the network. The worst-case asymmetric complexity in this case is:
+Let $ n = N_{\text{MAC}} $ be the number of cached MAC addresses on the network. The worst-case asymmetric complexity in this case is:
 
-$$ O("Sender ~Detection") = O(n \cdot 8 \cdot 127) = O(1016 n) = O(n) $$\vspace{0cm}
+$$ O(\text{"Sender ~Detection"}) = O(n \cdot 8 \cdot 127) = O(1016 n) = O(n) $$\vspace{0cm}
 
 The algorithm scales linearly with the amount of stations on the IEEE 802.11 network. This is optimal since every station is a possible sender which has to be considered when decoding a collision. It is however debatable whether the linear factor of 1016 is feasible on commodity computing hardware. That would be necessary to enable broad usage of the detection technique across many different devices as mentioned in chapter \ref{ch:introduction}. A quantitative analysis is therefore desirable.\\
 
@@ -70,7 +70,7 @@ Using real-world \glspl{SDR}, the detection technique performed quite well. This
 
 %% -----------------------------------------------------------------------------
 
-\section{IEEE 802.11 n/ac/ax networks}\label{sec:mimo}
+\section{IEEE 802.11 n/ac/ax Networks}\label{sec:mimo}
 
 This thesis only covered sender detection for IEEE 802.11 a/g networks. However, such networks are rarely used nowadays due to their low throughput. Modern standards such as IEEE 802.11 n/ac, and the upcoming 802.11 ax are much more relevant.
 

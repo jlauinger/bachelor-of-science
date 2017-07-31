@@ -3,7 +3,7 @@
 \chapter{Background}\label{ch:relatedwork}
 \glsresetall % Resets all acronyms to not used
 
-This chapter provides an introduction to the overall structure of the IEEE 802.11 standards for wireless networks. It covers the parts that are essential to recognizing sender MAC addresses. Furthermore, a background information on cross-correlation is given.
+This chapter provides an introduction to the overall structure of the IEEE 802.11 standards for wireless networks. It covers the parts that are essential to recognizing sender MAC addresses. Furthermore, background information on cross-correlation is given.
 
 
 %% -----------------------------------------------------------------------------
@@ -106,7 +106,7 @@ Before sending the data packet, a station transmits a request to send frame (RTS
 
 The cross-correlation is a function of two continuous or discrete series that measures their similarity \cite{rabiner1978}. It is often used to compare different functions, or to search for a small feature in a larger stream of data.
 
-With IEEE 802.11, cross-correlation applied to find the beginning of packets by correlating a known symbol of the short or long training field with a sample stream as captured by a receiver. However, in this thesis I will use it to also correlate the time-domain representation of MAC addresses.\\
+With IEEE 802.11, cross-correlation is applied to find the beginning of packets by correlating a known symbol of the short or long training field with a sample stream as captured by a receiver. However, in this thesis I will use it to also correlate the time-domain representation of MAC addresses.\\
 
 Since wireless transmission samples are discrete values, I disregard the continuous form of cross-correlation here. The discrete variant for series of samples f and g is calculated as follows:
 

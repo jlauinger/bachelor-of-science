@@ -68,15 +68,15 @@ Lock step: an algorithm to reduce Wi-Fi Jitter \cite{lin2009}.\\
 
 For continuous and fairly regular data streams from multiple clients, such as in an environment with several VoIP transmissions, the 802.11 MAC exponential backoff can lead to some clients experiencing lower throughput. Lock step is an algorithm introducing pro-active backoff times after successful transmissions, allowing other clients to kick in. With lock step, clients extend carrier sense to measuring the fraction of free slots within 8 continuous slots. After some collisions, all clients will eventually be transmitting one eighth of the time, thus giving a fairer share.
 
+AutoMAC: rateless wireless concurrent medium access \cite{gudipati2012}.\\
+
+Similar to ZigZag, AutoMAC provides a way to decode collisions. The paper embraces collisions, as the lack of needing to avoid them allows for simpler MAC implementations. The algorithm uses rateless codes (such as Strider) and can therefore deal with packets with different code rates. Changed 802.11 MAC.
+
 Strider: automatic rate adaptation and collision handling \cite{gudipati2011}.\\
 
 Stripping decoder (Strider) is a rate-less code used for e.g. AutoMAC. Strider strives to be collision-resilient, i.e. senders do not need to care for collision as receivers will be able to decode packets even after suffering a collision. For this, a minimum distance transformer (MDT) is used. Modulated symbols are mapped to a larger symbol space, such as the minimum distance between symbols is larger than the required one to be able to decode signals. Hence, Strider automatically achieves the best code rate for a given channel.
 
 Difference to this thesis: Strider would probably allow to decode colliding MAC addresses, but only if the senders are a-priori using the code. This thesis should focus on standard 802.11.
-
-AutoMAC: rateless wireless concurrent medium access \cite{gudipati2012}.\\
-
-Similar to ZigZag, AutoMAC provides a way to decode collisions. The paper embraces collisions, as the lack of needing to avoid them allows for simpler MAC implementations. The algorithm uses rateless codes (such as Strider) and can therefore deal with packets with different code rates. Changed 802.11 MAC.
 
 Efficient wireless broadcasting using onion decoding \cite{wang2010}.\\
 

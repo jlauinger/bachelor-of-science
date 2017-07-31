@@ -102,7 +102,7 @@ In total, this means the preamble takes 20 $\mu$s. At 20 MHz sampling rate, that
 	\label{tbl:sample-offsets}
 \end{table}
 
-\glspl{MCS} 0 and 2 have an important advantage. Only with these schemes does the above described region contain only the specific MAC address, since the encoded bits per OFDM symbol (24 for MCS 0, and 48 for MCS 1) are integer multiples of the 48 bits MAC address length. All other schemes contain additional data, either before the address, behind it, or in both positions.
+\glspl{MCS} 0 and 2 have an important advantage. Only with these schemes does the above described region contain only the specific MAC address, since the encoded bits per OFDM symbol (24 for MCS 0, and 48 for MCS 1, as mentioned in table \ref{tbl:mcs}) are integer multiples of the 48 bits MAC address length. All other schemes contain additional data, either before the address, behind it, or in both positions.
 
 
 %% -----------------------------------------------------------------------------
@@ -117,7 +117,7 @@ A number of simulation scripts measure the detection algorithm's performance und
 
 The core of the Matlab implementation is cross-correlation. Using the Signal Processing Toolbox \footnote{https://www.mathworks.com/products/signal.html}, this can be done easily using the \texttt{xcorr} function. This function expects two complex sample series and returns a complex correlation vector and a real vector of offsets. The offsets range from the negative feature length till the positive length. This is because the data series can be slided against each other in both directions. Using this function is similar to this example for a Long Training Field symbol:\\
 
-\begin{lstlisting}[captionpos=b,caption={Cross-Correlation of LTF Symbol},label=lst:xcorr]
+\begin{lstlisting}[captionpos=b,caption={Cross-Correlation of an LTF Symbol},label=lst:xcorr]
 [correlation, offset] = xcorr(rx, lts_t);
 \end{lstlisting}
 

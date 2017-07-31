@@ -186,6 +186,9 @@ pythontex-files-*/
 # Latexian
 TSWLatexianTemp*
 
+# PDF/A
+*.xmpi
+
 ## Editors:
 
 # WinEdt

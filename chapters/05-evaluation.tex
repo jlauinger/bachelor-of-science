@@ -238,20 +238,16 @@ Lastly, I used \glspl{SDR} instead of pure software simulations to evaluate the 
 
 The experiments were carried out in a typical office building. This means that there were multiple IEEE 802.11 networks with several dozens of connected clients. I used a standard WLAN channel and no electomagnetic shielding.\\
 
-Since the \gls{WARP} boards use a sampling frequency of 40 MHz, but the Matlab WLAN Systems Toolbox creates time-domain samples with a 20 MHz sampling rate, I used interpolation to adapt frequencies. This is done with the built-in \texttt{interp} Matlab function. Listing \ref{lst:interp} illustrates the process.
+Since the \gls{WARP} boards use a sampling frequency of 40 MHz, but the Matlab WLAN Systems Toolbox creates time-domain samples with a 20 MHz sampling rate, I used interpolation to adapt frequencies. This is done with the built-in \texttt{resample} Matlab function. Listing \ref{lst:resample} illustrates the process.
 
-\begin{lstlisting}[captionpos=b,caption={Interpolate Sampling Rate},label=lst:interp]
+\begin{lstlisting}[captionpos=b,caption={Interpolate Sampling Rate},label=lst:resample]
 % Interpolate to get from 20 to 40 MHz sampling rate
-tx1 = interp(tx1, 2);
+tx1 = resample(tx1, 40, 20);
 \end{lstlisting}
 
 For the real-world experiments, I deliberately caused frame collisions with the same scrambler initialization and destination MAC addresses, and used \gls{MCS} 0. This means that in principal everything was the same as for the most basic simulation experiments.
 
-Unfortunately, the sender detection did not work at all with \gls{WARP} \glspl{SDR}. Over quite a long period of experimentation time, sender guesses were not more correct than what would be expected from a random distribution.\\
-
-While trying to find hints on why the technique seemed broken, I wondered if maybe the capture effect as described in section \ref{} affected the received samples in such a way that detection was impossible.
-
-I applied cross-correlation to a \gls{LTF} symbol instead of the MAC addresses and plotted the results. They can be seen in figure \ref{fig:warp_preamble_corr}. The collided frames were aligned with some offset for this experiment.
+To assess the basic mechanics of receiving collisions with the \glspl{SDR}, I applied cross-correlation to only one \gls{LTF} symbol instead of the MAC addresses and plotted the results. They can be seen in figure \ref{fig:warp_preamble_corr}. The collided frames were aligned with some offset for this experiment.
 
 While one group of spikes is a bit lower than the other, it is still easily possible to detect that there is a collision due to the 4 higher and 2 lower spikes caused by the two \glspl{LTF}. The higher level of noise in the begining of the signal are caused by \gls{AGC} in the receiving \gls{SDR}. Since the MAC addresses are located further into the signal, and only that part is correlated for sender detection, this noise should be no problem.
 
@@ -266,4 +262,6 @@ While one group of spikes is a bit lower than the other, it is still easily poss
 	\label{fig:warp_preamble_corr}
 \end{figure}
 
-The results of the preamble correlation are promising and burdernsome at the same time. While they show that indeed a collision of two frames is captured by the receiving \gls{SDR}, and that cross-correlation in the time-domain can in fact tell apart both \glspl{LTF}, they also suggest that there is no fundamental implementation error in the code, but rather that MAC address detection in the form of the presented technique does not work with real-world channel effects.
+The results of the preamble correlation are promising. They show that indeed a collision of two frames is captured by the receiving \gls{SDR}, and that cross-correlation in the time-domain can in fact tell apart both \glspl{LTF}.
+
+Next, I used the same code as for the simulation experiments to try and detect sender MAC addresses. Fortunately, this worked well. In general, the results were very comparable to those of the simulation, however there was a slightly lower accuracy. The reason for that is probably the channel effects, which could not be simulated in full detail by the channel models.

@@ -9,10 +9,10 @@ The technique promiscuously listens on the wireless network interface to cache M
 
 I evaluated the performance and accuracy of this algorithm using simulations. Even for higher \glspl{MCS}, the technique performed very well. Varying the scrambler initialization caused severe regression, whereas the destination MAC address, preceding the sender, played a minor role. Simulations with standard channel models showed measurable impact, however up to a certain point sender detection retained a reasonable accuracy.\\
 
-Experiments with real hardware, \gls{WARP} \glspl{SDR} in particular, unveiled serious problems with the proposed algorithm. While receiving a collision, correlating the frame preambles, and measuring a delay between two collided frames worked well and as expected, detecting sender MAC addresses did not function at all.\\
+Experiments with real hardware, on three \gls{WARP} \glspl{SDR} in particular, showed promising results. Receiving a collision, correlating the frame preambles, and measuring a delay between two collided frames worked very well. Detecting sender MAC addresses was similar to simulations and provided reasonable sender guesses. Due to channel effects, the accuracy was however reduced.\\
 
 The proposed algorithm is not directly applicable to current versions of the IEEE 802.11 standard using \gls{MIMO}. This is due to possible spatial fractioning of the time-domain samples containing the sender MAC address, rendering naive cross-correlation useless.\\
 
 Future work could quantise channel effects on real hardware, and adapt the detection technique to modern IEEE 802.11 n/ac/ax standards and \gls{MIMO} transmissions.
 
-In summary, sender detection by using cross-correlation in the time-domain worked reasonably well despite some problems and should be explored in more detail.
+In summary, sender detection by using cross-correlation in the time-domain worked surprisingly well despite some problems and should be explored in more detail.

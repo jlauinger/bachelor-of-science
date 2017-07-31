@@ -16,11 +16,15 @@ Giuseppe Bianchi contributed a performance analysis of the Distributed Coordinat
 
 ReCoder \cite{meng2015} is a new algorithm for neighbor discovery in 802.11 networks that does not use beacon frames. Instead, a new frame format that only needs to be correlated, not decoded, is introduced. The technique saves energy and is more resilient to situations, such as collisions, where decoding the packet is not possible.
 
-The alternative frames start with a fixed, independent training sequence called RCover. This sequence is used to identify a neighbor discovery message, similar to frame detection using the Short Training Field. After that, a two-stage identification pattern is applied. The first stage is a fixed Gold-code signal with low auto-correlation, shifted by a unique amount of samples randomly chosen by the sending station. In the event that two stations choose the same offset, they are distinguished by the second stage, which a hash of the MAC address. This stage is not as distinguishable and therefore only acts as tie-beaker for identical first stages.
+The alternative frames start with a fixed, independent training sequence called RCover. This sequence is used to identify a neighbor discovery message, similar to frame detection using the Short Training Field. After that, a two-stage identification pattern is applied. The first stage is a fixed Gold-code signal with low auto-correlation, shifted by a unique amount of samples randomly chosen by the sending station. In the event that two stations choose the same offset, they are distinguished by the second stage, which a hash of the MAC address. This stage is not as distinguishable and therefore only acts as tie-beaker for identical first stages.\\
 
-Receivers are triggered by the RCover sequence and correlate the first identity stage to the list of known stations. If a match is found, the second stage is checked to eliminate possible duplicate shift-amounts. If no match could be found, the reference table is adjusted so that the new identity is included.\\
+Receivers are triggered by the RCover sequence and correlate the first identity stage to the list of known stations. If a match is found, the second stage is checked to eliminate possible duplicate shift-amounts. If however no match could be found, the reference table is adjusted so that the new identity is now included.\\
 
-While the ReCoder algorithm provides sender detection, it requires a change to the standard IEEE 802.11 MAC layer, adding new frame types. Therefore, the technique must be implemented in all devices in order to benefit from it. This is often hard to do, or may even be impossible. This thesis tries to detect senders in a collision without any changes to the MAC layer and is therefore different.
+As Zhu et al. pointed out, real-world packet loss can be caused by both a weak link or collisions, and these can switch very fast \cite{zhu2016}. Reasons for this include humans in the signal path, external interference, and unpredictable transmissions by other stations. Thus, failure classification must be done at the frame level to provide useful information. Both naive assumptions of only collisions, or weak links, cause a waste of resources, i.e. airtime or transmission power.
+
+The authors present a new algorithm, \gls{PLFC} which collects a byte-level \gls{RSSI} and a packet-level \gls{LQI}. Using this information, the receiver provides the sender with an elaborated retransmission request. This includes whether there was a weak link or a collision. The sender can then for example increase transmission power to mitigate a weak link, or just retransmit of a collision occurred \cite{zhu2016}.\\
+
+While the ReCoder algorithm provides sender detection, it requires a change to the standard IEEE 802.11 MAC layer, adding new frame types. This is a shared trait with \gls{PLFC}. Therefore, the technique must be implemented in all devices in order to benefit from it. This is often hard to do, or may even be impossible. This thesis tries to detect senders in a collision without any changes to the MAC layer and is therefore different.
 
 
 %% -----------------------------------------------------------------------------
@@ -29,23 +33,11 @@ While the ReCoder algorithm provides sender detection, it requires a change to t
 
 Hidden Terminals are situations where the \gls{CSMA/CA} employed by the IEEE 802.11 MAC layer can not correctly detect an ongoing transmission. This can happen when a receiver is in range of two stations, but these stations can not reach each other \cite{perahia2013}.
 
-In this case, it is possible that one sender does not recognize a transmission of the other sender. It begins sending and disturbs communications between the other sender and the receiver. This effectively renders both transmissions lost as the frames can not be decoded any more be the receiver.\\
+In this case, it is possible that one sender does not recognize a transmission of the other sender. It therefore begins sending and disturbs communications between the other sender and the receiver. This effectively renders both transmissions lost as the frames can not be decoded any more by the receiver.\\
 
-\gls{CSMA/CA} is often over-protective, meaning there is some air-time which is not used for transmissions. This is due to the fact that carrier sensing is done at the sender. A better approach could be looking at current conditions at the receiver side \cite{halperin2007}. If two stations are hidden from each other, multiple transmissions could be conducted at the same time for the right sender and receiver pairs.\\
+\gls{CSMA/CA} is often over-protective, meaning there is some air-time which is not used for transmissions. This is due to the fact that carrier sensing is done by the sender. A better approach could be looking at current conditions at the receiver side \cite{halperin2007}, since those determine whether or not the receiver will be able to decode the frame. If two stations are hidden from each other, even multiple transmissions could be conducted at the same time for the right sender and receiver pairs, providing improved spatial efficiency.\\
 
-Packet-Level Failure Classification by Characterizing Failure Patterns in Wireless Sensor Networks \cite{zhu2016}.\\
-
-Observation: real-world packet loss can be caused by weak link or collisions, and those can change very fast. This is because a variety of different reasons such as humans in the signal path, external interference, and unpredictable transmissions by other stations. Thus, failure classification must be done at packet level to provide useful information.
-
-Both naive assumptions of only collisions, or weak link, as failure cause wastes resources, i.e. airtime or transmission power.
-
-PLFC collects byte-level RSSI (Received Signal Strength indicator) and packet-level LQI (link quality indicator) and assigns RSSI rise / fall tags to incoming packets. If a packet has LQI higher than a certain threshold and both a rise and fall tag, a collision is assumed, otherwise weak link.
-
-The receiver informs the sender with an elaborated retransmission request. PLFC could reduce retransmission count by about 50 \%.
-
-Performance analysis of in-band full duplex collision and interference detection in dense networks \cite{vermeulen2016}.\\
-
-Full Duplex communication is possible for 802.11 with some adjustments to the hardware. This paper presents a MAC change to effectively reduce collisions using full duplex. A receiving station continuously transmits acknowledgements while it receives a packet. This is a simultaneous transmission. If the node senses a collision, it stops sending the ACK, and the transmitter will notice that and stop transmitting. The ACK thus acts like a continuous CTS packet, letting other stations know of the transmission and solving the hidden node problem.
+A different approach is using full-duplex transmissions to continuously provide feedback whether the receiver is able to decode the frame. Such a technique is proposed by Vermeulen et al. \cite{vermeulen2016}. While receiving a frame, a station keeps transmitting acknowledgments. If at some point a collision occurs, the receiver stops sending this acknowledgment. The sender detects this and cancels the transmission. The simultaneous acknowledgment frame thus acts like a continuous CTS frame, letting other stations know of the transmission and partially solving the hidden node problem.
 
 
 %% -----------------------------------------------------------------------------

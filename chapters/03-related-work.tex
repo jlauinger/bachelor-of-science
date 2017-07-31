@@ -8,7 +8,7 @@ In this chapter I present related research and relevant previous work. The propo
 
 %% -----------------------------------------------------------------------------
 
-\section{Distributed Coordination Function}
+\section{Distributed Coordination Function}\label{sec:related-dcf}
 
 As described in section \ref{sec:dcf}, the Coordination Function defines the rules of communication in an IEEE 802.11 network. There are measures to reduce the impact of a collision, such as the two-way handshake using \gls{RTS} and \gls{CTS} frames. This procedure allows stations in the network to request transmission for a specific time. Other stations can overhear this \gls{RTS} and update their \gls{NAV} tables accordingly. If a collision occurs, it will do so on the \gls{RTS} frame. Since this is much shorter than a data frame, the amount of unusable air-time is smaller, as less data has to be discarded.
 
@@ -123,20 +123,12 @@ Improve network performance by rescheduling collided packets, initiated by the r
 
 \section{Capture Effect}
 
-Cross Layer Multirate Adaptation Using Physical Capture \cite{park2009}.\\
+The capture effect describes a situation where due to differences in signal power, a receiver's antenna physically adjusts to one specific transmission, while filtering out other incoming signals \cite{kim1999}. In the case of a collision, this means that the signals do not simply add up together, but it is possible that one transmission is received, while the the other one is barely noticed.\\
 
-Detect the event that, due to physical capture effect, a packet with higher power is received while a packet with lower power is currently being received. This is counted as collision. The paper proposes an algorithm to share the amount of received collision using a new, special packet. Stations calculate the sum of collisions at neighboring nodes and adjust the code rate being used for sending packets based on that information.
+Park et al. suggested a mechanism to detect when a frame with high power interrupts an ongoing reception of a frame with lower power. This is then counted as a collision. The amount of such collisions is shared using a new frame type, informing neighboring stations about the situation. These stations then calculate the sum of nearby collisions and adjust the code rate to use \cite{park2009}.\\
 
-Classification of Transmission Events Based on Receive Power Pattern with Self-Tuning Thresholds in Wireless Receivers \cite{chua2016}.\\
+Similar to \cite{zhu2016}, \cite{chua2016} tries to decide whether a packet failure was due to a collision or weak link by examining the power level at the receiver. The authors observe that when a collision occurs, the power level is not simply the sum of the two transmissions, but rather includes some form of jitter due to oscillations in automatic gain control and other hardware with feedback loops.\\
 
-Tries to decide whether a packet failure was due to a collision or weak link by examining the power level at the receiver. Observation: when a collision occurs, the power level is not simply the sum of the two transmission, but rather includes some form of jitter due to oscillations in automatic gain control and other hardware with feedback loops.
+\cite{jibukumar2015} proposed a protocol called Receiver-Initiated Fast Sequential Collision Resolution (RFSR). It is somewhat similar to CSMA/CR \cite{choi2013} in that when a station detects a collision, it sends out a jamming signal to inform all transmitters that they need to stop transmitting. After a collision, the collided frame is assigned priority access for retransmission.\\
 
-Detect power blocks: large difference in signal strength between adjacent samples. Detect collision when packet checksum is wrong and there are many peaks in the power level difference data.
-
-Impact of capture effect on receiver initiated collision detection with sequential resolution in WLAN \cite{jibukumar2015}.\\
-
-Somewhat similar to CSMA/CR in that when a station detects a collision, it sends out a jamming signal to inform all transmitters that they need to stop. After a collision, the collided packet gets priority access. "The average number of stations undergoing collision in a transmission slot is 2 - 3".
-
-Transmitting stations will send a header, wait a short time, and then send the packet. If a (third) station detects a collision between multiple header transmitters, it sends a jamming signal that is recognized by the transmitters during the sensing window. In that case, the transmitters will wait a random amount of time that is shorter than a DIFS (to prevent new stations to interfere with the collision resolution algorithm). There should now be one of the transmitters solely sending on the channel.
-
-The protocol is called Receiver initiated Fast Sequential collision Resolution (RFSR).
+As described in section \ref{sec:related-dcf}, these techniques have the disadvantage of requiring a change to the standard IEEE 802.11 MAC layer. On the other hand, this thesis tries to recognize colliding senders exclusively by changes to receiver implementations, not the coordination function itself.

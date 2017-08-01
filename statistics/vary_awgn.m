@@ -54,7 +54,6 @@ for rate = 0:7
     % configure plot
     figure(rate+1);
     bar(-20:5:60, reshape(results(rate+1,:,:), 17, 3), 'stacked');
-    lim([-25 65])
     title(sprintf("MCS %d", rate));
     xlabel("AGWN SNR");
     ylabel("# experiments");

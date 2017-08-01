@@ -70,7 +70,7 @@ tx2_mac_t = awgn(tx2_mac_t, snr, 'measured');
 tx = tx1_mac_t + tx2_mac_t;
 
 % use a row vector from here
-tx = tx';
+tx = tx;
 
 % correlate samples to find the addresses
 acor = zeros(size(macs,1), 2*length(tx)-1);

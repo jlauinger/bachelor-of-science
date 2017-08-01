@@ -18,7 +18,7 @@ filename_macs = "data/mac-addresses-eduroam-20170516.dat";
 NUM_ADDRESSES_TO_USE = 64;
 
 % number of experiments (choose sender randomly each time)
-NUM_EXPERIMENTS = 100;
+NUM_EXPERIMENTS = 1000;
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

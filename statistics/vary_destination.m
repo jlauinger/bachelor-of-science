@@ -14,13 +14,12 @@
 
 % Dataset to use
 filename_macs = "data/mac-addresses-eduroam-20170516.dat";
-%filename_macs = "data/mac-addresses-hexspeak.dat";
 
 % limit MAC addresses to check against to be faster
 NUM_ADDRESSES_TO_USE = 64;
 
 % number of experiments per MCS and scrambler
-NUM_EXPERIMENTS = 100;
+NUM_EXPERIMENTS = 1000;
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

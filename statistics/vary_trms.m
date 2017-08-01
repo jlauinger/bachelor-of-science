@@ -18,7 +18,7 @@ filename_macs = "data/mac-addresses-eduroam-20170516.dat";
 NUM_ADDRESSES_TO_USE = 64;
 
 % number of experiments (choose sender randomly each time)
-NUM_EXPERIMENTS = 10;
+NUM_EXPERIMENTS = 1000;
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -53,9 +53,9 @@ end
 for rate = 0:7
     % configure plot
     figure(rate+1);
-    bar(100e-9:50e-9:500e-9, reshape(results(rate+1,:,:), 9, 3), 'stacked');
+    bar((100e-9:50e-9:500e-9)*10e6, reshape(results(rate+1,:,:), 9, 3), 'stacked');
     title(sprintf("MCS %d", rate));
-    xlabel("802.11g stdchan: t_{RMS} in seconds");
+    xlabel("802.11g stdchan: t_{RMS} in microseconds");
     ylabel("# experiments");
     legend("0 correct", "1 correct", "2 correct");
     

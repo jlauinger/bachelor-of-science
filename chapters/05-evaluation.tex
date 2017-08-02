@@ -88,7 +88,7 @@ Figure \ref{fig:vary_mcs} is the resulting plot. Different \glspl{MCS} are sprea
 
 \begin{figure}[H]
 	\centering
-  \includegraphics[width=\textwidth]{gfx/plots/vary_mcs-20170608-1859-num_correct-64_addresses-1000_experiments.png}
+	\includegraphics[height=5cm]{gfx/plots/mcs}
 	\caption{Results: Varying MCS for 1000 Runs}
 	\label{fig:vary_mcs}
 \end{figure}
@@ -108,9 +108,7 @@ The results show that indeed the scrambler initialization is very important for 
 
 \begin{figure}[H]
 	\centering
-	% uncomment the following line to recompile the figure when it changes otherwise a cached version is used
-	%\tikzset{external/remake next}
-	\includegraphics[width=0.9\textwidth,height=5cm]{gfx/images/stock-clouds}
+	\includegraphics[height=5cm]{gfx/plots/scrambler}
 	\caption[Results: Varying Scrambler Initialization for 1000 Experiments]{Results: Varying Scrambler Initialization for 1000 Runs at MCS 0}
 	\label{fig:vary_scrambler}
 \end{figure}
@@ -122,14 +120,12 @@ The results show that indeed the scrambler initialization is very important for 
 
 Similar to the scrambler initialization, the \gls{MAC} header field preceding the sender \gls{MAC} address could also influence detection quality. This is due to the convolutional encoder as described in section \ref{sec:mac-and-phy}. The field before the sender \gls{MAC} address in a data frame is the destination \gls{MAC} address. In the following experiment, I measured to which extent the value of the destination address affects the accuracy of my detection technique.\\
 
-Figure \ref{fig:vary_dest} shows the results in the same way as for the previous figures. Since the convolutional encoder uses a 7 bit state, only the last 7 bits of the destination \gls{MAC} address matter. After these last 7 bits, the register is synchronized to the same state, regardless of the preceding first 41 bits of the address. This makes up for a total of 128 different values that are evaluated with 1000 experiments each. As for the scrambler initialization, the experiments are done at \gls{MCS} 0.
+Figure \ref{fig:vary_dest} shows the results in the same way as for the previous figures. Since the convolutional encoder uses a 7 bit state, only the last 7 bits of the destination \gls{MAC} address matter. After these last 7 bits, the register is synchronized to the same state, regardless of the preceding first 41 bits of the address. This makes up for a total of 128 different values that are evaluated with 1000 experiments each. Unlike the scrambler initialization, results are presented for \gls{MCS} 1 here. At \gls{MCS} 0, there were no errors at all, yielding a less interesting plot.
 
 \begin{figure}[H]
 	\centering
-	% uncomment the following line to recompile the figure when it changes otherwise a cached version is used
-	%\tikzset{external/remake next}
-	\includegraphics[width=0.9\textwidth,height=5cm]{gfx/images/stock-clouds}
-	\caption[Results: Varying Destination \gls{MAC} Address for 1000 Experiments]{Results: Varying Destination \gls{MAC} Address for 1000 Experiments at MCS 0}
+	\includegraphics[height=5cm]{gfx/plots/destination}
+	\caption[Results: Varying Destination \gls{MAC} Address for 1000 Experiments]{Results: Varying Destination \gls{MAC} Address for 1000 Experiments at MCS 1}
 	\label{fig:vary_dest}
 \end{figure}
 
@@ -142,7 +138,11 @@ It turns out that unlike the scrambler initialization, preceding payload data do
 
 So far, all experiments were done in simulations with an ideal channel, meaning there were no path effects such as multi-path fading or attenuation. As this is not very realistic, I will evaluate performance under various channel models in this section.\\
 
-Using Matlab, there are different models available that could be applied. On the one hand, the Communications System Toolbox comes with \texttt{stdchan}, which supports the \texttt{802.11g} and \texttt{802.11g} channel types. These are suited quite well for this scenario. The channel models requires some parameters, including the sampling frequency, Doppler spread, and \gls{RMS} delay spread $ t_{RMS} $. The delay spread was varied from 100 ns to 500 ns in steps of 50 ns. The usage of the stdchan filter is illustrated by listing \ref{lst:stdchan}:
+Using Matlab, there are different models available that could be applied. First, I begin with applying \gls{AWGN} with different \glspl{SNR}. While \gls{AWGN} is not specifically modeled for IEEE 802.11 networks and will therefore not exactly replicate channel conditions, it serves as a good starting point. The \gls{SNR} is measured in decibel, and swept from $ -20 $ to $ 60 dB $.
+
+The results of the experiments are shown in figure \ref{fig:vary_awgn}. For every \gls{SNR}, 1000 runs were performed at each \gls{MCS}.\\
+
+Second, the Communications System Toolbox comes with \texttt{stdchan}, which supports the \texttt{802.11g} and \texttt{802.11g} channel types. These are suited quite well for this scenario. The channel models requires some parameters, including the sampling frequency, Doppler spread, and \gls{RMS} delay spread $ t_{\text{RMS}} $. The delay spread was varied from 100 ns to 500 ns in steps of 50 ns. The usage of the stdchan filter is illustrated by listing \ref{lst:stdchan}:
 
 \begin{lstlisting}[captionpos=b,caption={Matlab stdchan Channel Model},label=lst:stdchan]
 tmrs = ...;
@@ -152,9 +152,9 @@ chan = stdchan(1/fs, fd, '802.11g', trms);
 rx = filter(chan, tx);
 \end{lstlisting}
 
-The results of this experiment are shown in figure \ref{fig:vary_trms}. For every \texttt{trms} value, 1000 runs were performed. The process was repeated for all eight \glspl{MCS}.
+The results of this experiment are shown in figure \ref{fig:vary_trms}. For every \texttt{trms} value, 1000 runs were performed. The process was repeated for all eight \glspl{MCS}.\\
 
-On the other hand, the WLAN Systems Toolbox comes with a number of specifically drafted IEEE 802.11 channel models. These are designed according to the IEEE 802.11 standard models described in the specification \cite{ieee2012}. There are 6 models (A to F), of which I used the following three:
+Third, the WLAN Systems Toolbox comes with a number of specifically drafted IEEE 802.11 channel models. These are designed according to the IEEE 802.11 standard models described in the specification \cite{ieee2012}. There are 6 models (A to F), of which I used the following three:
 
 \begin{itemize}
 	\item \textit{Model B}: typical large open space and office environments, no line-of-sight, 100 ns \gls{RMS} delay spread
@@ -180,44 +180,51 @@ The results of the experiments are shown in figure \ref{fig:vary_tgn}. For each 
 
 \begin{figure}[p]
 	\centering
-	\setlength\figureheight{3cm}
-	\setlength\figurewidth{0.40\textwidth}
 	\begin{tabular}{cc}
-		% uncomment the following line to recompile the figure when it changes otherwise a cached version is used
-		%\tikzset{external/remake next}
-		\subfloat[MCS 0]{\input{gfx/matlab/tikz/vary_trms-20170609-0248-num_correct-64_addresses-10_experiments-mcs_0.tikz}} &
-		\subfloat[MCS 1]{\input{gfx/matlab/tikz/vary_trms-20170609-0248-num_correct-64_addresses-10_experiments-mcs_1.tikz}} \\
-		\subfloat[MCS 2]{\input{gfx/matlab/tikz/vary_trms-20170609-0248-num_correct-64_addresses-10_experiments-mcs_2.tikz}} &
-		\subfloat[MCS 3]{\input{gfx/matlab/tikz/vary_trms-20170609-0248-num_correct-64_addresses-10_experiments-mcs_3.tikz}} \\
-		\subfloat[MCS 4]{\input{gfx/matlab/tikz/vary_trms-20170609-0248-num_correct-64_addresses-10_experiments-mcs_4.tikz}} &
-		\subfloat[MCS 5]{\input{gfx/matlab/tikz/vary_trms-20170609-0248-num_correct-64_addresses-10_experiments-mcs_5.tikz}} \\
-		\subfloat[MCS 6]{\input{gfx/matlab/tikz/vary_trms-20170609-0248-num_correct-64_addresses-10_experiments-mcs_6.tikz}} &
-		\subfloat[MCS 7]{\input{gfx/matlab/tikz/vary_trms-20170609-0248-num_correct-64_addresses-10_experiments-mcs_7.tikz}} \\
+		\subfloat[MCS 0]{\includegraphics[width=0.45\textwidth]{gfx/plots/awgn-mcs0}} &
+		\subfloat[MCS 1]{\includegraphics[width=0.45\textwidth]{gfx/plots/awgn-mcs1}} \\
+		\subfloat[MCS 2]{\includegraphics[width=0.45\textwidth]{gfx/plots/awgn-mcs2}} &
+		\subfloat[MCS 3]{\includegraphics[width=0.45\textwidth]{gfx/plots/awgn-mcs3}} \\
+		\subfloat[MCS 4]{\includegraphics[width=0.45\textwidth]{gfx/plots/awgn-mcs4}} &
+		\subfloat[MCS 5]{\includegraphics[width=0.45\textwidth]{gfx/plots/awgn-mcs5}} \\
+		\subfloat[MCS 6]{\includegraphics[width=0.45\textwidth]{gfx/plots/awgn-mcs6}} &
+		\subfloat[MCS 7]{\includegraphics[width=0.45\textwidth]{gfx/plots/awgn-mcs7}} \\
 	\end{tabular}
-	\caption{Results: Varying $t_{RMS}$ in a Standard Channel for 1000 Runs}
-	\label{fig:vary_trms}
+	\caption{Results: Varying AWGN SNR for 1000 Runs}
+	\label{fig:vary_awgn}
 \end{figure}
 
 \begin{figure}[p]
 	\centering
-	\setlength\figureheight{3cm}
-	\setlength\figurewidth{0.40\textwidth}
 	\begin{tabular}{cc}
-		% uncomment the following line to recompile the figure when it changes otherwise a cached version is used
-		%\tikzset{external/remake next}
-		\subfloat[MCS 0]{\input{gfx/matlab/tikz/vary_tgn-20170609-0142-num_correct-64_addresses-100_experiments-mcs_0.tikz}} &
-		\subfloat[MCS 1]{\input{gfx/matlab/tikz/vary_tgn-20170609-0142-num_correct-64_addresses-100_experiments-mcs_1.tikz}} \\
-		\subfloat[MCS 2]{\input{gfx/matlab/tikz/vary_tgn-20170609-0143-num_correct-64_addresses-100_experiments-mcs_2.tikz}} &
-		\subfloat[MCS 3]{\input{gfx/matlab/tikz/vary_tgn-20170609-0143-num_correct-64_addresses-100_experiments-mcs_3.tikz}} \\
-		\subfloat[MCS 4]{\input{gfx/matlab/tikz/vary_tgn-20170609-0143-num_correct-64_addresses-100_experiments-mcs_4.tikz}} &
-		\subfloat[MCS 5]{\input{gfx/matlab/tikz/vary_tgn-20170609-0143-num_correct-64_addresses-100_experiments-mcs_5.tikz}} \\
-		\subfloat[MCS 6]{\input{gfx/matlab/tikz/vary_tgn-20170609-0143-num_correct-64_addresses-100_experiments-mcs_6.tikz}} &
-		\subfloat[MCS 7]{\input{gfx/matlab/tikz/vary_tgn-20170609-0143-num_correct-64_addresses-100_experiments-mcs_7.tikz}} \\
+		\subfloat[MCS 0]{\includegraphics[width=0.45\textwidth]{gfx/plots/tgn-mcs0}} &
+		\subfloat[MCS 1]{\includegraphics[width=0.45\textwidth]{gfx/plots/tgn-mcs1}} \\
+		\subfloat[MCS 2]{\includegraphics[width=0.45\textwidth]{gfx/plots/tgn-mcs2}} &
+		\subfloat[MCS 3]{\includegraphics[width=0.45\textwidth]{gfx/plots/tgn-mcs3}} \\
+		\subfloat[MCS 4]{\includegraphics[width=0.45\textwidth]{gfx/plots/tgn-mcs4}} &
+		\subfloat[MCS 5]{\includegraphics[width=0.45\textwidth]{gfx/plots/tgn-mcs5}} \\
+		\subfloat[MCS 6]{\includegraphics[width=0.45\textwidth]{gfx/plots/tgn-mcs6}} &
+		\subfloat[MCS 7]{\includegraphics[width=0.45\textwidth]{gfx/plots/tgn-mcs7}} \\
 	\end{tabular}
 	\caption{Results: Varying TGn Channel for 1000 Runs}
 	\label{fig:vary_tgn}
 \end{figure}
 
+\begin{figure}[p]
+	\centering
+	\begin{tabular}{cc}
+		\subfloat[MCS 0]{\includegraphics[width=0.4\textwidth]{gfx/plots/trms-mcs0}} &
+		\subfloat[MCS 1]{\includegraphics[width=0.4\textwidth]{gfx/plots/trms-mcs1}} \\
+		\subfloat[MCS 2]{\includegraphics[width=0.4\textwidth]{gfx/plots/trms-mcs2}} &
+		\subfloat[MCS 3]{\includegraphics[width=0.4\textwidth]{gfx/plots/trms-mcs3}} \\
+		\subfloat[MCS 4]{\includegraphics[width=0.4\textwidth]{gfx/plots/trms-mcs4}} &
+		\subfloat[MCS 5]{\includegraphics[width=0.4\textwidth]{gfx/plots/trms-mcs5}} \\
+		\subfloat[MCS 6]{\includegraphics[width=0.4\textwidth]{gfx/plots/trms-mcs6}} &
+		\subfloat[MCS 7]{\includegraphics[width=0.4\textwidth]{gfx/plots/trms-mcs7}} \\
+	\end{tabular}
+	\caption{Results: Varying $t_{RMS}$ in a Standard Channel for 1000 Runs}
+	\label{fig:vary_trms}
+\end{figure}
 
 %% -----------------------------------------------------------------------------
 
@@ -249,11 +256,18 @@ While one group of spikes is a bit lower than the other, it is still easily poss
 
 \begin{figure}[H]
 	\centering
-  \includegraphics[width=\textwidth]{gfx/plots/capture_collision-20170622-1533-ltf_correlation}
-	\caption{Preamble Correlation in WARP Experiment}
+  \includegraphics[width=\textwidth]{gfx/plots/warp-preamble}
+	\caption{Preamble Correlation on WARP SDRs}
 	\label{fig:warp_preamble_corr}
 \end{figure}
 
-The results of the preamble correlation are promising. They show that indeed a collision of two frames is captured by the receiving \gls{SDR}, and that cross-correlation in the time-domain can in fact tell apart both \glspl{LTF}.
+The results of the preamble correlation are promising. They show that indeed a collision of two frames is captured by the receiving \gls{SDR}, and that cross-correlation in the time-domain can in fact tell apart both \glspl{LTF}.\\
 
-Next, I used the same code as for the simulation experiments to try and detect sender \gls{MAC} addresses. Fortunately, this worked well. In general, the results were very comparable to those of the simulation, however there was a slightly lower accuracy. The reason for that is probably the channel effects, which could not be simulated in full detail by the channel models.
+Next, I used the same code as for the simulation experiments to try and detect sender \gls{MAC} addresses. Fortunately, this worked well. In general, the results were very comparable to those of the simulation, however there was a slightly lower accuracy. The reason for that is probably the channel effects, which could not be simulated in full detail by the channel models. I ran a total amount of 100 experiments for each \gls{MCS}. The results are shown in figure \ref{fig:warp-mcs-results}.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[height=5cm]{gfx/plots/mcs}
+	\caption{Results: Varying MCS for 100 Runs on WARP SDRs}
+	\label{fig:warp-mcs-results}
+\end{figure}

@@ -265,13 +265,15 @@ While one group of spikes is a bit lower than the other, it is still easily poss
 
 The results of the preamble correlation are promising. They show that indeed a collision of two frames is captured by the receiving \gls{SDR}, and that cross-correlation in the time-domain can in fact tell apart both \glspl{LTF}.\\
 
-Next, I used the same code as for the simulation experiments to try and detect sender \gls{MAC} addresses. Fortunately, this worked well. I ran a total amount of 100 experiments for each \gls{MCS}. The results are shown in figure \ref{fig:warp-mcs-results}.
+Next, I used the same code as for the simulation experiments to try and detect sender \gls{MAC} addresses. This worked reasonably well despite some problems. The results are shown in figure \ref{fig:warp-mcs-results}. I used \glspl{MCS} 0 to 5 with a total of 50 runs each.
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[height=5cm]{gfx/plots/mcs}
-	\caption{Results: Varying MCS for 100 Runs on WARP SDRs}
+	\includegraphics[height=5cm]{gfx/plots/warp-mcs}
+	\caption{Results: Varying MCS for 50 Runs on WARP SDRs}
 	\label{fig:warp-mcs-results}
 \end{figure}
 
-In general, the results were very comparable to those of the simulation, however there was a slightly lower accuracy. The reason for that is probably the channel effects, which could not be simulated in full detail by the channel models.
+For \glspl{MCS} 0 and 1, the results were quite good. Although in most of the cases only one \gls{MAC} address could be detected correctly, investigations showed that: First, the correctly guessed address was transmitted by the same \gls{SDR} every time, hinting that there could be some environmental factors causing its signal to be received more strongly. Second, wrong guesses were often due to quite similar \gls{MAC} addresses, which are different only in a few bits.
+
+However, for higher \glspl{MCS}, sender detection seemed to fail. This is probably caused by real-world channel effects, that could not be simulated to a realistic extent.

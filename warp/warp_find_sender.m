@@ -252,14 +252,20 @@ ind1.payload = ind1.sig + 80; % add 4us SIG field
 rx_offset = ind1.stf + CUTAWAY_LENGTH - 1;
 indices = helper_mac_sample_indices(RATE, 20e6);
 start = ind1.payload+indices(1)+rx_offset-1; stop = ind2.payload+indices(end)+rx_offset-1;
-% size(rx_vec_air)
 rx_to_corr = rx_vec_air(start:stop);
 
 % correlate samples to find the addresses
 corr = zeros(size(macs,1), size(rx_to_corr,2)*2-1);
 lag = zeros(size(macs,1), size(rx_to_corr,2)*2-1);
 for i = 1:size(macs,1)
-    [corr(i,:), lag(i,:)] = xcorr(rx_to_corr, reference(i,:));
+    [this_corr, this_lag] = xcorr(rx_to_corr, reference(i,:));
+    % if sizes do not match, continue with the next experiment
+    if (length(this_corr) ~= size(corr,2))
+        guesses = [macs(1,:); macs(2,:)];
+        return
+    end
+    corr(i,:) = this_corr;
+    lag(i,:) = this_lag;
 end
 corr = abs(corr);
 

@@ -17,12 +17,14 @@ filename_macs = "data/mac-addresses-eduroam-20170516.dat";
 NUM_ADDRESSES_TO_USE = 64;
 
 % number of experiments (choose sender randomly each time)
-NUM_EXPERIMENTS = 10;
+NUM_EXPERIMENTS = 50;
+
+UP_TO_MCS = 5;
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-results = zeros(6, 3);
+results = zeros(UP_TO_MCS+1, 3);
 
 file = fopen(filename_macs);
 out = textscan(file, "%s");
@@ -30,7 +32,7 @@ macs = cell2mat(out{1});
 macs = macs(:, [1:2 4:5 7:8 10:11 13:14 16:17]);
 macs = macs(1:NUM_ADDRESSES_TO_USE, :);
 
-for rate = 0:5
+for rate = 0:UP_TO_MCS
     rate_time = tic;
     reference_signals = generate_signal_pool(macs, rate, macs(1,:), 1, 20e6);
     for ex = 1:NUM_EXPERIMENTS
@@ -57,13 +59,13 @@ legend("0 correct", "1 correct", "2 correct", 'location', 'northwest');
 
 % save figure
 saveas(gcf, ...
-    sprintf('figures/vary_mcs-%s-num_correct-%d_addresses-%d_experiments.fig', ...
+    sprintf('figures/warp_vary_mcs-%s-num_correct-%d_addresses-%d_experiments.fig', ...
     datetime('now','Format','yyyyMMdd-HHmm'), ...
     NUM_ADDRESSES_TO_USE, ...
     NUM_EXPERIMENTS));
 
 % save data
-helper_csvwrite(sprintf('results/vary_mcs-%s-num_correct-%d_addresses-%d_experiments.csv', ...
+helper_csvwrite(sprintf('results/warp_vary_mcs-%s-num_correct-%d_addresses-%d_experiments.csv', ...
     datetime('now','Format','yyyyMMdd-HHmm'), ...
     NUM_ADDRESSES_TO_USE, ...
     NUM_EXPERIMENTS), ...

@@ -41,14 +41,16 @@ I used the Matlab profiler to gather data on the execution speeds of different p
 	\begin{tabular}{|p{8.5cm}|p{2.5cm}|}
 		\hline
 		\textbf{Function} & \textbf{Time Spent} \\ \hline
-    wlanNonHTData & 241 ms \\ \hline
-    CRC Calculation & 90 ms \\ \hline
-		xcorr & 1 ms \\ \hline
+	    wlanTGnChannel & 912 ms \\ \hline
+    	wlanNonHTData & 662 ms \\ \hline
+	    CRC Calculation & 122 ms \\ \hline
+	    AWGN & 54 ms \\ \hline
+		xcorr & < 1 ms \\ \hline
 	\end{tabular}
 	\caption{Timing Analysis of the Detecting Algorithm \label{tbl:timing}}
 \end{table}
 
-This data suggests that the real-time part of the algorithm, which is limited to cross-correlation with \texttt{xcorr} is negligible when compared to the pre-modulation of reference signals. For small networks, the correlation time is probably fast enough. For high amount of stations however, the complexity gets out of hand quite quickly. For a network with 500 client for example, each collision requires a calculating of about 500 seconds. However, it is easily possible to parallelize this workload, or even use specialized hardware such as \glspl{FPGA}. In the extreme case, where every correlation is done at the same time, only 1 ms is needed for decoding the collision.
+This data suggests that the real-time part of the algorithm, which is limited to cross-correlation with \texttt{xcorr} is negligible when compared to the pre-modulation of reference signals. For small networks, the correlation time is probably fast enough. For high amount of stations however, the complexity gets out of hand quite quickly. For a network with 500 client for example, each collision requires a calculation of about 500 milliseconds. However, it is easily possible to parallelize this workload, or even use specialized hardware such as \glspl{FPGA}. In the extreme case, where every correlation is done at the same time, only 1 ms is needed for decoding the collision.
 
 The calculating of \gls{CRC} checksums is time-consuming, however not needed for the algorithm. Instead, dummy checksums can be used as described in section \ref{sec:matlab-impl}. Therefore, modulation of reference signals scales with the performance of the \texttt{wlanNonHTData} function.
 

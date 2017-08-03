@@ -53,9 +53,9 @@ end
 for rate = 0:7
     % configure plot
     figure(rate+1);
-    bar((100e-9:50e-9:500e-9)*10e6, reshape(results(rate+1,:,:), 9, 3), 'stacked');
+    bar((100e-9:50e-9:500e-9)*1e9, reshape(results(rate+1,:,:), 9, 3), 'stacked');
     title(sprintf("MCS %d", rate));
-    xlabel("802.11g stdchan: t_{RMS} in microseconds");
+    xlabel("802.11g stdchan: t_{RMS} in nanoseconds");
     ylabel("# experiments");
     legend("0 correct", "1 correct", "2 correct");
     

@@ -90,7 +90,7 @@ Figure \ref{fig:vary_mcs} shows the resulting plot. Different \glspl{MCS} are sp
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[height=5.5cm]{gfx/plots/mcs}
+	\includegraphics[height=6.5cm]{gfx/plots/mcs}
 	\caption{Results: Varying MCS for 1000 Runs}
 	\label{fig:vary_mcs}
 \end{figure}
@@ -110,7 +110,7 @@ The results show that indeed the scrambler initialization is very important for 
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[height=7cm]{gfx/plots/scrambler}
+	\includegraphics[height=6.5cm]{gfx/plots/scrambler}
 	\caption[Results: Varying Scrambler Initialization for 1000 Runs]{Results: Varying Scrambler Initialization for 1000 Runs at MCS 0}
 	\label{fig:vary_scrambler}
 \end{figure}
@@ -126,7 +126,7 @@ Figure \ref{fig:vary_dest} shows the results in the same way as for the previous
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[height=7cm]{gfx/plots/destination}
+	\includegraphics[height=5.5cm]{gfx/plots/destination}
 	\caption[Results: Varying Destination \gls{MAC} Address for 1000 Runs]{Results: Varying Destination \gls{MAC} Address for 1000 Runs at MCS 1}
 	\label{fig:vary_dest}
 \end{figure}
@@ -154,7 +154,7 @@ chan = stdchan(1/fs, fd, '802.11g', trms);
 rx = filter(chan, tx);
 \end{lstlisting}
 
-The results of this experiment are shown in figure \ref{fig:vary_trms}. For each \texttt{trms} value, 1000 runs were performed. The process was repeated for all eight \glspl{MCS}.\\
+The results of this experiment are shown in figure \ref{fig:vary_trms}. For each $ t_{\text{RMS}} $ value, 1000 runs were performed. The process was repeated for all eight \glspl{MCS}.\\
 
 Third, the WLAN System Toolbox comes with a number of specifically drafted IEEE 802.11 channel models. These are designed according to the IEEE 802.11 standard models described in the specification \cite{ieee2012}. There are 6 models (A to F), of which I used the following three:
 
@@ -178,7 +178,9 @@ tgnchan = wlanTGnChannel( ...
 rx = tgnchan(tx);
 \end{lstlisting}
 
-The results of the experiments are shown in figure \ref{fig:vary_tgn}. For each of the three channel models, 1000 runs were performed with every \gls{MCS}.
+The results of the experiments are shown in figure \ref{fig:vary_tgn}. For each of the three channel models, 1000 runs were performed with every \gls{MCS}.\\
+
+I conclude that \glspl{MCS} 0 to 2 allow to detect senders quite well under channel effects. For these, \gls{AWGN} caused almost no measurable impact. Even \texttt{stdchan}, which seems to have the biggest effect on detection quality, showed good results. For higher \glspl{MCS} however, accuracy quickly decreased significantly. The combination of high \gls{RMS} delay spread under the Standard Channel model with \gls{MCS} starting from 3 yielded almost no entirely correct guesses.
 
 \begin{figure}[p]
 	\centering
@@ -199,22 +201,6 @@ The results of the experiments are shown in figure \ref{fig:vary_tgn}. For each 
 \begin{figure}[p]
 	\centering
 	\begin{tabular}{cc}
-		\subfloat[MCS 0]{\includegraphics[width=0.42\textwidth]{gfx/plots/tgn-mcs0}} &
-		\subfloat[MCS 1]{\includegraphics[width=0.42\textwidth]{gfx/plots/tgn-mcs1}} \\
-		\subfloat[MCS 2]{\includegraphics[width=0.42\textwidth]{gfx/plots/tgn-mcs2}} &
-		\subfloat[MCS 3]{\includegraphics[width=0.42\textwidth]{gfx/plots/tgn-mcs3}} \\
-		\subfloat[MCS 4]{\includegraphics[width=0.42\textwidth]{gfx/plots/tgn-mcs4}} &
-		\subfloat[MCS 5]{\includegraphics[width=0.42\textwidth]{gfx/plots/tgn-mcs5}} \\
-		\subfloat[MCS 6]{\includegraphics[width=0.42\textwidth]{gfx/plots/tgn-mcs6}} &
-		\subfloat[MCS 7]{\includegraphics[width=0.42\textwidth]{gfx/plots/tgn-mcs7}} \\
-	\end{tabular}
-	\caption{Results: Varying TGn Channel for 1000 Runs}
-	\label{fig:vary_tgn}
-\end{figure}
-
-\begin{figure}[p]
-	\centering
-	\begin{tabular}{cc}
 		\subfloat[MCS 0]{\includegraphics[width=0.43\textwidth]{gfx/plots/trms-mcs0}} &
 		\subfloat[MCS 1]{\includegraphics[width=0.43\textwidth]{gfx/plots/trms-mcs1}} \\
 		\subfloat[MCS 2]{\includegraphics[width=0.43\textwidth]{gfx/plots/trms-mcs2}} &
@@ -226,6 +212,22 @@ The results of the experiments are shown in figure \ref{fig:vary_tgn}. For each 
 	\end{tabular}
 	\caption{Results: Varying $t_{RMS}$ in a Standard Channel for 1000 Runs}
 	\label{fig:vary_trms}
+\end{figure}
+
+\begin{figure}[p]
+	\centering
+	\begin{tabular}{cc}
+		\subfloat[MCS 0]{\includegraphics[width=0.42\textwidth]{gfx/plots/tgn-mcs0}} &
+		\subfloat[MCS 1]{\includegraphics[width=0.42\textwidth]{gfx/plots/tgn-mcs1}} \\
+		\subfloat[MCS 2]{\includegraphics[width=0.42\textwidth]{gfx/plots/tgn-mcs2}} &
+		\subfloat[MCS 3]{\includegraphics[width=0.42\textwidth]{gfx/plots/tgn-mcs3}} \\
+		\subfloat[MCS 4]{\includegraphics[width=0.42\textwidth]{gfx/plots/tgn-mcs4}} &
+		\subfloat[MCS 5]{\includegraphics[width=0.42\textwidth]{gfx/plots/tgn-mcs5}} \\
+		\subfloat[MCS 6]{\includegraphics[width=0.42\textwidth]{gfx/plots/tgn-mcs6}} &
+		\subfloat[MCS 7]{\includegraphics[width=0.42\textwidth]{gfx/plots/tgn-mcs7}} \\
+	\end{tabular}
+	\caption{Results: Varying TGn Channel for 1000 Runs}
+	\label{fig:vary_tgn}
 \end{figure}
 
 %% -----------------------------------------------------------------------------

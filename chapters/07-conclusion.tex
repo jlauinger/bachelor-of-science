@@ -3,7 +3,7 @@
 \chapter{Conclusion}\label{ch:Conclusion}
 \glsresetall % Resets all acronyms to not used
 
-Recognizing senders by correlating their \gls{MAC} addresses in an IEEE 802.11 a/g frame collision is an approach that to my knowledge has not been explored before. In this thesis, I proposed an algorithm to apply this technique and developed a proof-of-concept implementation using Matlab with the Communications and WLAN Systems Toolboxes.\\
+Recognizing senders by correlating their \gls{MAC} addresses in an IEEE 802.11 a/g frame collision is an approach that to my knowledge has not been explored before. In this thesis, I proposed an algorithm to apply this technique and developed a proof-of-concept implementation using Matlab with the Communications and WLAN System Toolboxes.\\
 
 The technique promiscuously listens on the wireless network interface to cache \gls{MAC} addresses of stations connected to the network. For each of these addresses, several reference signals are pre-modulated and stored, considering different \glspl{MCS} and scrambler initialization values. When a collision is received, samples containing the \gls{MAC} address are cross-correlated in the time-domain. The reference signals with highest correlations are used to determine the senders participating in the collided transmission.\\
 

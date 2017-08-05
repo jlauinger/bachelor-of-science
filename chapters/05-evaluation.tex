@@ -5,7 +5,7 @@
 
 In this chapter, the proposed technique for detecting sender \gls{MAC} addresses during collisions is evaluated using several simulations as well as experiments on \gls{WARP} \glspl{SDR}.
 
-Possible questions and problems include the fact that with higher \glspl{MCS}, there could be not enough samples to correlate the rather short 6 byte \gls{MAC} address. Another interesting issue is the accuracy of the algorithm with increasing amounts of noise and fading.
+Possible questions and problems include the fact that with higher \glspl{MCS}, there might be not enough samples to correlate the rather short 6 byte \gls{MAC} address. Another interesting issue is the accuracy of the algorithm with increasing amounts of noise and fading.
 
 
 %% -----------------------------------------------------------------------------
@@ -14,7 +14,7 @@ Possible questions and problems include the fact that with higher \glspl{MCS}, t
 
 During the implementation of the \gls{MAC} address detection technique, I tried using cross-correlation in the frequency-domain. This means that instead of calculating the similarity between samples, complex symbols are correlated without mapping them into the time-domain. With this approach, the Fourier transform must be applied to the received signal.
 
-It turns out to be at least very difficult, if not impossible, to detect senders in case of a collision with frequency-domain correlation. The reason for that is phase shift due to path delays. When a signal is received with an offset in the time-domain, the constellation is changed in the frequency-domain. This can be shown using the Fourier transform equation:
+It turns out to be very difficult, if not impossible, to detect senders in case of a collision with frequency-domain correlation. The reason for that is phase shift due to path delays. When a signal is received with an offset in the time-domain, the constellation is changed in the frequency-domain. This can be shown using the Fourier transform equation:
 
 $$ F(f) = \int_{-\infty}^{\infty} s(t) \cdot e^{-2 \pi i f t} dt $$\vspace{0cm}
 
@@ -36,9 +36,9 @@ Due to the way \gls{OFDM} works, a received signal will contain a variety of fre
 
 This kind of path effects is not at all unusual in a IEEE 802.11 transmission. Under normal circumstances, the known preamble is used to calculate the inverted channel matrix of the path effects \cite{perahia2013}, as mentioned in section \ref{sec:multipath}.\\
 
-When receiving a collision, there is however not only one preamble. Instead, the preambles of two different frames, which experienced different path effects, are added together. Since the preambles themselves are designed to have a low off-peak autocorrelation \cite{ieee2012}, it is not easily possible to separate the two channel effects from each other.
+When receiving a collision, there is however not only one preamble. Instead, the preambles of two different frames, that experienced different path effects, are added together. Since the preambles themselves are designed to have a low off-peak autocorrelation \cite{ieee2012}, it is not easily possible to separate the two channel effects from each other.
 
-This is because a receiver would normally correlate the received training field with a local copy, and estimate the phase shift present in the complex cross-correlation. For this reason, I can not reverse the phase shift introduced on the \gls{OFDM} symbols containing the \gls{MAC} address, and therefore not detect which sender transmitted the frame.
+This is caused by the receiver, which would normally correlate the received training field with a local copy, and estimate the phase shift present in the complex cross-correlation. For this reason, I can not reverse the phase shift introduced on the \gls{OFDM} symbols containing the \gls{MAC} address. It is therefore not possible to detect which sender transmitted the frame.
 
 As expected, experiments with cross-correlation in the frequency-domain without channel equalization were unsuccessful. I therefore disregarded this approach.
 
@@ -47,9 +47,9 @@ As expected, experiments with cross-correlation in the frequency-domain without 
 
 \section{Time-Domain Correlation}
 
-The experiments I did using time-domain cross-correlation are divided into two groups. First, I used Matlab to simulate different field variations and channel effects. Second, I used WARP boards to try the approach in a real-world scenario. The results of these experiments are summarized in the following sections.
+The experiments I did using time-domain cross-correlation are divided into two groups. First, I used Matlab to simulate different field variations and channel effects. Second, I used WARP boards to try the approach in a real-world scenario. The results of these experiments are summarized in the following sections \ref{sec:ex-mcs} to \ref{sec:ex-warp}.
 
-When correlating time-domain samples, I always pre-generated reference samples and calculated the correlation only for the subset of samples that contains the \gls{MAC} address. Section \ref{sec:mac-periods} describes which period of the signal this is.\\
+When correlating time-domain samples, I used pre-generated reference samples and calculated the correlation only for the subset of samples that contains the \gls{MAC} address. Section \ref{sec:mac-periods} describes which period of the signal this is.\\
 
 Reference signals are modulated until just after the \gls{IFFT} and adding of cyclic prefix. For the simulations, I used a sampling rate of 20 MHz, which is the default output of the Matlab WLAN System Toolbox. The WARP boards use a sampling frequency of 40 MHz however, so for these experiments I used interpolation to double the rate.
 
@@ -71,16 +71,16 @@ airmon-ng start wlp0s20u1
 airodump-ng --essid eduroam -a -o csv -w mac-addresses-eduroam.csv wlp0s20u1mon
 \end{lstlisting}
 
-It is important to have the wireless network interface set to promiscuous mode. This mode instructs the driver to hand all received frames to the kernel. Otherwise, only frames that are addressed to or coming from the local station are gathered, while the rest is filtered. This would mean that only the router's and the station's own \gls{MAC} address would be cached.
+It is important to have the wireless network interface set to promiscuous mode. This mode instructs the driver to hand all received frames to the kernel. Otherwise, only frames that are going to or coming from the local station are gathered, while the rest is filtered. This means that only the router's and the station's own \gls{MAC} address would be cached.
 
 In a possible real-time usage scenario of the sender detection algorithm, it would also be important to use promiscuous mode in order to collect all \gls{MAC} addresses. These are the addresses for which reference signals need to be modulated and cached.
 
 
 %% -----------------------------------------------------------------------------
 
-\section{Modulation and Coding Schemes}
+\section{Modulation and Coding Schemes}\label{sec:ex-mcs}
 
-Intuitively, the overall sender detection accuracy should decrease for higher \glspl{MCS}. First, with a higher \gls{MCS} there are more payload bits encoded in every \gls{OFDM} symbol, as described in table \ref{tbl:mcs}. This means that when applying cross-correlation, the \gls{OFDM} symbol contains random data from the \gls{MAC} header before and after the sender \gls{MAC} address. Due to the nature of \gls{OFDM}, it is not possible to limit correlation to only a fraction of the symbol in the time-domain.
+Intuitively, the overall sender detection accuracy should decrease for higher \glspl{MCS}. First, with a higher \gls{MCS} there are more payload bits encoded in every \gls{OFDM} symbol, as seen in table \ref{tbl:mcs}. This means that when applying cross-correlation, the \gls{OFDM} symbol contains random data from the \gls{MAC} header before and after the sender \gls{MAC} address. Due to the nature of \gls{OFDM}, it is not possible to limit correlation to only a fraction of the symbol in the time-domain.
 
 Second, a higher \gls{MCS} means that payload data gets mapped to complex points in the constellation plane that are less distinct from each other. Therefore, different data can be more similar under cross-correlation, making it harder to detect senders in the time-domain.\\
 
@@ -102,11 +102,11 @@ Figure \ref{fig:vary_mcs} shows the resulting plot. Different \glspl{MCS} are sp
 
 As described in section \ref{sec:mac-and-phy}, the \gls{MAC} layer payload data is scrambled before any modulation on the physical layer is applied. The scrambling uses a 7 bit state register, where 0 is no valid state. Therefore, 127 unique scrambler initialization values are possible.
 
-If the scrambler initialization is important for the sender detection technique, specifically if the modulated reference signals must use the same initialization as the received frames, the number of possible values linearly scales the algorithm's complexity. That is, for every cached \gls{MAC} address, \gls{MCS}, et cetera all scrambler initializations must be modulated and correlated. It is therefore very interesting to know whether that is the case, or whether the scrambler alternatively does not affect detection quality.\\
+If the scrambler initialization is important for the sender detection technique, specifically if the modulated reference signals must use the same initialization as the received frames, the number of possible values linearly scales the algorithm's complexity. That is, for every cached \gls{MAC} address, \gls{MCS}, et cetera all scrambler initializations must be modulated and correlated. It is therefore very interesting to know whether this is the case, or whether the scrambler does not affect detection quality.\\
 
-Figure \ref{fig:vary_scrambler} shows the detection performance for different scrambler initializations over 1000 runs. The data is presented the same way as in the previous section as stacked bar plots denoting the number of runs with 0, 1, and 2 corrects guesses. For all experiments, the \gls{MCS} 0 was used. While the simulated received frame was modulated with scrambler initialization 1, correlation was calculated against 127 reference signals with different scrambler values.
+Figure \ref{fig:vary_scrambler} shows the detection performance for different scrambler initializations over 1000 runs. The data is presented the same way as in the previous section. The stacked bar plots denote the number of runs with 0, 1, and 2 corrects guesses. For all experiments, the \gls{MCS} 0 was used. While the simulated received frame was modulated with scrambler initialization 1, correlation was calculated against 127 reference signals with different scrambler values.
 
-The results show that indeed the scrambler initialization is very important for detection quality. While the performance is very good for the correct initialization value 1, for all other values the accuracy is low. However, related research mentions that some network interfaces seem to not choose the scrambler initialization at random \cite{noubir2016}, contradictory to the IEEE 802.11 standard. These devices use a static initialization for every frame, or increment the value after every transmission. This could be exploited by limiting the reference signals to those that are expected in the current network, therefore avoiding time spent on correlations that are unpromising. Since the \gls{MAC} addresses of stations in the network are cached, the interface types and vendors are known. This could lead to some interesting future work.
+The results show that the scrambler initialization is very important for detection quality. While the performance is very good for the correct initialization value 1, for all other values the accuracy is low. However, related research mentions that some network interfaces seem to not choose the scrambler initialization at random \cite{noubir2016}, contradictory to the IEEE 802.11 standard. These devices use a static initialization for every frame, or increment the value after every transmission. This could be exploited by limiting the reference signals to the ones that are expected in the current network. This avoids time being spent on correlations that are unpromising. Since the \gls{MAC} addresses of stations in the network are cached, the interface types and vendors are known. This could lead to some interesting future work.
 
 \begin{figure}[H]
 	\centering
@@ -138,16 +138,16 @@ It turns out that unlike the scrambler initialization, preceding payload data do
 
 \section{Channel Models}
 
-So far, all experiments were done in simulations with an ideal channel, meaning there were no path effects such as multi-path fading or attenuation. As this is not very realistic, I will evaluate performance under various channel models in this section.\\
+So far, all experiments were done in simulations with an ideal channel, meaning there were no path effects such as multi-path fading or attenuation. I evaluate performance under various channel models in this section.\\
 
-Using Matlab, there are different models available that could be applied. First, I begin with applying \gls{AWGN} with different \glspl{SNR}. While \gls{AWGN} is not specifically modeled for IEEE 802.11 networks and will therefore not exactly replicate channel conditions, it serves as a good starting point. The \gls{SNR} is measured in decibel, and swept from $ -20 $ to $ 60 dB $.
+Using Matlab, there are different models available that could be applied. First, I begin with applying \gls{AWGN} with different \glspl{SNR}. While \gls{AWGN} is not specifically modeled for IEEE 802.11 networks and will therefore not replicate channel conditions precisely, it is a good starting point. The \gls{SNR} is measured in decibel, and swept from $ -20 $ to $ 60 dB $.
 
-The results of the experiments are shown in figure \ref{fig:vary_awgn}. For each \gls{SNR}, 1000 runs were performed with every \gls{MCS}.\\
+The results of the experiments are shown in figure \ref{fig:vary_awgn}. For each \gls{SNR} and every \gls{MCS}, 1000 experiment runs were performed}.\\
 
 Second, the Communications System Toolbox comes with \texttt{stdchan}, which supports the \texttt{802.11a} and \texttt{802.11g} channel types. These are suited quite well for this scenario. The channel models require some parameters, including the sampling frequency, Doppler spread, and \gls{RMS} delay spread $ t_{\text{RMS}} $. The delay spread was varied from 100 ns to 500 ns in steps of 50 ns. The usage of the stdchan filter is illustrated by listing \ref{lst:stdchan}:
 
 \begin{lstlisting}[captionpos=b,caption={Matlab stdchan Channel Model},label=lst:stdchan]
-tmrs = ...; % 30, 40, etc.
+trms = ...; % 30, 40, etc.
 fs = 20e6; % Hz Sampling Frequency
 fd = 10; % Hz Doppler spread
 chan = stdchan(1/fs, fd, '802.11g', trms);
@@ -178,7 +178,7 @@ tgnchan = wlanTGnChannel( ...
 rx = tgnchan(tx);
 \end{lstlisting}
 
-The results of the experiments are shown in figure \ref{fig:vary_tgn}. For each of the three channel models, 1000 runs were performed with every \gls{MCS}.\\
+The results of the experiments are shown in figure \ref{fig:vary_tgn}. For each of the three channel models and every \gls{MCS}, 1000 runs were performed.\\
 
 I conclude that \glspl{MCS} 0 to 2 allow to detect senders quite well under channel effects. For these, \gls{AWGN} caused almost no measurable impact. Even \texttt{stdchan}, which seems to have the biggest effect on detection quality, showed good results. For higher \glspl{MCS} however, accuracy quickly decreased significantly. The combination of high \gls{RMS} delay spread under the Standard Channel model with \gls{MCS} starting from 3 yielded almost no entirely correct guesses.
 
@@ -254,9 +254,9 @@ tx1 = resample(tx1, 40, 20);
 
 For the real-world experiments, I deliberately caused frame collisions with the same scrambler initialization and destination \gls{MAC} addresses, and used \gls{MCS} 0. This means that in principal everything was the same as for the most basic simulation experiments.
 
-To assess the basic mechanics of receiving collisions with the \glspl{SDR}, I applied cross-correlation to only one \gls{LTF} symbol instead of the \gls{MAC} addresses and plotted the results. They can be seen in figure \ref{fig:warp_preamble_corr}. The collided frames were aligned with some offset for this experiment.
+To assess the basic mechanics of receiving collisions with the \glspl{SDR}, I applied cross-correlation to only one \gls{LTF} symbol instead of the \gls{MAC} addresses and plotted the results. They are presented in figure \ref{fig:warp_preamble_corr}. The collided frames were aligned with some offset for this experiment.
 
-While one group of spikes is a bit lower than the other, it is still easily possible to detect that there is a collision due to the 4 higher and 2 lower spikes caused by the two \glspl{LTF}. The higher level of noise in the beginning of the signal are probably caused by \gls{AGC} in the receiving \gls{SDR}. Since the \gls{MAC} addresses are located further into the signal, and only that part is correlated for sender detection, this noise should be no problem.
+While one group of spikes is slightly lower than the other, it is still easily possible to detect that there is a collision due to the 4 higher and 2 lower spikes caused by the two \glspl{LTF}. The higher level of noise in the beginning of the signal are probably caused by \gls{AGC} in the receiving \gls{SDR}. Since the \gls{MAC} addresses are located further into the signal, and only that part is correlated for sender detection, this noise should be no problem.
 
 \begin{figure}[H]
 	\centering
@@ -265,7 +265,7 @@ While one group of spikes is a bit lower than the other, it is still easily poss
 	\label{fig:warp_preamble_corr}
 \end{figure}
 
-The results of the preamble correlation are promising. They show that indeed a collision of two frames is captured by the receiving \gls{SDR}, and that cross-correlation in the time-domain can in fact tell apart both \glspl{LTF}.\\
+The results of the preamble correlation are promising. They show that indeed a collision of two frames is captured by the receiving \gls{SDR}, and that cross-correlation in the time-domain can in fact distinguish both \glspl{LTF}.\\
 
 Next, I used the same code as for the simulation experiments to try and detect sender \gls{MAC} addresses. This worked reasonably well despite some problems. The results are shown in figure \ref{fig:warp-mcs-results}. I used \glspl{MCS} 0 to 5 with a total of 50 runs each.
 
@@ -276,6 +276,6 @@ Next, I used the same code as for the simulation experiments to try and detect s
 	\label{fig:warp-mcs-results}
 \end{figure}
 
-For \glspl{MCS} 0 and 1, the results were quite good. Although in most of the cases only one \gls{MAC} address could be detected correctly, investigations showed that: First, the correctly guessed address was transmitted by the same \gls{SDR} every time, hinting that there could be some environmental factors causing its signal to be received more strongly. Second, wrong guesses were often due to quite similar \gls{MAC} addresses, which are different only in a few bits.
+For \glspl{MCS} 0 and 1, the results were quite good. Although in most of the cases only one \gls{MAC} address could be detected correctly, investigations showed that the correctly guessed address was transmitted by the same \gls{SDR} every time. This hints that there could be some environmental factors causing its signal to be received more strongly. Another thing is that wrong guesses were often due to quite similar \gls{MAC} addresses, which were different in only a few bits.
 
 However, for higher \glspl{MCS}, sender detection seemed to fail. This is probably caused by real-world channel effects, that could not be simulated to a realistic extent.

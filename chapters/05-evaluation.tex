@@ -142,7 +142,7 @@ So far, all experiments were done in simulations with an ideal channel, meaning 
 
 Using Matlab, there are different models available that could be applied. First, I begin with applying \gls{AWGN} with different \glspl{SNR}. While \gls{AWGN} is not specifically modeled for IEEE 802.11 networks and will therefore not replicate channel conditions precisely, it is a good starting point. The \gls{SNR} is measured in decibel, and swept from $ -20 $ to $ 60 dB $.
 
-The results of the experiments are shown in figure \ref{fig:vary_awgn}. For each \gls{SNR} and every \gls{MCS}, 1000 experiment runs were performed}.\\
+The results of the experiments are shown in figure \ref{fig:vary_awgn}. For each \gls{SNR} and every \gls{MCS}, 1000 experiment runs were performed.\\
 
 Second, the Communications System Toolbox comes with \texttt{stdchan}, which supports the \texttt{802.11a} and \texttt{802.11g} channel types. These are suited quite well for this scenario. The channel models require some parameters, including the sampling frequency, Doppler spread, and \gls{RMS} delay spread $ t_{\text{RMS}} $. The delay spread was varied from 100 ns to 500 ns in steps of 50 ns. The usage of the stdchan filter is illustrated by listing \ref{lst:stdchan}:
 

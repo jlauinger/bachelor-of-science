@@ -57,7 +57,7 @@ for rate = 0:7
     figure(rate+1);
     bar(reshape(results(rate+1,:,:), 3, 3), 'stacked');
     title(sprintf("MCS %d", rate));
-    xlabel("AGWN SNR");
+    xlabel("TGn Channel Model");
     ylabel("# experiments");
     set(gca,'XTickLabel',{'Model-B', 'Model-D', 'Model-E'})
     legend("0 correct", "1 correct", "2 correct");

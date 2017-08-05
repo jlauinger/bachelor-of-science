@@ -5,7 +5,7 @@
 
 In this chapter, the proposed technique for detecting sender \gls{MAC} addresses during collisions is evaluated using several simulations as well as experiments on \gls{WARP} \glspl{SDR}.
 
-Possible questions and problems include the fact that with higher \glspl{MCS}, there might be not enough samples to correlate the rather short 6 byte \gls{MAC} address. Another interesting issue is the accuracy of the algorithm with increasing amounts of noise and fading.
+Possible questions and problems include the fact that with higher \glspl{MCS}, there might be not enough samples to correlate the rather short six byte \gls{MAC} address. Another interesting issue is the accuracy of the algorithm with increasing amounts of noise and fading.
 
 
 %% -----------------------------------------------------------------------------
@@ -60,7 +60,7 @@ All experiments used real-world \gls{MAC} addresses, as described in section \re
 
 \section{Real-World MAC Addresses}\label{sec:real-world-macs}
 
-\gls{MAC} addresses are 6 byte numbers, where the first 3 bytes are a vendor prefix, identifying the company that built the network interface. The remaining 3 bytes are a unique identifier for the specific hardware.
+\gls{MAC} addresses are six byte long numbers, where the first three bytes are a vendor prefix, identifying the company that built the network interface. The remaining three bytes are a unique identifier for the specific hardware.
 
 After initial tries with some artificial \gls{MAC} addresses in the form of \texttt{AB:CD:EF:12:34:56}, I switched to using a sample set of real-world \gls{MAC} addresses. This allowed for a closer simulation of an actual use-case for sender detection.\\
 
@@ -84,7 +84,7 @@ Intuitively, the overall sender detection accuracy should decrease for higher \g
 
 Second, a higher \gls{MCS} means that payload data gets mapped to complex points in the constellation plane that are less distinct from each other. Therefore, different data can be more similar under cross-correlation, making it harder to detect senders in the time-domain.\\
 
-To evaluate the detection algorithm's performance, I measured the correctness of detected \gls{MAC} addresses for each of the 8 available \glspl{MCS}. For every \gls{MCS}, 1000 runs were performed. The results are stacked sums of times where a completely correct pair of senders were guessed, times where only one of the senders was correct, and the number of failures, in the sense of both addresses being incorrect.
+To evaluate the detection algorithm's performance, I measured the correctness of detected \gls{MAC} addresses for each of the eight available \glspl{MCS}. For every \gls{MCS}, 1000 runs were performed. The results are stacked sums of times where a completely correct pair of senders were guessed, times where only one of the senders was correct, and the number of failures, in the sense of both addresses being incorrect.
 
 Figure \ref{fig:vary_mcs} shows the resulting plot. Different \glspl{MCS} are spread out on the x axis. The stacked bars show the number of experiments for each result category as described above. As expected, the detection accuracy decreases for higher \glspl{MCS}. It is worth mentioning that for low \glspl{MCS}, the performance is very good, better than I expected. Furthermore, it seems to decrease exponentially, but to justify this more data would be needed.
 
@@ -100,11 +100,11 @@ Figure \ref{fig:vary_mcs} shows the resulting plot. Different \glspl{MCS} are sp
 
 \section{Scrambler Initialization}\label{sec:ex-scrambler}
 
-As described in section \ref{sec:mac-and-phy}, the \gls{MAC} layer payload data is scrambled before any modulation on the physical layer is applied. The scrambling uses a 7 bit state register, where 0 is no valid state. Therefore, 127 unique scrambler initialization values are possible.
+As described in section \ref{sec:mac-and-phy}, the \gls{MAC} layer payload data is scrambled before any modulation on the physical layer is applied. The scrambling uses a seven bit state register, where 0 is no valid state. Therefore, 127 unique scrambler initialization values are possible.
 
 If the scrambler initialization is important for the sender detection technique, specifically if the modulated reference signals must use the same initialization as the received frames, the number of possible values linearly scales the algorithm's complexity. That is, for every cached \gls{MAC} address, \gls{MCS}, et cetera all scrambler initializations must be modulated and correlated. It is therefore very interesting to know whether this is the case, or whether the scrambler does not affect detection quality.\\
 
-Figure \ref{fig:vary_scrambler} shows the detection performance for different scrambler initializations over 1000 runs. The data is presented the same way as in the previous section. The stacked bar plots denote the number of runs with 0, 1, and 2 corrects guesses. For all experiments, the \gls{MCS} 0 was used. While the simulated received frame was modulated with scrambler initialization 1, correlation was calculated against 127 reference signals with different scrambler values.
+Figure \ref{fig:vary_scrambler} shows the detection performance for different scrambler initializations over 1000 runs. The data is presented the same way as in the previous section. The stacked bar plots denote the number of runs with zero, one, and two corrects guesses. For all experiments, the \gls{MCS} 0 was used. While the simulated received frame was modulated with scrambler initialization 1, correlation was calculated against 127 reference signals with different scrambler values.
 
 The results show that the scrambler initialization is very important for detection quality. While the performance is very good for the correct initialization value 1, for all other values the accuracy is low. However, related research mentions that some network interfaces seem to not choose the scrambler initialization at random \cite{noubir2016}, contradictory to the IEEE 802.11 standard. These devices use a static initialization for every frame, or increment the value after every transmission. This could be exploited by limiting the reference signals to the ones that are expected in the current network. This avoids time being spent on correlations that are unpromising. Since the \gls{MAC} addresses of stations in the network are cached, the interface types and vendors are known. This could lead to some interesting future work.
 
@@ -122,7 +122,7 @@ The results show that the scrambler initialization is very important for detecti
 
 Similar to the scrambler initialization, the \gls{MAC} header field preceding the sender \gls{MAC} address could also influence detection quality. This is due to the convolutional encoder as described in section \ref{sec:mac-and-phy}. Since it uses a state register to calculate the encoding, the output bits are dependent on previous input. Therefore, it could be necessary to address all possible values of preceding data in order to generate suitable reference signals for all MAC addresses. The field before the sender \gls{MAC} address in a data frame is the destination \gls{MAC} address. In the following experiment, I measured to which extent the value of the destination address affects the accuracy of my detection technique.\\
 
-Figure \ref{fig:vary_dest} shows the results in the same way as for the previous figures. Since the convolutional encoder uses a 7 bit state, only the last 7 bits of the destination \gls{MAC} address matter. After these last 7 bits, the register is synchronized to the same state, regardless of the preceding first 41 bits of the address. This makes up for a total of 128 different values that are evaluated with 1000 runs each. Unlike the scrambler initialization, results are presented for \gls{MCS} 1 here. At \gls{MCS} 0, there were no recognition errors at all, yielding a less interesting plot.
+Figure \ref{fig:vary_dest} shows the results in the same way as for the previous figures. Since the convolutional encoder uses a seven bit state, only the last seven bits of the destination \gls{MAC} address matter. After these last seven bits, the register is synchronized to the same state, regardless of the preceding first 41 bits of the address. This makes up for a total of 128 different values that are evaluated with 1000 runs each. Unlike the scrambler initialization, results are presented for \gls{MCS} 1 here. At \gls{MCS} 0, there were no recognition errors at all, yielding a less interesting plot.
 
 \begin{figure}[H]
 	\centering
@@ -156,7 +156,7 @@ rx = filter(chan, tx);
 
 The results of this experiment are shown in figure \ref{fig:vary_trms}. For each $ t_{\text{RMS}} $ value, 1000 runs were performed. The process was repeated for all eight \glspl{MCS}.\\
 
-Third, the WLAN System Toolbox comes with a number of specifically drafted IEEE 802.11 channel models. These are designed according to the IEEE 802.11 standard models described in the specification \cite{ieee2012}. There are 6 models (A to F), of which I used the following three:
+Third, the WLAN System Toolbox comes with a number of specifically drafted IEEE 802.11 channel models. These are designed according to the IEEE 802.11 standard models described in the specification \cite{ieee2012}. There are six models (A to F), of which I used the following three:
 
 \begin{itemize}
 	\item \textit{Model B}: typical large open space and office environments, no line-of-sight, 100 ns \gls{RMS} delay spread
@@ -164,7 +164,7 @@ Third, the WLAN System Toolbox comes with a number of specifically drafted IEEE 
 	\item \textit{Model E}: typical large open space (indoor and outdoor), no line-of-sight, 250 ns \gls{RMS} delay spread
 \end{itemize}
 
-I used the \texttt{wlanTGnChannel} class. Technically, this channel is designed to be used with IEEE 802.11 n high-throughput networks. However, the class supports configuration of \gls{MIMO} streams. I set those to 1 antenna for transmission and reception, respectively. This should provide appropriate conditions for \gls{SISO} 802.11 a/g networks.
+I used the \texttt{wlanTGnChannel} class. Technically, this channel is designed to be used with IEEE 802.11 n high-throughput networks. However, the class supports configuration of \gls{MIMO} streams. I set those to one antenna for transmission and reception, respectively. This should provide appropriate conditions for \gls{SISO} 802.11 a/g networks.
 
 The channel is used with Matlab code similar to listing \ref{lst:tgn}. As for the \texttt{stdchan} invocation, the sampling rate is passed to the function. I use path-loss and shadowing for fading, and configure \gls{SISO}.
 
@@ -256,7 +256,7 @@ For the real-world experiments, I deliberately caused frame collisions with the 
 
 To assess the basic mechanics of receiving collisions with the \glspl{SDR}, I applied cross-correlation to only one \gls{LTF} symbol instead of the \gls{MAC} addresses and plotted the results. They are presented in figure \ref{fig:warp_preamble_corr}. The collided frames were aligned with some offset for this experiment.
 
-While one group of spikes is slightly lower than the other, it is still easily possible to detect that there is a collision due to the 4 higher and 2 lower spikes caused by the two \glspl{LTF}. The higher level of noise in the beginning of the signal are probably caused by \gls{AGC} in the receiving \gls{SDR}. Since the \gls{MAC} addresses are located further into the signal, and only that part is correlated for sender detection, this noise should be no problem.
+While one group of spikes is slightly lower than the other, it is still easily possible to detect that there is a collision due to the four higher and two lower spikes caused by the two \glspl{LTF}. The higher level of noise in the beginning of the signal are probably caused by \gls{AGC} in the receiving \gls{SDR}. Since the \gls{MAC} addresses are located further into the signal, and only that part is correlated for sender detection, this noise should be no problem.
 
 \begin{figure}[H]
 	\centering

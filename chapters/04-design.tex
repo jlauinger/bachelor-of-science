@@ -19,7 +19,7 @@ The high-level design of a sender detector based on \gls{MAC} addresses is illus
 	\label{fig:blockdesign}
 \end{figure}
 
-First of all, it is important to decide which \gls{MAC} addresses should be tested when processing a received collision. Since \gls{MAC} addresses are 6 byte values, there are $2^{48} \approx 3 \cdot 10^{14}$ possible instances. Although some \gls{MAC} addresses are invalid because the first three bytes denote the network interface vendor, and not all values have been issued\footnote{http://standards-oui.ieee.org/oui.txt}, there are still by far too many to try out all of them for every collision.
+First of all, it is important to decide which \gls{MAC} addresses should be tested when processing a received collision. Since \gls{MAC} addresses are six byte values, there are $2^{48} \approx 3 \cdot 10^{14}$ possible instances. Although some \gls{MAC} addresses are invalid because the first three bytes denote the network interface vendor, and not all values have been issued\footnote{http://standards-oui.ieee.org/oui.txt}, there are still by far too many to try out all of them for every collision.
 
 Instead, I make use of the operating system's \gls{ARP} stack. During normal network operation, the kernel already keeps a cache of \gls{MAC} addresses that are reachable. This list is perfectly suited for detecting senders, as it is quite likely that a collision occurs between senders that are already in the network for some time.\\
 
@@ -137,7 +137,7 @@ As addressed in section \ref{sec:preamble-corr}, it is necessary to detect the o
 % Find peaks above a parametrized threshold
 lts_peaks = find(abs(correlation) > LTS_CORR_THRESHOLD*max(abs(correlation)));
 
-% Assuming two frames, there will be 4 high peaks
+% Assuming two frames, there will be four high peaks
 [~, C] = kmeans(lts_peaks', 4);
 uniq_lts_peaks = sort(floor(C))';
 

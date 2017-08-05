@@ -54,7 +54,7 @@ This data suggests that the real-time part of the algorithm, which is limited to
 
 The calculation of \gls{CRC} checksums is time-consuming, yet not required for the algorithm. Instead, dummy checksums can be used as described in section \ref{sec:matlab-impl}. Therefore, modulation of reference signals scales with the performance of the \texttt{wlanNonHTData} function.
 
-Since the modulation of reference signals can be done ahead of time, the only important case is when a new client connects. This requires 1016 new signals to be created for the new \gls{MAC} address, which takes about 5 minutes without any parallelization. With more CPU cores however, this is manageable.
+Since the modulation of reference signals can be done ahead of time, the only important case is when a new client connects. This requires 1016 new signals to be created for the new \gls{MAC} address, which takes about five minutes without any parallelization. With more CPU cores however, this is manageable.
 
 
 %% -----------------------------------------------------------------------------

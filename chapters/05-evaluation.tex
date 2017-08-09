@@ -2,6 +2,7 @@
 
 \chapter{Evaluation}\label{ch:evaluation}
 \glsresetall % Resets all acronyms to not used
+\glsunset{IEEE} \glsunset{MAC}
 
 In this chapter, the proposed technique for detecting sender \gls{MAC} addresses during collisions is evaluated using several simulations as well as experiments on \gls{WARP} \glspl{SDR}.
 
@@ -84,16 +85,16 @@ Intuitively, the overall sender detection accuracy should decrease for higher \g
 
 Second, a higher \gls{MCS} means that payload data gets mapped to complex points in the constellation plane that are less distinct from each other. Therefore, different data can be more similar under cross-correlation, making it harder to detect senders in the time-domain.\\
 
-To evaluate the detection algorithm's performance, I measured the correctness of detected \gls{MAC} addresses for each of the eight available \glspl{MCS}. For every \gls{MCS}, 1000 runs were performed. The results are stacked sums of times where a completely correct pair of senders were guessed, times where only one of the senders was correct, and the number of failures, in the sense of both addresses being incorrect.
-
-Figure \ref{fig:vary_mcs} shows the resulting plot. Different \glspl{MCS} are spread out on the x axis. The stacked bars show the number of experiments for each result category as described above. As expected, the detection accuracy decreases for higher \glspl{MCS}. It is worth mentioning that for low \glspl{MCS}, the performance is very good, better than I expected. Furthermore, it seems to decrease exponentially, but to justify this more data would be needed.
+To evaluate the detection algorithm's performance, I measured the correctness of detected \gls{MAC} addresses for each of the eight available \glspl{MCS}. For every \gls{MCS}, 1000 runs were performed with a new randomly chosen sender pair on each run. The results are stacked sums of runs where a completely correct pair of senders were guessed, times where only one of the senders was correct, and the number of failures, in the sense of both addresses being incorrect.
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[height=6.5cm]{gfx/plots/mcs}
+	\includegraphics[height=4.5cm]{gfx/plots/mcs}
 	\caption{Results: Varying MCS for 1000 Runs}
 	\label{fig:vary_mcs}
 \end{figure}
+
+Figure \ref{fig:vary_mcs} shows the resulting plot. Different \glspl{MCS} are spread out on the x axis. The stacked bars show the number of experiments for each result category as described above. As expected, the detection accuracy decreases for higher \glspl{MCS}. It is worth mentioning that for low \glspl{MCS}, the performance is very good, better than I expected. Furthermore, it seems to decrease exponentially, but to justify this more data would be needed.
 
 
 %% -----------------------------------------------------------------------------
@@ -106,27 +107,29 @@ If the scrambler initialization is important for the sender detection technique,
 
 Figure \ref{fig:vary_scrambler} shows the detection performance for different scrambler initializations over 1000 runs. The data is presented the same way as in the previous section. The stacked bar plots denote the number of runs with zero, one, and two corrects guesses. For all experiments, the \gls{MCS} 0 was used. While the simulated received frame was modulated with scrambler initialization 1, correlation was calculated against 127 reference signals with different scrambler values.
 
-The results show that the scrambler initialization is very important for detection quality. While the performance is very good for the correct initialization value 1, for all other values the accuracy is low. However, related research mentions that some network interfaces seem to not choose the scrambler initialization at random \cite{noubir2016}, contradictory to the IEEE 802.11 standard. These devices use a static initialization for every frame, or increment the value after every transmission. This could be exploited by limiting the reference signals to the ones that are expected in the current network. This avoids time being spent on correlations that are unpromising. Since the \gls{MAC} addresses of stations in the network are cached, the interface types and vendors are known. This could lead to some interesting future work.
-
 \begin{figure}[H]
 	\centering
-	\includegraphics[height=6.5cm]{gfx/plots/scrambler}
+	\includegraphics[height=4.5cm]{gfx/plots/scrambler}
 	\caption[Results: Varying Scrambler Initialization for 1000 Runs]{Results: Varying Scrambler Initialization for 1000 Runs at MCS 0}
 	\label{fig:vary_scrambler}
 \end{figure}
+
+The results show that the scrambler initialization is very important for detection quality. While the performance is very good for the correct initialization value 1, for all other values the accuracy is low. However, related research mentions that some network interfaces seem to not choose the scrambler initialization at random \cite{noubir2016}, contradictory to the IEEE 802.11 standard. These devices use a static initialization for every frame, or increment the value after every transmission. This could be exploited by limiting the reference signals to the ones that are expected in the current network. This avoids time being spent on correlations that are unpromising. Since the \gls{MAC} addresses of stations in the network are cached, the interface types and vendors are known. This could lead to some interesting future work.
+
+Another important task is to identify when the correct scrambler initialization for a given frame is used and hence a sender guess is meaningful. Since the initialization values of collided frames are unknown, every possible value has to be tried and correlated. The sender guess is based on highest probability, meaning there is a guess regardless of whether a correlation is using the right scrambling sequence. Therefore, receivers need to detect which sender guess is the most promising one. This should be possible by using a threshold for cross-correlation peaks and could be explored in following work.
 
 
 %% -----------------------------------------------------------------------------
 
 \section{Preceding Data Variations}\label{sec:ex-destination}
 
-Similar to the scrambler initialization, the \gls{MAC} header field preceding the sender \gls{MAC} address could also influence detection quality. This is due to the convolutional encoder as described in section \ref{sec:mac-and-phy}. Since it uses a state register to calculate the encoding, the output bits are dependent on previous input. Therefore, it could be necessary to address all possible values of preceding data in order to generate suitable reference signals for all MAC addresses. The field before the sender \gls{MAC} address in a data frame is the destination \gls{MAC} address. In the following experiment, I measured to which extent the value of the destination address affects the accuracy of my detection technique.\\
+Similar to the scrambler initialization, the \gls{MAC} header field preceding the sender \gls{MAC} address could also influence detection quality. This is due to the convolutional encoder as described in section \ref{sec:mac-and-phy}. Since it uses a state register to calculate the encoding, the output bits are dependent on previous input. Therefore, it could be necessary to address all possible values of preceding data in order to generate suitable reference signals for all MAC addresses. The field before the sender \gls{MAC} address in a data frame is the destination \gls{MAC} address. In the following experiment, I measured to which extent the value of the destination address affects the accuracy of my detection technique. The scrambler initialization was 1 for all runs of this experiment.\\
 
 Figure \ref{fig:vary_dest} shows the results in the same way as for the previous figures. Since the convolutional encoder uses a seven bit state, only the last seven bits of the destination \gls{MAC} address matter. After these last seven bits, the register is synchronized to the same state, regardless of the preceding first 41 bits of the address. This makes up for a total of 128 different values that are evaluated with 1000 runs each. Unlike the scrambler initialization, results are presented for \gls{MCS} 1 here. At \gls{MCS} 0, there were no recognition errors at all, yielding a less interesting plot.
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[height=5.5cm]{gfx/plots/destination}
+	\includegraphics[height=4.5cm]{gfx/plots/destination}
 	\caption[Results: Varying Destination \gls{MAC} Address for 1000 Runs]{Results: Varying Destination \gls{MAC} Address for 1000 Runs at MCS 1}
 	\label{fig:vary_dest}
 \end{figure}
@@ -267,12 +270,12 @@ While one group of spikes is slightly lower than the other, it is still easily p
 
 The results of the preamble correlation are promising. They show that indeed a collision of two frames is captured by the receiving \gls{SDR}, and that cross-correlation in the time-domain can in fact distinguish both \glspl{LTF}.\\
 
-Next, I used the same code as for the simulation experiments to try and detect sender \gls{MAC} addresses. This worked reasonably well despite some problems. The results are shown in figure \ref{fig:warp-mcs-results}. I used \glspl{MCS} 0 to 5 with a total of 50 runs each.
+Next, I used the same code as for the simulation experiments to try and detect sender \gls{MAC} addresses. This worked reasonably well despite some problems. The results are shown in figure \ref{fig:warp-mcs-results}. I used \glspl{MCS} 0 to 5 with a total of 10 runs each.
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[height=5.5cm]{gfx/plots/warp-mcs}
-	\caption{Results: Varying MCS for 50 Runs on WARP SDRs}
+	\includegraphics[height=4.5cm]{gfx/plots/warp-mcs}
+	\caption{Results: Varying MCS for 10 Runs on WARP SDRs}
 	\label{fig:warp-mcs-results}
 \end{figure}
 

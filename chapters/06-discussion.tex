@@ -2,6 +2,7 @@
 
 \chapter{Discussion}\label{ch:Discussion}
 \glsresetall % Resets all acronyms to not used
+\glsunset{IEEE} \glsunset{MAC}
 
 This chapter discusses the results of the evaluation, and their implications. Finally, future work is proposed to iterate on the findings.
 
@@ -54,7 +55,7 @@ This data suggests that the real-time part of the algorithm, which is limited to
 
 The calculation of \gls{CRC} checksums is time-consuming, yet not required for the algorithm. Instead, dummy checksums can be used as described in section \ref{sec:matlab-impl}. Therefore, modulation of reference signals scales with the performance of the \texttt{wlanNonHTData} function.
 
-Since the modulation of reference signals can be done ahead of time, the only important case is when a new client connects. This requires 1016 new signals to be created for the new \gls{MAC} address, which takes about five minutes without any parallelization. With more CPU cores however, this is manageable.
+Since the modulation of reference signals can be done ahead of time, the only important case is when a new client connects. This requires 1016 new signals to be created for the new \gls{MAC} address, which takes about five minutes without any parallelization. With more CPU cores however, it should be possible to reduce the time to an acceptable limit.
 
 
 %% -----------------------------------------------------------------------------
@@ -80,15 +81,16 @@ There are many improvements and differences introduced with the 802.11 n standar
 
 It would be interesting whether the here proposed sender detection algorithm can be adapted to work in a \gls{MIMO} environment. In the current form, this is unfortunately quite unlikely. On the one hand, collision detection and especially the determination of relevant sample periods containing the sender \gls{MAC} addresses must be adjusted to the physical layer high-throughput frame format used by modern standards \cite{ieee2012}.
 
-On the other hand, using multiple streams implies the possibility that the sender's \gls{MAC} address gets fragmented. While some bits can be transmitted in the first stream, the remaining bits could be sent in various other streams. This renders simple cross-correlation with \texttt{xcorr} directly on the received sample vector useless.
+On the other hand, using multiple streams implies the possibility that the sender's \gls{MAC} address gets fragmented. While some bits can be transmitted in the first stream, the remaining bits could be sent in various other streams. This renders simple cross-correlation with \texttt{xcorr} directly on the received sample vector ineffective.
 
 
 %% -----------------------------------------------------------------------------
 
 \section{Future Work}
 
-The preceding discussion reveals some serious problems with the proposed algorithm for sender \gls{MAC} address detection. The fundamental principles however look promising. There are remaining questions that should be addressed in further research.\\
+The preceding discussion reveals some serious problems with the proposed algorithm for sender \gls{MAC} address detection. The fundamental principles however look promising. There are remaining questions that should be addressed in further research. Some of them are presented in this section.\\
 
+\clearpage
 \textit{Quantitative Noise Evaluation with SDRs}\\
 
 As mentioned in section \ref{sec:detection-quality}, noise from other stations in the network could cause the correlation of \gls{MAC} addresses to degrade. Whether this is the case, and to which extent it influences detection performance, could be evaluated in a quantitative analysis. As a first step, the experiments with \gls{WARP} \glspl{SDR} should be reproduced in a radiation-free environment such as a Faraday cage. If the technique performs better in that case, additional IEEE 802.11 devices can be added one at a time, while continuously measuring the algorithm's accuracy.\\

@@ -35,7 +35,7 @@ $$ O(\text{"Sender ~Detection"}) = O(n \cdot 8 \cdot 127) = O(1016 n) = O(n) $$\
 
 The algorithm scales linearly with the amount of stations on the IEEE 802.11 network. This is optimal since every station is a possible sender which has to be considered when decoding a collision. It is however debatable whether the linear factor of 1016 is feasible on commodity computing hardware. That would be necessary to enable broad usage of the detection technique across many different devices as mentioned in chapter \ref{ch:introduction}. A quantitative analysis is therefore desirable.\\
 
-I used the Matlab profiler to gather data on the execution speeds of different parts of the algorithm. These measurements were done on a consumer laptop, featuring a 2-core 3rd-generation Intel i3 processor with Hyper-Threading at 1.9 GHz. The results are summarized in table \ref{tbl:timing}.
+I used the Matlab profiler to gather data on the execution speeds of different parts of the algorithm. These measurements were done on a consumer laptop, featuring a 2-core 3rd-generation Intel i3 processor with Hyper-Threading at 1.9 GHz. The results are summarized in Table \ref{tbl:timing}.
 
 \begin{table}[ht]
 	\centering
@@ -62,22 +62,22 @@ Since the modulation of reference signals can be done ahead of time, the only im
 
 \section{Detection Quality}\label{sec:detection-quality}
 
-The results of my simulations are promising. While admittedly only IEEE 802.11 a/g networks were evaluated, as section \ref{sec:mimo} discusses further, detection accuracy was quite high even for higher \glspl{MCS}.\\
+The results of my simulations are promising. While admittedly only IEEE 802.11a/g networks were evaluated, as section \ref{sec:mimo} discusses further, detection accuracy was quite high even for higher \glspl{MCS}.\\
 
 In contrast to the scrambler initialization, the value of the preceding destination \gls{MAC} address had hardly any effect on detection quality, as described in section \ref{sec:ex-destination}. Most likely this is due to the relatively small state of the convolutional encoder compared to the size of a \gls{MAC} address. While the encoder considers the last seven seen bits for its output, a \gls{MAC} address contains 48 bits of data.
 
 Regardless of the preceding destination \gls{MAC} address, the convolutional encoder state is synchronized after the first seven bits of the sender address. This is only a small fraction of about 15 \%. In addition to that, the first seven bits are part of the vendor prefix, which is already to some extent likely to be the same across multiple stations on the network. Therefore, convolutional encoding poses no critical impact on sender detection performance.\\
 
-Using real-world \glspl{SDR}, the detection technique performed reasonably well at least for lower \glspl{MCS}. This is a particularly nice result as these experiments were conducted in an environment where production wireless traffic was present. Although there was some decrease in detection quality, this shows that the algorithm is capable of successfully recognizing sender \gls{MAC} addresses even when a reasonably high network load is present.
+Using real-world \glspl{SDR}, the detection technique performed reasonably well at least for lower \glspl{MCS}. This is a particularly nice result as these experiments were conducted in an environment where regular wireless traffic was present. Although there was some decrease in detection quality, this shows that the algorithm is capable of successfully recognizing sender \gls{MAC} addresses even when a reasonably high network load is present.
 
 
 %% -----------------------------------------------------------------------------
 
-\section{IEEE 802.11 n/ac/ax Networks}\label{sec:mimo}
+\section{IEEE 802.11n/ac/ax Networks}\label{sec:mimo}
 
-This thesis only covered sender detection for IEEE 802.11 a/g networks. However, such networks are rarely used nowadays due to their low throughput. Modern standards such as IEEE 802.11 n/ac, and the upcoming 802.11 ax are much more relevant.
+This thesis only covered sender detection for IEEE 802.11a/g networks. However, such networks are rarely used nowadays due to their low throughput. Modern standards such as IEEE 802.11n/ac, and the upcoming 802.11ax are much more relevant.
 
-There are many improvements and differences introduced with the 802.11 n standard. One of the most important with respect to time-domain sample cross-correlation is the adoption of \gls{MIMO} transmission. With this technique, every sender and receiver uses multiple antennas, instead of just one as with 802.11 a/g. This allows for a much higher spectral efficiency, meaning that more bits can be transmitted per used bandwidth \cite{perahia2013}. However, the overall system complexity and multi-path effects in particular make it much more difficult to apply naive time-domain correlation.\\
+There are many improvements and differences introduced with the 802.11n standard. One of the most important ones with respect to time-domain sample cross-correlation is the adoption of \gls{MIMO} transmission. With this technique, every sender and receiver uses multiple antennas, instead of just one as with 802.11a/g. This allows for a much higher spectral efficiency, meaning that more bits can be transmitted per used bandwidth \cite{perahia2013}. However, the overall system complexity and multi-path effects in particular make it much more difficult to apply naive time-domain correlation.\\
 
 It would be interesting whether the here proposed sender detection algorithm can be adapted to work in a \gls{MIMO} environment. In the current form, this is unfortunately quite unlikely. On the one hand, collision detection and especially the determination of relevant sample periods containing the sender \gls{MAC} addresses must be adjusted to the physical layer high-throughput frame format used by modern standards \cite{ieee2012}.
 
@@ -95,12 +95,18 @@ The preceding discussion reveals some serious problems with the proposed algorit
 
 As mentioned in section \ref{sec:detection-quality}, noise from other stations in the network could cause the correlation of \gls{MAC} addresses to degrade. Whether this is the case, and to which extent it influences detection performance, could be evaluated in a quantitative analysis. As a first step, the experiments with \gls{WARP} \glspl{SDR} should be reproduced in a radiation-free environment such as a Faraday cage. If the technique performs better in that case, additional IEEE 802.11 devices can be added one at a time, while continuously measuring the algorithm's accuracy.\\
 
-\textit{MIMO and IEEE 802.11 n/ac/ax}\\
+\textit{MIMO and IEEE 802.11n/ac/ax}\\
 
-In a further step, the technique could be adapted to current IEEE 802.11 standards, such as 802.11 n/ac. This involves finding a solution to the problems with \gls{MIMO}, as described in section \ref{sec:mimo}, especially the fragmentation of \gls{MAC} address bits onto different spatial transmission streams.\\
+In a further step, the technique could be adapted to current IEEE 802.11 standards, such as 802.11n/ac. This involves finding a solution to the problems with \gls{MIMO}, as described in section \ref{sec:mimo}, especially the fragmentation of \gls{MAC} address bits onto different spatial transmission streams.\\
 
 \textit{Implementation on Mobile Operating Systems}\\
 
 In order to be used with possible new \glspl{DCF}, it is interesting how the sender detection algorithm performs on mobile operating systems, Android and Apple iOS in particular. With the increasing amount of smartphone usage nowadays, a significant percentage of stations in IEEE 802.11 networks are based on these operating systems. While desktop operating systems are also very important, mobile platforms face the additional issue that due to limited battery power, calculations are inherently more expensive.
 
-Future work could implement sender detection on collisions as a kernel module for mobile platforms and evaluate its performance and accuracy. A special focus should be set to complexity, power usage, and overall implications on device usability and responsiveness.
+Future work could implement sender detection on collisions as a kernel module for mobile platforms and evaluate its performance and accuracy. The Nexmon project \footnote{https://nexmon.org} could be a great framework for this. A special focus should be set to complexity, power usage, and overall implications on device usability and responsiveness.\\
+
+\textit{Generalization of the Approach}\\
+
+I focused on collisions between two stations in this thesis. However, the described detection technique should be applicable to the general case. As more senders collide, more \gls{LTF} correlation spikes are captured. This allows to count how many stations are involved in a collision. A receiver can then take the appropriate number of \gls{MAC} addresses sorted by their correlation peaks to guess all senders.
+
+Furthermore, instead of simply guessing the \gls{MAC} addresses with highest correlation, future work could introduce an algorithm that uses the exact correlation values and ratios. This could maybe be combined with a learning-based approach to prefer the most useful features based on the current environment and conditions.

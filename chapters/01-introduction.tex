@@ -9,17 +9,17 @@
 
 \section{Motivation}
 
-In today's modern society, fast mobile networking has become indispensable. A huge and ever growing number of devices depend on, or at least support, wireless local area networks. Most of them follow a protocol from the \gls{IEEE} 802.11 standards family. As technology improves, new standards are added and enhancements to the existing ones are proposed, making the network faster and more reliable. We have become accustomed to using such networks for a variety of activities, including mobile video streaming or wireless internet access on laptops.
+In today's modern society, fast mobile networking has become indispensable. A huge and ever growing number of devices depend on, or at least support, wireless local area networks. Most of them follow a protocol from the \gls{IEEE} 802.11 standards family. As technology improves, new standards are added and enhancements to the existing ones are proposed, making the network faster and more reliable. We have become accustomed to using such networks for a variety of activities, including mobile video streaming or wireless Internet access on laptops.
 
-There are a number of known problems with the \gls{IEEE} 802.11 protocols. One of them is the possibility of data frames colliding due to the random access scheme \cite{bianchi2000}. Such a collision is caused by two stations transmitting at the same time, resulting in an illegible frame at the receiver. Although previous research has suggested some techniques to reduce or even decode collisions, as described in the related work section, the receiver often has to disregard the frame and wait for a retransmission.\\
+There are a number of known problems with the \gls{IEEE} 802.11 protocols. One of them is the possibility of data frames colliding due to the random access scheme \cite{bianchi2000}. A collision occurs when two stations transmit at the same time, resulting in an illegible frame at the receiver. Although previous research has suggested some techniques to reduce or even decode collisions, as described in the related work section, the receiver often has to disregard the frame and wait for a retransmission.\\
 
-While it is quite easy to merely detect the existence of a collision most of the time, detecting which exact stations were transmitting is considered difficult \cite{choi2013, keene2010}. However, having this information could be beneficial for the operation of the network in multiple ways.
+While it is quite easy to merely detect the existence of a collision most of the time, detecting which exact stations were transmitting is considered difficult \cite{choi2013, keene2010}. However, this information could be beneficial for the operation of the network in multiple ways.
 
 First, new coordination functions could be developed, which leverage the knowledge about colliding senders to determine which station should transmit next. This could for example mean that instead of retransmitting a frame when the acknowledgment from the receiver is missing, a station would pause sending for some time. All other stations on the network could compute the next sender, potentially preventing a new collision from occurring if the condition that led to the initial problem is somehow correlated to that sender.
 
 Second, it could be used to create statistics about which senders participate in collisions more often than others, potentially relating this information with parameters like hardware vendor, operating system, physical location, or others. This could also be done in real-time, providing a means to monitoring a network and thus allowing the administrator to automatically exclude stations that cause disturbances in the network.\\
 
-In this thesis, I propose a technique to recognize the senders of a collided frame based on sample cross-correlation in the time-domain, and evaluate it using both simulations and software-defined radios.
+In this thesis, I propose a technique to recognize the senders of a collided frame based on sample cross-correlation in the time domain, and evaluate it using both simulations and software-defined radios.
 
 \clearpage
 
@@ -33,7 +33,7 @@ The main contributions of this thesis are:
 \begin{enumerate}
 	\item \textit{Design and Implementation of a MAC Address Recognition Technique}
 
-	I describe a design for an algorithm that allows to detect transmitting stations involved in a collision at the receiver. The technique uses a cache of \gls{MAC} addresses as seen in the network to pre-compute time-domain representations of frames. When a collision is received, complex samples are cross-correlated to the available signal pool to detect the most likely sender.
+	I describe a design for an algorithm that allows to detect transmitting stations involved in a collision at the receiver. The technique uses a cache of \gls{MAC} addresses as seen in the network to pre-compute time-domain representations of frames. When a collision occurs, complex samples are cross-correlated to the available signal pool to detect the most likely collided nodes.
 
 	The algorithm is implemented as a proof-of-concept in Matlab. All simulations are based on that code.
 

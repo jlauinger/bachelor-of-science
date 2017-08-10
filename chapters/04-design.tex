@@ -11,7 +11,7 @@ This chapter proposes a method of detecting \gls{MAC} addresses through sample c
 
 \section{High-Level Sender Detector Design}
 
-The high-level design of a sender detector based on \gls{MAC} addresses is illustrated in Figure \ref{fig:blockdesign}. From the beginning of my work until the final version, multiple design choices have changed. These and their reasons are depicted in detail in Chapter 5. The overall concept has however remained unmodified.
+The high-level design of a sender detector based on \gls{MAC} addresses is illustrated in Figure \ref{fig:blockdesign}. From the beginning of my work until the final version, multiple design choices changed. These and their reasons are depicted in detail in Chapter 5. The overall concept has however remained unmodified.
 
 \begin{figure}[H]
 	\centering
@@ -64,7 +64,7 @@ Knowing when the frames start is important for sender detection. Since the \gls{
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=\textwidth]{gfx/plots/preamble}
-	\caption{Cross Correlation of Collision Samples with Long Training Field}
+	\caption{Cross-Correlation of Collision Samples with Long Training Field}
 	\label{fig:preamble-corr}
 \end{figure}
 
@@ -124,7 +124,7 @@ The core of the Matlab implementation is cross-correlation. Using the Signal Pro
 
 Analyzing the performance of my implementation revealed that most time was not spent on cross-correlation, but on the generation of the reference signal pool. I improved this code by applying the following optimizations.
 
-First, since the sender detection only relies on correlating those samples that contain the \gls{MAC} address, as described in section \ref{sec:mac-periods}, most of the generated signal is discarded anyways. This means that it is unnecessary to spend valuable time on calculating the \gls{MAC} layer checksum, which is stored after the payload data. I simple use a placeholder value of 0x42424242 for the checksum. Furthermore, I do not generate the preamble, namely the Training and Signal Fields. This can be done by using the \texttt{wlanNonHTData} function from the WLAN System Toolbox. This function merely modulates the Data Field, in contrast to the \texttt{wlanWaveformGenerator} function.
+First, since the sender detection only relies on correlating those samples that contain the \gls{MAC} address, as described in section \ref{sec:mac-periods}, most of the generated signal is discarded anyways. This means that it is unnecessary to spend valuable time on calculating the \gls{MAC} layer checksum, which is stored after the payload data. I simply use a placeholder value of 0x42424242 for the checksum. Furthermore, I do not generate the preamble, namely the Training and Signal Fields. This can be done by using the \texttt{wlanNonHTData} function from the WLAN System Toolbox. This function merely modulates the Data Field, in contrast to the \texttt{wlanWaveformGenerator} function.
 
 Second, I store the reference signals in a cache that is reused in as many consecutive experiments as possible. All experiments were repeated for at least 100 runs. Since the reference pool remained the same for all repetitions, using a shared variable for the entire set almost cut the cost of a higher sample size to zero. This is because in relation to modulating a signal, calculating cross-correlations consumes several orders of magnitude less time (about 0.2 ms compared to 650 ms). This is good news because in a real-world application, the generation of reference signals can be done ahead of time, and signals under test do not have to be modulated since they are received already in the time domain.
 
@@ -161,7 +161,7 @@ ind1.stf = ind1.ltf - 320;
 ind1.payload = ind1.sig + 160;
 \end{lstlisting}
 
-The \texttt{meshgrid} function then calculates a two-dimensional table of all possible offsets between every two peaks. Using the \texttt{find} function, I look for offsets that equal the length of one training symbol with a 20 percent margin. This margin makes the algorithm a bit more reliable against slight timing imprecision. The offset between the collided frames is the delay between these symbol matches.
+The \texttt{meshgrid} function then calculates a two-dimensional table of all possible offsets between each two peaks. Using the \texttt{find} function, I look for offsets that equal the length of one training symbol with a 20 percent margin. This margin makes the algorithm a bit more reliable against slight timing imprecision. The offset between the collided frames is the delay between these symbol matches.
 
 Lastly, the signal field sample indices are calculated as the last symbol's correlation peak plus the length of that symbol, which is 128 samples at 40 MHz sampling rate. Start indices of the \gls{LTF}, \gls{STF}, and Data Field are deduced accordingly.\\
 

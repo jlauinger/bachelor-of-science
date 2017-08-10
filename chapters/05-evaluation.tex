@@ -6,7 +6,7 @@
 
 In this chapter, the proposed technique for detecting sender \gls{MAC} addresses during collisions is evaluated using several simulations as well as experiments on \gls{WARP} \glspl{SDR}.
 
-Possible questions and problems include the fact that with higher \glspl{MCS}, there might be not enough samples to correlate the rather short six byte \gls{MAC} address. Another interesting issue is the accuracy of the algorithm with increasing amounts of noise and fading.
+Possible questions and problems include the fact that with higher \glspl{MCS}, there might not be enough samples to correlate the rather short six byte \gls{MAC} address. Another interesting issue is the accuracy of the algorithm with increasing amounts of noise and fading.
 
 
 %% -----------------------------------------------------------------------------
@@ -31,7 +31,7 @@ Due to the way \gls{OFDM} works, a received signal will contain a variety of fre
 \begin{figure}[ht]
 	\centering
 	\includegraphics[width=8cm]{gfx/images/freqd-correlation}
-	\caption{Cross Correlation of Frequency-Domain Symbols after Channel}
+	\caption{Cross-Correlation of Frequency-Domain Symbols after Channel}
 	\label{fig:freqd-corr}
 \end{figure}
 
@@ -130,7 +130,7 @@ Figure \ref{fig:vary_dest} shows the results in the same way as for the previous
 \begin{figure}[H]
 	\centering
 	\includegraphics[height=4.5cm]{gfx/plots/destination}
-	\caption[Results: Varying Destination \gls{MAC} Address for 1000 Runs]{Results: Varying Destination \gls{MAC} Address for 1000 Runs at MCS 1}
+	\caption[Results: Varying Destination MAC Address for 1000 Runs]{Results: Varying Destination MAC Address for 1000 Runs at MCS 1}
 	\label{fig:vary_dest}
 \end{figure}
 
@@ -246,7 +246,7 @@ Lastly, I used \glspl{SDR} instead of pure software simulations to evaluate the 
 	\label{fig:warp-layout}
 \end{figure}
 
-The experiments were carried out in a typical office building. This means that there were multiple IEEE 802.11 networks with several dozens of connected clients. I used a standard WLAN channel and no electromagnetic shielding.\\
+The experiments were carried out in a typical office building. This means that there were multiple IEEE 802.11 networks with several dozens of connected clients. I used the standard WLAN channel 11 and no electromagnetic shielding.\\
 
 Since the \gls{WARP} boards use a sampling frequency of 40 MHz, but the Matlab WLAN System Toolbox creates time-domain samples with a 20 MHz sampling rate, I used interpolation to adapt frequencies. This is done with the built-in \texttt{resample} Matlab function. Listing \ref{lst:resample} illustrates the process.
 
@@ -255,7 +255,7 @@ Since the \gls{WARP} boards use a sampling frequency of 40 MHz, but the Matlab W
 tx1 = resample(tx1, 40, 20);
 \end{lstlisting}
 
-For the real-world experiments, I deliberately caused frame collisions with the same scrambler initialization and destination \gls{MAC} addresses, and used \gls{MCS} 0. This means that in principal everything was the same as for the most basic simulation experiments.
+For the real-world experiments, I deliberately caused frame collisions with the same scrambler initialization and destination \gls{MAC} addresses. This means that in principal everything was the same as for the most basic simulation experiments.
 
 To assess the basic mechanics of receiving collisions with the \glspl{SDR}, I applied cross-correlation to only one \gls{LTF} symbol instead of the \gls{MAC} addresses and plotted the results. They are presented in Figure \ref{fig:warp_preamble_corr}. The collided frames were aligned with some offset for this experiment.
 

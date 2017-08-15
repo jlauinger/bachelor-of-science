@@ -2,6 +2,7 @@
 
 \usepackage[utf8]{inputenc}
 \usepackage{graphicx}
+\usepackage{subfig}
 \usepackage{multicol}
 \usepackage[most]{tcolorbox}
 \usepackage{wasysym}
@@ -26,10 +27,11 @@
 	\setlength\itemsep{1em}
 	\item Motivation
 	\item Background
+	\item Related Work
 	\item Detector Design
-	\item Results
+	\item Evaluation Results
 	\item Live Demo
-	\item Conclusions
+	\item Discussion \& Conclusion
 \end{itemize}
 \end{frame}
 
@@ -38,7 +40,189 @@
 \frametitle{Motivation}
 \begin{itemize}
 	\setlength\itemsep{1em}
-	\item PO 2009 \cite{ieee2012}
+	\item Collisions exist in IEEE 802.11 networks despite counter-measures
+	\item Easy to spot a collision
+	\item Hard to detect \textbf{which senders} collided \cite{choi2013, keene2010}
+	\item Useful for new coordination functions
+	\item Example: A and B collide $\rightarrow$ C is next up for sending
+	\item Also: statistics, network monitoring
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Background}
+\begin{centering}
+	\includegraphics[width=8.5cm]{assets/phy-format}\\
+	\vspace{0.3cm}
+	\includegraphics[width=\textwidth]{assets/mac-format}\\
+	\small Figures: \cite{ieee2012} \normalsize\\~\\
+\end{centering}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Related Work}
+\begin{itemize}
+	\setlength\itemsep{1em}
+	\item ZigZag \cite{gollakota2008} Collision Decoding
+	\item Onion Decoding \cite{wang2010} for Broadcast Frames
+	\item ReCoder \cite{meng2015} Cross-Correlation Neighbor Discovery
+	\vspace{0.2cm}
+	\item Problem: MAC Layer Implementation Change
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Detector Design}
+\begin{centering}
+	\vspace{0.7cm}
+	\includegraphics[width=\textwidth]{assets/detector-block-design}\\
+\end{centering}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Detect a Collision}
+\begin{centering}
+	\includegraphics[width=\textwidth]{assets/preamble}\\
+\end{centering}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Evaluation}
+\begin{itemize}
+	\setlength\itemsep{1em}
+	\item Simulation and WARP SDR Experiments
+	\item Implementation Optimizations:
+	\begin{itemize}
+		\item Placeholder Frame Check Sequence (FCS) 0x42424242
+		\item No Preamble Modulation
+		\item Reference Signal Cache
+	\end{itemize}
+	\item Evaluation:
+	\begin{itemize}
+		\item Multiple Experiment Runs
+		\item Different Sender MAC Addresses
+		\item Count Runs with \{0,1,2\} Correct Guesses
+		\item Plot Stacked Sums
+	\end{itemize}
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Results: Different MCSs}
+\begin{centering}
+	\includegraphics[width=\textwidth]{../../gfx/plots/mcs}\\
+\end{centering}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Results: Scrambler Initialization}
+\begin{centering}
+	\includegraphics[width=11cm]{../../gfx/plots/scrambler}\\
+\end{centering}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Results: Destination MAC Address}
+\begin{centering}
+	\includegraphics[width=11cm]{../../gfx/plots/destination}\\
+\end{centering}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Results: AWGN Channel}
+	\centering
+	\vspace{-0.3cm}
+	\begin{tabular}{cc}
+		\includegraphics[height=0.52\textheight]{../../gfx/plots/awgn-mcs0} &
+		\includegraphics[height=0.52\textheight]{../../gfx/plots/awgn-mcs2} \\
+		\includegraphics[height=0.52\textheight]{../../gfx/plots/awgn-mcs4} &
+		\includegraphics[height=0.52\textheight]{../../gfx/plots/awgn-mcs6} \\
+	\end{tabular}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Results: stdchan t$_\text{RMS}$}
+\begin{figure}[H]
+	\centering
+	\vspace{-0.5cm}
+	\begin{tabular}{cc}
+		\includegraphics[height=0.52\textheight]{../../gfx/plots/trms-mcs0} &
+		\includegraphics[height=0.52\textheight]{../../gfx/plots/trms-mcs2} \\
+		\includegraphics[height=0.52\textheight]{../../gfx/plots/trms-mcs4} &
+		\includegraphics[height=0.52\textheight]{../../gfx/plots/trms-mcs6} \\
+	\end{tabular}
+\end{figure}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Results: TGn Channel}
+\begin{figure}[H]
+	\centering
+	\vspace{-0.5cm}
+	\begin{tabular}{cc}
+		\includegraphics[height=0.52\textheight]{../../gfx/plots/tgn-mcs0} &
+		\includegraphics[height=0.52\textheight]{../../gfx/plots/tgn-mcs2} \\
+		\includegraphics[height=0.52\textheight]{../../gfx/plots/tgn-mcs4} &
+		\includegraphics[height=0.52\textheight]{../../gfx/plots/tgn-mcs6} \\
+	\end{tabular}
+\end{figure}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Results: Different MCSs on WARP Boards}
+\begin{centering}
+	\includegraphics[width=11cm]{../../gfx/plots/warp-mcs}\\
+\end{centering}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Live Demo}
+\begin{center}
+	\vspace{1.45cm}
+	\Huge U siriouz m8? Live demo no work!
+\end{center}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Discussion \& Conclusion}
+\begin{itemize}
+	\setlength\itemsep{1em}
+	\item Important Factors: MCS and Scrambler Initialization
+	\item Complexity: $ O(1016n) = O(n) $
+	\item Real-Time Applications Possible
+	\item Detection Quality
+	\begin{itemize}
+		\setlength\itemsep{1em}
+		\vspace{1em}
+		\item Simulations: Very Good
+		\item Hardware: Only for MCSs 0 \& 1
+	\end{itemize}
+\end{itemize}
+\end{frame}
+
+	
+\begin{frame}
+\frametitle{Future Work}
+\begin{itemize}
+	\setlength\itemsep{1em}
+	\item Quantitative Noise Evaluation with SDRs
+	\item IEEE 802.11 n/ac/ax
+	\item Implementation on Mobile Operating Systems
+	\item Generalization to More Senders
 \end{itemize}
 \end{frame}
 

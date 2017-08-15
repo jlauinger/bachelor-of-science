@@ -43,7 +43,7 @@
 	\item Collisions exist in IEEE 802.11 networks despite counter-measures
 	\item Easy to spot a collision
 	\item Hard to detect \textbf{which senders} collided \cite{choi2013, keene2010}
-	\item Useful for new coordination functions
+	\item Useful for improvements to the coordination function
 	\item Example: A and B collide $\rightarrow$ C is next up for sending
 	\item Also: statistics, network monitoring
 \end{itemize}
@@ -65,11 +65,11 @@
 \frametitle{Related Work}
 \begin{itemize}
 	\setlength\itemsep{1em}
-	\item ZigZag \cite{gollakota2008} Collision Decoding
-	\item Onion Decoding \cite{wang2010} for Broadcast Frames
-	\item ReCoder \cite{meng2015} Cross-Correlation Neighbor Discovery
+	\item ZigZag \cite{gollakota2008} collision decoding
+	\item Onion Decoding \cite{wang2010} for broadcast frames
+	\item ReCoder \cite{meng2015} cross-correlation neighbor discovery
 	\vspace{0.2cm}
-	\item Problem: MAC Layer Implementation Change
+	\item Problem: MAC Layer implementation change
 \end{itemize}
 \end{frame}
 
@@ -95,19 +95,19 @@
 \frametitle{Evaluation}
 \begin{itemize}
 	\setlength\itemsep{1em}
-	\item Simulation and WARP SDR Experiments
-	\item Implementation Optimizations:
+	\item Simulation and WARP SDR experiments
+	\item Implementation optimizations:
 	\begin{itemize}
 		\item Placeholder Frame Check Sequence (FCS) 0x42424242
-		\item No Preamble Modulation
-		\item Reference Signal Cache
+		\item No preamble modulation
+		\item Reference signal cache
 	\end{itemize}
 	\item Evaluation:
 	\begin{itemize}
-		\item Multiple Experiment Runs
-		\item Different Sender MAC Addresses
-		\item Count Runs with \{0,1,2\} Correct Guesses
-		\item Plot Stacked Sums
+		\item Multiple experiment runs
+		\item Different sender MAC addresses
+		\item Count runs with \{0,1,2\} correct guesses
+		\item Plot stacked sums
 	\end{itemize}
 \end{itemize}
 \end{frame}
@@ -201,15 +201,15 @@
 \frametitle{Discussion \& Conclusion}
 \begin{itemize}
 	\setlength\itemsep{1em}
-	\item Important Factors: MCS and Scrambler Initialization
+	\item Important factors: MCS and Scrambler initialization
 	\item Complexity: $ O(1016n) = O(n) $
-	\item Real-Time Applications Possible
-	\item Detection Quality
+	\item Real-time application possible
+	\item Detection quality
 	\begin{itemize}
 		\setlength\itemsep{1em}
 		\vspace{1em}
-		\item Simulations: Very Good
-		\item Hardware: Only for MCSs 0 \& 1
+		\item Simulations: very good
+		\item Hardware: only for MCSs 0 \& 1
 	\end{itemize}
 \end{itemize}
 \end{frame}
@@ -219,10 +219,10 @@
 \frametitle{Future Work}
 \begin{itemize}
 	\setlength\itemsep{1em}
-	\item Quantitative Noise Evaluation with SDRs
+	\item Quantitative noise evaluation with SDRs
 	\item IEEE 802.11 n/ac/ax
-	\item Implementation on Mobile Operating Systems
-	\item Generalization to More Senders
+	\item Implementation on mobile operating systems
+	\item Generalization to more senders
 \end{itemize}
 \end{frame}
 

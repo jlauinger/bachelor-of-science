@@ -25,15 +25,15 @@ function SIGNAL = generate_signal(SIGNAL, addr1, addr2, addr3, duration, scrambl
 
     % get sampling rate
     SIGNAL.fs = helperSampleRate(cfg);
-    
+
     % modulate packet
     if (whole_packet)
         SIGNAL.samples = wlanWaveformGenerator(tx_psdu, cfg, 'ScramblerInitialization', scrambler);
     else
         SIGNAL.samples = wlanNonHTData(tx_psdu, cfg, scrambler);
     end
-    
+
     % calculate field indices (in samples)
     SIGNAL.ind = wlanFieldIndices(cfg);
-    
+
 end

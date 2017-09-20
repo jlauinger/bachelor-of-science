@@ -15,9 +15,9 @@ function indices = helper_mac_sample_indices(rate, fs)
     if (nargin < 2)
         fs = 20e6;
     end
-       
+
     factor = fs/20e6;
-        
+
     if (factor == 1)
         switch rate
             case 0

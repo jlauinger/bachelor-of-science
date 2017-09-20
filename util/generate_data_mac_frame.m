@@ -7,6 +7,7 @@
 %  - Communications System Toolbox
 %
 % Author: Johannes Lauinger <jlauinger@seemoo.de>
+%         Robin Klose <rklose@seemoo.de>
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 function [psdu, mac_frame] = generate_data_mac_frame(duration, addr1, addr2, addr3, payload)

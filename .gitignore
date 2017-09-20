@@ -3,6 +3,8 @@
 
 ## All PDF files in top directory:
 /*.pdf
+# except final thesis
+!lauinger2017-sender-recognition.pdf
 
 ## Core latex/pdflatex auxiliary files:
 *.aux

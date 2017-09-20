@@ -17,6 +17,22 @@ Technische Universität Darmstadt
 
 ## Repository Structure
 
+The `implementation` directory contains the Matlab code that I wrote to conduct experiments
+for this thesis. Some files, starting with seemoo\_, can however not be used directly. This
+is due to a dependency to an internal library from the SEEMOO Lab at TU Darmstadt that I
+couldn't include in this repository.
+
+The LaTeX files and assets for the thesis document, as well as my presentations, are located
+in the `thesis` directory. The final thesis document is included in PDF format in the top-level
+directory.
+
+Note: During the work on this thesis, there were two different repositories for implementation
+and thesis. I attempted to merge those, so there may be some strange things and/or consistency
+errors in the Git history.
+
+Some data has been redacted, for example the MAC addresses that I captured with `airodump-ng`
+in `data/`. This is due to obvious privacy concerns.
+
 
 ## Abstract
 
@@ -55,4 +71,12 @@ on oder als Feature für lernbasierte Verfahren verwendet werden.
 
 ## License
 
-Copyright (c) 2017 Johannes Lauinger
+Copyright (c) 2017 Johannes Lauinger  
+
+### Thesis Document and Source Code
+
+<a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img alt="Creative Commons Lizenzvertrag" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-sa/4.0/88x31.png" /></a><br />Dieses Werk ist lizenziert unter einer <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">Creative Commons Namensnennung - Nicht-kommerziell - Weitergabe unter gleichen Bedingungen 4.0 International Lizenz</a>.
+
+### Matlab Implementation
+
+Licensed under the terms of the GNU GENERAL PUBLIC LICENSE, Version 3.

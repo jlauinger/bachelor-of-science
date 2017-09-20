@@ -2,9 +2,6 @@
 
 Bachelor Thesis by Johannes Lauinger
 
-
-## Metadata
-
 Submitted: August 10th, 2017
 
 Advisor: Prof. Dr.-Ing. Matthias Hollick  
@@ -13,6 +10,28 @@ Supervisor: Robin Klose, M.Sc.
 Secure Mobile Networking Lab  
 Department of Computer Science  
 Technische Universität Darmstadt
+
+
+## Citation
+
+Cite this work as follows:
+
+ - Lauinger, Johannes Tobias. "Collide, Collate, Collect: Recognizing Senders in Wireless Collisions." B.Sc. Thesis. Technische Universität Darmstadt, 2017.
+
+BibTex:
+
+```latex
+@mastersthesis{lauinger2017,
+    type    = {B.Sc. Thesis},
+    author  = {Lauinger, Johannes Tobias},
+    title   = {Collide, Collate, Collect: Recognizing Senders in Wireless Collisions},
+    school  = {Technische Universität Darmstadt},
+    year    = {2017},
+    pdf     = {https://tubama.ulb.tu-darmstadt.de/253/1/lauinger2017-sender-recognition.pdf}
+}
+```
+
+Note: the full-text PDF version is only accessible from within the TU Darmstadt network.
 
 
 ## Repository Structure
@@ -79,4 +98,4 @@ Copyright (c) 2017 Johannes Lauinger
 
 ### Matlab Implementation
 
-Licensed under the terms of the GNU GENERAL PUBLIC LICENSE, Version 3.
+Licensed under the terms of the <a rel="license" href="https://www.gnu.org/licenses/gpl-3.0.en.html">GNU GENERAL PUBLIC LICENSE, Version 3</a>.

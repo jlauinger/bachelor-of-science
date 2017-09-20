@@ -25,8 +25,3 @@ When starting up MatLab:
 ```
 addpath seemoo simulation util lib scratch warp statistics
 ```
-
-
-## License
-
-Copyright (c) 2017 Johannes lauinger

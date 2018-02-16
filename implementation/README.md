@@ -23,5 +23,5 @@ This is the repository containing the MatLab implementation for thesis Collide, 
 When starting up MatLab:
 
 ```
-addpath seemoo simulation util lib scratch warp statistics
+addpath simulation util scratch warp statistics
 ```

@@ -37,7 +37,7 @@ Note: the full-text PDF version is only accessible from within the TU Darmstadt 
 ## Repository Structure
 
 The `implementation` directory contains the Matlab code that I wrote to conduct experiments
-for this thesis. Some files, starting with seemoo\_, can however not be used directly. This
+for this thesis. **Some files, starting with seemoo\_, can however not be used directly**. This
 is due to a dependency to an internal library from the SEEMOO Lab at TU Darmstadt that I
 couldn't include in this repository.
 

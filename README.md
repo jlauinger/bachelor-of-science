@@ -39,7 +39,8 @@ Note: the full-text PDF version is only accessible from within the TU Darmstadt 
 The `implementation` directory contains the Matlab code that I wrote to conduct experiments
 for this thesis. **Some files, starting with seemoo\_, can however not be used directly**. This
 is due to a dependency to an internal library from the SEEMOO Lab at TU Darmstadt that I
-couldn't include in this repository.
+couldn't include in this repository. Furthermore, there is a couple of calls to functions
+starting with ieee\_80211\_. The implementation of those functions is missing.
 
 The LaTeX files and assets for the thesis document, as well as my presentations, are located
 in the `thesis` directory. The final thesis document is included in PDF format in the top-level
